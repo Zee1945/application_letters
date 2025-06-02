@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('application_reports', function (Blueprint $table) {
+            $table->id();
             $table->text('introduction')->nullable(); // Kata pengantar
             $table->text('budget_realization')->nullable(); // Realisasi anggaran (input bukti bayar/SPJ)
             $table->text('activity_description')->nullable(); // Uraian pelaksanaan kegiatan

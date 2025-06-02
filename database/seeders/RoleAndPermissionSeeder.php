@@ -73,7 +73,7 @@ class RoleAndPermissionSeeder extends Seeder
 
         }
         // Menetapkan role ke pengguna
-        $user = User::find(2); // Menemukan user pertama
-        $user->assignRole('super_admin'); // Memberikan role admin ke user pertama
+        // $user = User::where('email','admin@gmail.com'); // Menemukan user pertama
+        // $user->assignRole('super_admin'); // Memberikan role admin ke user pertama
     }
 }

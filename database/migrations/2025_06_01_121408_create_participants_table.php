@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('application_participants', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama peserta
-            $table->string('institution'); // Asal lembaga peserta
+            $table->string('name')->nullable();; // Nama peserta
+            $table->string('institution')->nullable(); // Asal lembaga peserta
+            $table->string('commitee_position')->nullable();; // Asal lembaga peserta
             $table->unsignedBigInteger('participant_type_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)

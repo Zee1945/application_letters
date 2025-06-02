@@ -6,5 +6,43 @@ use Illuminate\Database\Eloquent\Model;
 
 class ApplicationLetterNumber extends Model
 {
-    //
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'application_id',
+        'department_id',
+        'letter_number',
+        'letter_name',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'delete_note',
+    ];
+
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
 }

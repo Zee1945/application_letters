@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Trans\ApplicationController;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
@@ -12,11 +13,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
     ->group(function () {
-        Route::view('dashboard', 'dashboard')// Route ini akan menjadi /admin/dashboard
-        // Route::view('dashboard', 'dashboard')->middleware('role:super_admin') // Route ini akan menjadi /admin/dashboard
-            ->name('dashboard');
+        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::view('dashboard', 'dashboard')->name('dashboard');
 
-        Route::get('logout', function () {
+    // Transaction
+        Route::resource('applications', ApplicationController::class);
+    // Transaction
+
+
+
+
+
+    Route::get('logout', function () {
             return AuthService::logout();
         })->name('logout');
 });

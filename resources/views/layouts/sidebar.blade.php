@@ -18,10 +18,18 @@
         </a>
     </li>
     <li>
+        <a href="{{route('applications.index')}}" >
+            <div class="parent-icon"><i class="bx bx-category"></i>
+            </div>
+            <div class="menu-title">Applications</div>
+        </a>
+
+    </li>
+    <li>
         <a href="javascript:;" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">Application</div>
+            <div class="menu-title">Approval</div>
         </a>
 
     </li>

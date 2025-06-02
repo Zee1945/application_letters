@@ -15,7 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // Nama departemen
             $table->string('code')->nullable(); // Slug untuk URL
+            $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)
+            $table->unsignedBigInteger('created_by')->nullable(); // Dibuat oleh (ID user)
+            $table->unsignedBigInteger('updated_by')->nullable(); // Diubah oleh (ID user)
+            $table->unsignedBigInteger('deleted_by')->nullable(); // Dihapus oleh (ID user)
             $table->timestamps();
+            $table->softDeletes(); // Waktu penghapusan lembut (deleted_at)
+
+
+            $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
+            $table->foreign('deleted_by')->references('id')->on('users')->nullOnDelete();
 
         });
     }
