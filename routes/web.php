@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Trans\ApplicationController;
+use App\Livewire\FormLists\Applications\ApplicationCreate;
+use App\Livewire\FormLists\Applications\ApplicationList;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
@@ -17,14 +19,20 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
         Route::view('dashboard', 'dashboard')->name('dashboard');
 
     // Transaction
-        Route::resource('applications', ApplicationController::class);
-    // Transaction
+        // Route::resource('applications', ApplicationController::class)->except(['index']);
+        // Transaction
+
+        Route::group(['prefix' => 'app'], function () {
+            Route::get('/', ApplicationList::class)
+                ->name('applications.index');
+            Route::get('create', ApplicationCreate::class)
+                ->name('applications.create');
+
+        });
 
 
 
-
-
-    Route::get('logout', function () {
+            Route::get('logout', function () {
             return AuthService::logout();
         })->name('logout');
 });

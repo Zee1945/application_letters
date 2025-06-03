@@ -30,7 +30,7 @@
                                                 <a class="dropdown-item" href="javascript:;">
                                                     <div class="d-flex align-items-center">
                                                         <div class="user-online">
-                                                            <img src="assets/images/avatars/avatar-1.png" class="msg-avatar" alt="user avatar">
+                                                            <img src="{{ asset('assets/images/avatars/avatar-1.png')}}" class="msg-avatar" alt="user avatar">
                                                         </div>
                                                         <div class="flex-grow-1">
                                                             <h6 class="msg-name">Daisy Anderson<span class="msg-time float-end">5 sec
@@ -42,7 +42,7 @@
                                                 <a class="dropdown-item" href="javascript:;">
                                                     <div class="d-flex align-items-center">
                                                         <div class="user-online">
-                                                            <img src="assets/images/avatars/avatar-2.png" class="msg-avatar" alt="user avatar">
+                                                            <img src="{{ asset('assets/images/avatars/avatar-2.png')}}" class="msg-avatar" alt="user avatar">
                                                         </div>
                                                         <div class="flex-grow-1">
                                                             <h6 class="msg-name">Althea Cabardo <span class="msg-time float-end">14
@@ -54,7 +54,7 @@
                                                 <a class="dropdown-item" href="javascript:;">
                                                     <div class="d-flex align-items-center">
                                                         <div class="notify bg-light-success text-success">
-                                                            <img src="assets/images/app/outlook.png" width="25" alt="user avatar">
+                                                            <img src="{{ asset('assets/images/app/outlook.png')}}" width="25" alt="user avatar">
                                                         </div>
                                                         <div class="flex-grow-1">
                                                             <h6 class="msg-name">Account Created<span class="msg-time float-end">28 min
@@ -75,7 +75,7 @@
                             </div>
                             <div class="user-box dropdown px-3">
                                 <a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="assets/images/avatars/avatar-2.png" class="user-img" alt="user avatar">
+                                    <img src="{{ asset('assets/images/avatars/avatar-2.png')}}" class="user-img" alt="user avatar">
                                     <div class="user-info">
                                         <p class="user-name mb-0">{{viewHelper::currentAccess()['name']}}</p>
                                         <p class="designattion mb-0">Web Designer</p>
