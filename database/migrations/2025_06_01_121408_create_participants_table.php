@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();; // Nama peserta
             $table->string('institution')->nullable(); // Asal lembaga peserta
-            $table->string('commitee_position')->nullable();; // Asal lembaga peserta
+            $table->unsignedBigInteger('commitee_position_id')->nullable(); // Asal lembaga peserta
             $table->unsignedBigInteger('participant_type_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('commitee_position_id')->references('id')->on('commitee_positions')->nullOnDelete();
             $table->foreign('participant_type_id')->references('id')->on('participant_types')->nullOnDelete();
             $table->foreign('application_id')->references('id')->on('applications')->nullOnDelete();
             $table->foreign('department_id')->references('id')->on('departments')->nullOnDelete();

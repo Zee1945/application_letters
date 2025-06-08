@@ -15,12 +15,10 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('user_id')->nullable(); // Dibuat oleh (ID user)
-            $table->unsignedBigInteger('user_text')->nullable(); // Dibuat oleh (ID user)
+            $table->text('user_text')->nullable(); // Dibuat oleh (ID user)
             $table->integer('sequence')->nullable();
             $table->integer('status')->default(0); // Status persetujuan (0: pending, 1: approved, 2: process 3: rejected)
             $table->text('note')->nullable(); // Catatan persetujuan (jika ada)
-
-
 
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)

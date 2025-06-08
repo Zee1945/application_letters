@@ -40,7 +40,11 @@
     </footer> --}}
     @include('layouts.footer')
 
+
     @livewireScripts
+    <script src="{{ asset('assets/lib/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+    @stack('scripts')
+
 </body>
 
 </html>

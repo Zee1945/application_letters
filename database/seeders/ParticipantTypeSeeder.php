@@ -18,6 +18,7 @@ class ParticipantTypeSeeder extends Seeder
             'Narasumber',
             'Peserta',
             'Moderator',
+            'Anggota',
         ];
         foreach ($activeParticipantTypes as $type) {
             if (!ParticipantType::where('name', $type)->exists()) {

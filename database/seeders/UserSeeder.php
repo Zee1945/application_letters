@@ -51,6 +51,13 @@ class UserSeeder extends Seeder
                 'department_id' => 2,
                 'role' => 'finance',
             ],
+            [
+                'name' => 'Ketua Pelaksana Saintek',
+                'email' => 'ketupel@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => 2,
+                'role' => 'user',
+            ],
             ];
 
         foreach ($users as $user) {

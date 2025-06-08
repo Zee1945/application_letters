@@ -2,22 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Application extends Model
+class Application extends AbstractModel
 {
+    // use HasFactory;
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'code',
-        'description',
-        'start_date',
-        'end_date',
-        'status',
+        'activity_name',
+        'funding_source',
+        'approval_status',
+        'current_user_approval',
+        'user_approval_ids',
+        'draft_step_saved ',
+        'note',
+        'delete_note',
         'department_id',
         'created_by',
         'updated_by',

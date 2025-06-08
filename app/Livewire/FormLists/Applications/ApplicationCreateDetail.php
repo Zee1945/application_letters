@@ -8,6 +8,6 @@ class ApplicationCreateDetail extends Component
 {
     public function render()
     {
-        return view('livewire.form-list.application.application-create-detail');
+        return view('livewire.form-lists.applications.application-create-detail');
     }
 }

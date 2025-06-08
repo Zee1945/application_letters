@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             UserSeeder::class,
             ParticipantTypeSeeder::class,
+            CommiteePositionSeeder::class,
         ]);
 
         // User::factory()->create([

@@ -1,9 +1,13 @@
+import PerfectScrollbar from 'perfect-scrollbar';
+
+// Inisialisasi pada elemen tertentu
+const ps = PerfectScrollbar('.sidebar-wrapper');
 $(function () {
 	"use strict";
 
-	new PerfectScrollbar(".app-container"),
-		new PerfectScrollbar(".header-message-list"),
-		new PerfectScrollbar(".header-notifications-list"),
+	ps(".app-container"),
+		ps(".header-message-list"),
+		ps(".header-notifications-list"),
 
 
 		$(".mobile-toggle-icon").on("click", function () {
@@ -49,19 +53,19 @@ $(function () {
 		}),
 
 
-		// menu 
+		// menu
 		$(function () {
 			$("#menu").metisMenu()
 		}),
 
-		// active 
+		// active
 		$(function () {
 			for (var e = window.location, o = $(".metismenu li a").filter(function () {
 				return this.href == e
 			}).addClass("").parent().addClass("mm-active"); o.is("li");) o = o.parent("").addClass("mm-show").parent("").addClass("mm-active")
 		}),
 
-		// chat process 
+		// chat process
 		$(".chat-toggle-btn").on("click", function () {
 			$(".chat-wrapper").toggleClass("chat-toggled")
 		}), $(".chat-toggle-btn-mobile").on("click", function () {

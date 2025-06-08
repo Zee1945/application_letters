@@ -10,7 +10,7 @@ class ApplicationList extends Component
     public function render()
     {
         $applications = Application::all();
-        return view('livewire.form-list.application.application-list',compact('applications'))
+        return view('livewire.form-lists.applications.application-list',compact('applications'))
             ->extends('layouts.main');
     }
 }

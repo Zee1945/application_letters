@@ -1,7 +1,6 @@
 /* @tailwind base;
 @tailwind components;
 @tailwind utilities; */
-@import 'pace.min.css';
-@import 'core.css';
-@import 'lib.css';
-@import 'icons.css';
+@import './pace.min.css';
+@import './core.css';
+@import './lib.css';
