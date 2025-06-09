@@ -78,7 +78,7 @@
                                     <img src="{{ asset('assets/images/avatars/avatar-2.png')}}" class="user-img" alt="user avatar">
                                     <div class="user-info">
                                         <p class="user-name mb-0">{{viewHelper::currentAccess()['name']}}</p>
-                                        <p class="designattion mb-0">Web Designer</p>
+                                        <p class="designattion mb-0">{{viewHelper::currentAccess()['department']}}</p>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">

@@ -24,6 +24,7 @@
                 <a href="/" wire:navigate class="d-flex justify-content-center align-items-center">
                     <x-application-logo class="w-25 h-25" />
                 </a>
+                <h2 class="logo-text">SIRAPEL</h2>
             </div>
 
             <div class="w-100" style="max-width: 400px;">

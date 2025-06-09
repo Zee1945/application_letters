@@ -3,7 +3,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--favicon-->
-	<link rel="icon" href="assets/images/favicon-32x32.png" type="image/png">
+	<link rel="icon" href="{{ asset('assets/images/favicon-32x32.ico')}}" type="image/png">
 	<!--plugins-->
 	{{-- <link href="assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet">
 	<link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet">
@@ -22,5 +22,5 @@
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 	@vite(['resources/js/app.js','resources/css/app.css', 'resources/sass/app.css']) <!-- Menambahkan JS dan CSS -->
     @livewireStyles
-	<title>Syndron - Bootstrap 5 Admin Dashboard Template</title>
+	<title>SIRAPEL</title>
 </head>

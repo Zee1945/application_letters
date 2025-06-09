@@ -67,4 +67,9 @@ class User extends Authenticatable
         }
         return $query;
     }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }
