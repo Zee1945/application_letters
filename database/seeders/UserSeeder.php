@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Position;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,29 +21,41 @@ class UserSeeder extends Seeder
                 'name' => 'Super Admin',
                 'email' => 'admin@gmail.com',
                 'password' => Hash::make('admin123'),
+                'position' => 'Super Admin',
                 'role' => 'super_admin',
                 'department_id' => null,
             ],
             [
-                'name' => 'Admin Saintek',
+                'name' => 'Bapak Admin Saintek',
                 'email' => 'adminsaintek@gmail.com',
                 'password' => Hash::make('admin123'),
-                'department_id' => 2,
+                'position' => 'Staff Admin Aplikasi',
                 'role' => 'admin',
+                'department_id' => 2,
             ],
             [
-                'name' => 'Ibu Lp2m Rektorat',
+                'name' => 'Ibu Anggota Lp2m Rektorat',
                 'email' => 'lp2m@gmail.com',
                 'password' => Hash::make('admin123'),
+                'position' => 'Staff umum',
+                'role' => 'user',
                 'department_id' => 1,
-                'role' => 'management',
             ],
             [
                 'name' => 'Bapak Kabag Saintek',
                 'email' => 'kabagsaintek@gmail.com',
                 'password' => Hash::make('admin123'),
+                'position' => 'Kabag Umum',
+                'role' => 'kabag',
                 'department_id' => 2,
-                'role' => 'management',
+            ],
+            [
+                'name' => 'Bapak Dekan Saintek',
+                'email' => 'dekansaintek@gmail.com',
+                'password' => Hash::make('admin123'),
+                'position' => 'Dekan',
+                'role' => 'dekan',
+                'department_id' => 2,
             ],
             [
                 'name' => 'Ibu Finance Saintek',
@@ -50,6 +63,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
                 'role' => 'finance',
+                'position' => 'Kabag Keuangan',
+
             ],
             [
                 'name' => 'Ketua Pelaksana Saintek',
@@ -57,13 +72,25 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
                 'role' => 'user',
+                'position' => 'Dosen'
+            ],
+            [
+                'name' => 'Mahasiswa Saintek',
+                'email' => 'ketupel@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => 2,
+                'role' => 'user',
+                'position' => 'Mahasiswa'
             ],
             ];
 
         foreach ($users as $user) {
             if (!User::where('email', $user['email'])->exists()) {
+                $pos = Position::where('name',$user['position'])->first();
                 $role = $user['role'];
+                unset($user['position']);
                 unset($user['role']);
+                $user['position_id'] = $pos->id;
                 $loaded_user = User::create($user);
                 $loaded_user->assignRole($role);
             }

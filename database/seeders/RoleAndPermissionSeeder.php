@@ -29,8 +29,9 @@ class RoleAndPermissionSeeder extends Seeder
      public $roles = [
         'super_admin',
         'admin',
-        'management',
+        'kabag',
         'finance',
+        'dekan',
         'user',
      ];
     public function run(): void
@@ -57,7 +58,10 @@ class RoleAndPermissionSeeder extends Seeder
                     case 'admin':
                         $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
                         break;
-                    case 'management':
+                    case 'dekan':
+                        $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
+                        break;
+                    case 'kabag':
                         $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
                         break;
                     case 'finance':

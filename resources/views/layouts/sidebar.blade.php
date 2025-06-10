@@ -33,9 +33,9 @@
         </a>
 
     </li>
-    <li>
+    {{-- <li>
         <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class='bx bx-lock-keyhole'></i>
+            <div class="parent-icon"><i class='bx bx-lock'></i>
             </div>
             <div class="menu-title">Admin Akses</div>
         </a>
@@ -67,6 +67,6 @@
             </li>
 
         </ul>
-    </li>
+    </li> --}}
 </ul>
 <!--end navigation-->
