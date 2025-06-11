@@ -34,6 +34,7 @@ class ApplicationCreate extends Component
         //     'fund_source' => $this->fund_source,
         //     'verifier' => $this->verificator,
         // ]);
+        $this->verificator = User::approvers()->get()->pluck('id');
         $app = [
             'activity_name' => $this->activity_name,
             'funding_source' => $this->fund_source,
