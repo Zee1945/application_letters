@@ -76,23 +76,23 @@
                           <div class="row g-3">
                             <div class="col-12">
                                 <label for="Outcome" class="form-label fw-bold">Hasil (Outcome)</label>
-                                <textarea class="form-control" id="Outcome" placeholder="Hasil (Outcome)"></textarea>
+                                <textarea class="form-control" id="Outcome" wire:model="activity_output"  placeholder="Hasil (Outcome)" wire:model="activity_outcome"></textarea>
                             </div>
                             <div class="col-12">
                                 <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan Ukur</label>
-                                <textarea class="form-control" id="UnitOfMeasurement" placeholder="Satuan Ukur"></textarea>
+                                <textarea class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"  placeholder="Satuan Ukur"></textarea>
                             </div>
                             <div class="col-12">
                                 <label for="GeneralDescription" class="form-label fw-bold">Gambaran Umum</label>
-                                <textarea class="form-control" id="GeneralDescription" placeholder="Gambaran Umum"></textarea>
+                                <textarea class="form-control" id="GeneralDescription" wire:model="general_description"  placeholder="Gambaran Umum"></textarea>
                             </div>
                             <div class="col-12">
                                 <label for="PurposeAndObjectives" class="form-label fw-bold">Maksud dan Tujuan</label>
-                                <textarea class="form-control" id="PurposeAndObjectives" placeholder="Maksud dan Tujuan"></textarea>
+                                <textarea class="form-control" id="PurposeAndObjectives" wire:model="objectives"  placeholder="Maksud dan Tujuan"></textarea>
                             </div>
                             <div class="col-12">
                                 <label for="Beneficiary" class="form-label fw-bold">Penerima Manfaat</label>
-                                <textarea class="form-control" id="Beneficiary" placeholder="Penerima Manfaat"></textarea>
+                                <textarea class="form-control" id="Beneficiary" wire:model="beneficiaries"  placeholder="Penerima Manfaat"></textarea>
                             </div>
                             <div class="col-12">
                                 <label for="InputDate" class="form-label fw-bold">Tanggal Pelaksanaan</label>
@@ -118,7 +118,10 @@
                             </div>
 
                             <div class="col-12 d-flex justify-content-end">
-                                <button class="btn btn-primary px-4" onclick="window.stepper1.next()">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
+                                <div class="d-flex">
+                                    <button class="btn btn-primary px-4 border-none bg-warning me-2"><i class='bx bx-bookmark'></i>Save Draft</button>
+                                    <button class="btn btn-primary px-4" wire:click="nextStep">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
+                                </div>
                             </div>
                         </div><!---end row-->
 
@@ -148,10 +151,10 @@
                               </div>
                               <div class="col-12">
                                   <div class="d-flex justify-content-between align-items-center gap-3 ">
-                                      <button class="btn btn-outline-secondary px-4" onclick="window.stepper1.previous()"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                                      <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                                       <div class="d-flex">
                                           <button class="btn btn-primary px-4 border-none bg-warning me-2"><i class='bx bx-bookmark'></i>Save Draft</button>
-                                          <button class="btn btn-primary px-4" onclick="window.stepper1.next()">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
+                                          <button class="btn btn-primary px-4" wire:click="nextStep">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
                                       </div>
                                   </div>
                               </div>
@@ -166,15 +169,15 @@
                           <div class="row g-3">
                               <div class="col-12 col-lg-6">
                                   <label for="SchoolName" class="form-label">School Name</label>
-                                  <input type="text" class="form-control" id="SchoolName" placeholder="School Name">
+                                  <input type="text" class="form-control" id="SchoolName" wire:model="kosong"  placeholder="School Name">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="BoardName" class="form-label">Board Name</label>
-                                  <input type="text" class="form-control" id="BoardName" placeholder="Board Name">
+                                  <input type="text" class="form-control" id="BoardName" wire:model="kosong"  placeholder="Board Name">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="UniversityName" class="form-label">University Name</label>
-                                  <input type="text" class="form-control" id="UniversityName" placeholder="University Name">
+                                  <input type="text" class="form-control" id="UniversityName" wire:model="kosong"  placeholder="University Name">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="InputCountry" class="form-label">Course Name</label>
@@ -187,8 +190,8 @@
                               </div>
                               <div class="col-12">
                                   <div class="d-flex justify-content-between align-items-center gap-3 ">
-                                      <button class="btn btn-outline-secondary px-4" onclick="window.stepper1.previous()"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                                      <button class="btn btn-primary px-4" onclick="window.stepper1.next()">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
+                                      <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                                      <button class="btn btn-primary px-4" wire:click="nextStep">Next<i class='bx bx-right-arrow-alt ms-2'></i></button>
                                   </div>
                               </div>
                           </div><!---end row-->
@@ -202,32 +205,32 @@
                           <div class="row g-3">
                               <div class="col-12 col-lg-6">
                                   <label for="Experience1" class="form-label">Experience 1</label>
-                                  <input type="text" class="form-control" id="Experience1" placeholder="Experience 1">
+                                  <input type="text" class="form-control" id="Experience1" wire:model="kosong"  placeholder="Experience 1">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="Position1" class="form-label">Position</label>
-                                  <input type="text" class="form-control" id="Position1" placeholder="Position">
+                                  <input type="text" class="form-control" id="Position1" wire:model="kosong"  placeholder="Position">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="Experience2" class="form-label">Experience 2</label>
-                                  <input type="text" class="form-control" id="Experience2" placeholder="Experience 2">
+                                  <input type="text" class="form-control" id="Experience2" wire:model="kosong"  placeholder="Experience 2">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="PhoneNumber" class="form-label">Position</label>
-                                  <input type="text" class="form-control" id="PhoneNumber" placeholder="Position">
+                                  <input type="text" class="form-control" id="PhoneNumber" wire:model="kosong"  placeholder="Position">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="Experience3" class="form-label">Experience 3</label>
-                                  <input type="text" class="form-control" id="Experience3" placeholder="Experience 3">
+                                  <input type="text" class="form-control" id="Experience3" wire:model="kosong"  placeholder="Experience 3">
                               </div>
                               <div class="col-12 col-lg-6">
                                   <label for="PhoneNumber" class="form-label">Position</label>
-                                  <input type="text" class="form-control" id="PhoneNumber" placeholder="Position">
+                                  <input type="text" class="form-control" id="PhoneNumber" wire:model="kosong"  placeholder="Position">
                               </div>
                               <div class="col-12">
                                   <div class="d-flex justify-content-between align-items-center gap-3 ">
-                                      <button class="btn btn-primary px-4" onclick="window.stepper1.previous()"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                                      <button class="btn btn-success px-4" onclick="window.stepper1.next()">Submit</button>
+                                      <button class="btn btn-primary px-4" wire:click="prevStep"><i class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                                      <button class="btn btn-success px-4" wire:click="nextStep">Submit</button>
                                   </div>
                               </div>
                           </div><!---end row-->
@@ -247,15 +250,10 @@
 
 @push('scripts')
 <script type="module">
-//     document.addEventListener('DOMContentLoaded', function () {
-// window.stepper1 = new Stepper(document.querySelector('#stepper1'),{
-//     animation: true
-// });
 
 
 $(document).ready(function() {
     console.log('ada isinya lek');
-
         // Memeriksa status checkbox saat halaman dimuat
         toggleDateFields();
 
@@ -276,8 +274,19 @@ $(document).ready(function() {
                 }
             });
         }
+        // $('#stepper1')[0].addEventListener('show.bs-stepper', function (event) {
+        //         console.log('Step akan berubah ke:', event.detail.indexStep);
+        //         $wire.dispatch('update-step', { step: event.detail.indexStep });
+        // });
+
     });
 
+    // window.nextButton = ()=>{
+    //     window.stepper1.next()
+    // }
+    // window.prevButton = ()=>{
+    //     window.stepper1.previous()
+    // }
 
 
 // console.log(window.stepper1);

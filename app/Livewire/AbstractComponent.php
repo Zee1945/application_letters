@@ -10,13 +10,10 @@ abstract class AbstractComponent extends Component
 {
     use WithPagination;
 
-    #[Url(except: '1')]
-    public $step = '';
+    #[Url(except: '')]
+    public $last_saved = 1;
 
     public $application = null;
-
-
-
     public function permissionApplication($application_id)
     {
         $application = \App\Models\Application::find($application_id);

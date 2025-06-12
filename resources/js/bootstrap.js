@@ -12,26 +12,42 @@ window.bootstrap = bootstrap;
 
 import Stepper from './bs-stepper/js/index'
 
-$(document).ready(function () {
-    window.stepper1 = new Stepper(document.querySelector('#stepper1'), {
-        animation: true
-    });
+// $(document).ready(function () {
+//     window.stepper1 = new Stepper(document.querySelector('#stepper1'), {
+//         animation: true
+//     });
+//     // window.stepper1.to(@this.step);
+// });
 
-    // Ambil step dari query string (?step=2)
+
+window.initStepperFromQuery = () => {
+    const el = document.querySelector('#stepper1');
+    if (!el) return; // Jangan lanjut jika elemen tidak ada
+
+    window.stepper1 = new Stepper(el, { animation: true });
+
     const params = new URLSearchParams(window.location.search);
     const stepParam = params.get('step');
-    console.log('isi stepParam',stepParam);
-
     if (stepParam && !isNaN(stepParam)) {
-        // bs-stepper pakai index mulai dari 0
         window.stepper1.to(parseInt(stepParam));
     }
+}
 
-    $('#stepper1')[0].addEventListener('show.bs-stepper', function (event) {
-        console.log('Step akan berubah ke:', event.detail.indexStep);
-    });
-});
+// Untuk Livewire v3:
+document.addEventListener('livewire:navigated', initStepperFromQuery);
+// Untuk Livewire v2 (jika perlu):
+// document.addEventListener('livewire:update', initStepperFromQuery);
+// Untuk pertama kali load:
+// document.addEventListener('DOMContentLoaded', initStepperFromQuery);
 
+//     $(document).ready(function () {
+//     window.stepper1 = new Stepper(document.querySelector('#stepper1'), {
+//         animation: true
+//     });
+//     window.stepper1.to(query params step);
+// });
+
+// Ambil nilai step dari query string (?step=2)
 import 'simplebar';
 import 'metismenu';
 import 'apexcharts';

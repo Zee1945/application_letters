@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Nama departemen
+            $table->unsignedBigInteger('limit_submission')->nullable(); // Slug untuk URL
+            $table->unsignedBigInteger('current_limit_submission')->nullable(); // Slug untuk URL
             $table->string('code')->nullable(); // Slug untuk URL
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)
             $table->unsignedBigInteger('created_by')->nullable(); // Dibuat oleh (ID user)
