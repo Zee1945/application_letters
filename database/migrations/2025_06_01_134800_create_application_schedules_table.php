@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('application_schedules', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama jadwal aplikasi
-            $table->dateTime('start_date'); // Tanggal mulai jadwal
-            $table->dateTime('end_date'); // Tanggal mulai jadwal
-            $table->string('moderator_ids'); // Nama jadwal aplikasi
-            $table->string('speaker_ids'); // Nama jadwal aplikasi
+            $table->string('name')->nullable(); // Nama jadwal aplikasi
+            $table->date('date')->nullable();
+            $table->dateTime('start_date')->nullable(); // Tanggal mulai jadwal
+            $table->dateTime('end_date')->nullable(); // Tanggal mulai jadwal
+            $table->string('moderator_text')->nullable(); // Nama jadwal aplikasi
+            $table->string('speaker_text')->nullable(); // Nama jadwal aplikasi
 
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta

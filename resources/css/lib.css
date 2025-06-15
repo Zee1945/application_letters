@@ -4,3 +4,6 @@
 @import "/node_modules/bs-stepper/dist/css/bs-stepper.min.css";
 @import "./bs-stepper/css/bs-stepper.css";
 
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+

@@ -1,0 +1,88 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import "/node_modules/select2/dist/css/select2.min.css";
+@import "/node_modules/boxicons/css/boxicons.min.css";
+@import "/node_modules/bs-stepper/dist/css/bs-stepper.min.css";
+@import "./bs-stepper/css/bs-stepper.css";
+
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+
+
+
+
+.bg-pastel-primary {
+    background-color: #b8d4f1;
+    color: #1d3557; /* biru gelap */
+  }
+
+  .bg-pastel-secondary {
+    background-color: #d6d8db;
+    color: #212529; /* abu gelap */
+  }
+
+  .bg-pastel-success {
+    background-color: #c3e6cb;
+    color: #155724; /* hijau gelap */
+  }
+
+  .bg-pastel-danger {
+    background-color: #f5c6cb;
+    color: #721c24; /* merah gelap */
+  }
+
+  .bg-pastel-warning {
+    background-color: #ffeeba;
+    color: #856404; /* coklat kekuningan */
+  }
+  .bg-pastel-orange {
+    background-color: #ffe8cc; /* pastel orange */
+    color: #a35b00; /* orange kecoklatan */
+  }
+
+  .bg-pastel-info {
+    background-color: #bee5eb;
+    color: #0c5460; /* biru toska gelap */
+  }
+
+  .bg-pastel-light {
+    background-color: #fefefe;
+    color: #212529; /* abu gelap */
+  }
+
+  .bg-pastel-dark {
+    background-color: #d6d8d9;
+    color: #000; /* hitam */
+  }
+
+  .bg-pastel-orange {
+    background-color: #ffd8b0;
+    color: #7a3e00; /* coklat oranye */
+  }
+
+
+
+  .btn-hover{
+        text-align: center; /* Penempatan teks di tengah */
+        text-decoration: none; /* Menghapus underline */
+        border-radius: 8px; /* Membuat sudut tombol menjadi melengkung */
+        transition: all 0.3s ease; /* Transisi untuk efek hover */
+        border: none; /* Menghapus border tombol */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Bayangan di bawah tombol */
+
+  }
+
+  .btn-hover:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Bayangan di bawah tombol */
+    transform: translateY(-4px); /* Menarik tombol ke atas seakan timbul */
+    cursor: pointer; /* Mengubah kursor menjadi pointer */
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem; /* Lebih kecil dari btn-sm */
+    font-size: 0.75rem; /* Ukuran font lebih kecil */
+    line-height: 1.25; /* Menyesuaikan tinggi baris */
+    border-radius: 0.2rem; /* Menyesuaikan radius tombol */
+}
+
+
+

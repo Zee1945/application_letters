@@ -7,17 +7,13 @@ use App\Livewire\FormLists\Applications\ApplicationList;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
-// Route::view('/', 'layouts.main');
-
-// Route::view('dashboard', 'layouts.main')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
+Route::view('/','dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
     ->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        // Route::view('dashboard', 'dashboard')->name('dashboard');
+        // Route::view('dashboard', 'dashboard')->name('dashboard');
 
     // Transaction
         // Route::resource('applications', ApplicationController::class)->except(['index']);

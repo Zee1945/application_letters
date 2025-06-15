@@ -10,13 +10,14 @@ class TableParticipants extends Component
 {
     public $participantType = '';
     public $commiteePositions = [];
-    public $rows = [];
-    public $defaultRows = ['name' => '', 'institution' => '', 'participant_type_id' => '', 'commitee_position_id' => null];
+    public $raw_participant = [];
+    public $filteredParticipants=[];
 
-    public function mount($participantType)
+    public function mount($participants,$participantType)
     {
+        $this->raw_participant = $participants;
         $this->participantType = $participantType;
-        $this->rows = array_fill(0, 4, $this->defaultRows);
+        $this->filteredParticipants = $this->filterParticipantByType();
         $this->commiteePositions = $this->getCommiteePositions();
     }
 
@@ -40,9 +41,49 @@ class TableParticipants extends Component
         }
     }
 
+    public function filterParticipantByType(){
+        $participant_type= new ParticipantType();
+        $ids = [];
+        switch ($this->participantType) {
+            case 'speaker':
+                $ids = $participant_type::whereIn('name',['narasumber','moderator'])->get()->pluck('id')->toArray();
+                break;
+            case 'participant':
+                $ids = $participant_type::whereIn('name',['peserta'])->get()->pluck('id')->toArray();
+                break;
+            case 'commitee':
+                $ids = $participant_type::whereIn('name',['panitia'])->get()->pluck('id')->toArray();
+                break;
+
+            default:
+                # code...
+                break;
+        }
+        return array_filter($this->raw_participant,function ($item) use ($ids){
+            if (in_array($item['participant_type_id'],$ids)) {
+                return $item;
+            }
+        });
+    }
     public function getCommiteePositions()
     {
         return CommiteePosition::all();
+    }
+    public function findName($type,$id)
+    {
+        switch ($type) {
+            case 'commitee':
+                return CommiteePosition::findOrFail($id)->name;
+            case 'participant':
+                return ParticipantType::findOrFail($id)->name;
+            default:
+                dd('none are match');
+                break;
+        }
+    }
+    public function debugger()
+    {
+        dd($this->raw_participant);
     }
 
     public function addRow()

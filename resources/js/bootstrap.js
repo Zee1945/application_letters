@@ -12,29 +12,17 @@ window.bootstrap = bootstrap;
 
 import Stepper from './bs-stepper/js/index'
 
-// $(document).ready(function () {
-//     window.stepper1 = new Stepper(document.querySelector('#stepper1'), {
-//         animation: true
-//     });
-//     // window.stepper1.to(@this.step);
-// });
-
 
 window.initStepperFromQuery = () => {
     const el = document.querySelector('#stepper1');
     if (!el) return; // Jangan lanjut jika elemen tidak ada
 
-    window.stepper1 = new Stepper(el, { animation: true });
+    // window.stepper1 = new Stepper(el, { animation: true });
 
-    const params = new URLSearchParams(window.location.search);
-    const stepParam = params.get('step');
-    if (stepParam && !isNaN(stepParam)) {
-        window.stepper1.to(parseInt(stepParam));
-    }
 }
 
 // Untuk Livewire v3:
-document.addEventListener('livewire:navigated', initStepperFromQuery);
+// document.addEventListener('livewire:navigated', initStepperFromQuery);
 // Untuk Livewire v2 (jika perlu):
 // document.addEventListener('livewire:update', initStepperFromQuery);
 // Untuk pertama kali load:
