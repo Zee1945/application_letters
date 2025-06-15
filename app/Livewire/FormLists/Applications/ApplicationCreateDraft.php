@@ -61,8 +61,13 @@ class ApplicationCreateDraft extends AbstractComponent
             'implementation_stages' => $this->implementation_stages,
             'activity_start_date' => $this->activity_start_date,
             'activity_end_date' => $this->activity_end_date,
-            'activity_location' => $this->activity_location,
+            'activity_location' => $this->activity_location
         ];
+    }
+
+    #[on('update-participant')]
+    public function updateParticipant(){
+
     }
     public function submit(){
 
