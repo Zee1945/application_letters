@@ -31,6 +31,8 @@ class ApplicationCreateDraft extends AbstractComponent
 
     // Step 2
     public $participants= [];
+    public $rundowns= [];
+    public $draft_costs= [];
     public $excel_participant = null;
 
     public function mount($application_id = null)
@@ -104,10 +106,13 @@ class ApplicationCreateDraft extends AbstractComponent
             case 'participant':
                 $importer = new ApplicationsImport($this->application_id);
                 Excel::import($importer, $this->excel_participant,'local', \Maatwebsite\Excel\Excel::XLSX);
-                $rows = $importer->finest_data; // Ambil hasil olahan
-                $this->participants = $rows;
+                $rows = $importer; // Ambil hasil olahan
+                $this->participants = $rows->finest_participant_data;
+                $this->rundowns = $rows->finest_rundown_data;
+                $this->draft_costs = $rows->finest_draft_cost_data;
 
-                $this->dispatch('transfer-participant', [...$this->participants]);
+                $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+                $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
                 break;
             default:
                 # code...

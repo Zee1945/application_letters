@@ -251,36 +251,10 @@
             <p class="mb-4">Can you talk about your past work experience?</p>
 
             <div class="row g-3">
-                <div class="col-12 col-lg-6">
-                    <label for="Experience1" class="form-label">Experience 1</label>
-                    <input type="text" class="form-control" id="Experience1" wire:model="kosong"
-                        placeholder="Experience 1">
+                <div class="col-12">
+                   <livewire:forms.table-draft-cost/>
                 </div>
-                <div class="col-12 col-lg-6">
-                    <label for="Position1" class="form-label">Position</label>
-                    <input type="text" class="form-control" id="Position1" wire:model="kosong"
-                        placeholder="Position">
-                </div>
-                <div class="col-12 col-lg-6">
-                    <label for="Experience2" class="form-label">Experience 2</label>
-                    <input type="text" class="form-control" id="Experience2" wire:model="kosong"
-                        placeholder="Experience 2">
-                </div>
-                <div class="col-12 col-lg-6">
-                    <label for="PhoneNumber" class="form-label">Position</label>
-                    <input type="text" class="form-control" id="PhoneNumber" wire:model="kosong"
-                        placeholder="Position">
-                </div>
-                <div class="col-12 col-lg-6">
-                    <label for="Experience3" class="form-label">Experience 3</label>
-                    <input type="text" class="form-control" id="Experience3" wire:model="kosong"
-                        placeholder="Experience 3">
-                </div>
-                <div class="col-12 col-lg-6">
-                    <label for="PhoneNumber" class="form-label">Position</label>
-                    <input type="text" class="form-control" id="PhoneNumber" wire:model="kosong"
-                        placeholder="Position">
-                </div>
+
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
                         <button class="btn btn-primary px-4" wire:click="prevStep"><i

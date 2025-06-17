@@ -4,6 +4,7 @@
 namespace App\Helpers;
 
 use App\Services\AuthService;
+use Carbon\Carbon;
 
 class ViewHelper
 {
@@ -43,6 +44,21 @@ public static function statusSubmissionHTML($status_number)
     }
 
     return '<div class="badge border border-2 rounded-pill text-'.$color.' bg-light-'.$color.' p-2 text-uppercase px-3"><i class="bx bxs-circle me-1"></i>'.$label.'</div>';
+}
+
+public static function getHourAndMinute($date_time){
+        $parsed_date = Carbon::parse($date_time);
+
+        $formatted_time = $parsed_date->format('H:i');
+
+        return $formatted_time;
+}
+public static function humanReadableDate($date_time){
+
+        $date = Carbon::createFromFormat('d/m/Y', $date_time);
+        $date->locale('id'); // Pastikan Anda sudah mengatur locale ke 'id' (Indonesia)
+        $formattedDate = $date->isoFormat('dddd, D MMMM YYYY');
+        return $formattedDate;
 }
 
 
