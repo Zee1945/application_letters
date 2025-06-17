@@ -18,7 +18,8 @@ class TableRundown extends Component
     public $rundown = [
         [
             'date' => '',
-            'time' => '',
+            'start_time' => '',
+            'end_time' => '',
             'event' => '',
             'speakers' => [],  // Array untuk menyimpan narasumber
             'moderators' => [], // Array untuk menyimpan moderator
@@ -40,7 +41,8 @@ class TableRundown extends Component
     {
         $this->rundown[] = [
             'date' => '',
-            'time' => '',
+            'start_time' => '',
+            'end_time' => '',
             'event' => '',
             'speakers' => [],  // Inisialisasi array kosong untuk narasumber
             'moderators' => [], // Inisialisasi array kosong untuk moderator
