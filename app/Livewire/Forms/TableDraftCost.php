@@ -23,8 +23,8 @@ class TableDraftCost extends Component
     }
 
     public function debugger(){
-        // $data = $this->getDistinctDataByCodeAndItem();
-        // dd($data);
+        $data = $this->getDistinctDataByCodeAndItem( $this->draft_costs);
+        dd($data);
     }
 
     public function mapDataByCodeAndItem($data)
@@ -47,14 +47,21 @@ class TableDraftCost extends Component
             )
         );
 
+        $distinctData = array_map(function($item){
+            return ['key'=>$item,'is_parent'=>true,'children_total'=>0,'children'=>[]];
+        },$uniqueData);
+
+      
+
         // Ambil data yang sesuai dengan kombinasi code dan item yang unik
-        $distinctData = [];
-        foreach ($uniqueData as $uniqueItem) {
-            list($code, $item) = explode('|', $uniqueItem); // Pisahkan code dan item
-            foreach ($data as $dataItem) {
+        $distict_data = array_ma
+        foreach ($distinctData as $ds) {
+
+            list($code, $item) = explode('|', $ds['key']); // Pisahkan code dan item
+            foreach ($data as $key => $dataItem) {
                 if ($dataItem['code'] == $code && $dataItem['item'] == $item) {
-                    $distinctData[] = $dataItem;
-                    break;  // Hentikan setelah menemukan data pertama yang cocok
+                    $distinctData[$key]['children'][]= $dataItem;
+                    $distinctData[$key]['children_total']++;
                 }
             }
         }
