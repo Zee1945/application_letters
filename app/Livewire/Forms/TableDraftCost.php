@@ -64,7 +64,6 @@ class TableDraftCost extends Component
         },$uniqueData);
 
 
-
         // Ambil data yang sesuai dengan kombinasi code dan item yang unik
 
         return $distinctData;

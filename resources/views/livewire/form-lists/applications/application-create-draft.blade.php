@@ -8,6 +8,9 @@
         <div class="col-12 mx-auto">
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
+                <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button>
+                {{-- <img src="{{asset('assets/images/logo-img.png')}}" alt="ga ada gambar"> --}}
+
                 <hr />
             </div>
             <div id="stepper2" class="bs-stepper">
@@ -16,7 +19,7 @@
                         <div class="d-lg-flex flex-lg-row align-items-lg-center justify-content-lg-between"
                             role="tablist">
                             <div class="step d-block" data-target="#test-l-1">
-                                <div class="step-trigger {{$this->step == 1? 'active':''}}" role="tab" id="stepper1trigger1" aria-controls="test-l-1">
+                                <div class="step-trigger {{$this->step == 1? 'active':''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
                                     <div class="bs-stepper-circle">1</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Umum</h5>
@@ -26,7 +29,7 @@
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-2">
-                                <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" id="stepper1trigger2" aria-controls="test-l-2">
+                                <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                     <div class="bs-stepper-circle">2</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Peran</h5>
@@ -36,7 +39,7 @@
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-3">
-                                <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" id="stepper1trigger3" aria-controls="test-l-3">
+                                <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
                                     <div class="bs-stepper-circle">3</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Rundown</h5>
@@ -46,7 +49,7 @@
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 4? 'active':''}}" role="tab" id="stepper1trigger4" aria-controls="test-l-4">
+                                <div class="step-trigger {{$this->step == 4? 'active':''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger4" aria-controls="test-l-4">
                                     <div class="bs-stepper-circle">4</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">RAB</h5>
@@ -56,7 +59,7 @@
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 5? 'active':''}}" role="tab" id="stepper1trigger4" aria-controls="test-l-4">
+                                <div class="step-trigger {{$this->step == 5? 'active':''}}" role="tab" wire:click="directStep('5')" id="stepper1trigger4" aria-controls="test-l-4">
                                     <div class="bs-stepper-circle">5</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Nomor Surat</h5>

@@ -7,6 +7,7 @@ use App\Livewire\AbstractComponent;
 use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
+use App\Services\TemplateProcessorService;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
@@ -78,10 +79,13 @@ class ApplicationCreateDraft extends AbstractComponent
         // }
     }
 
-    #[on('update-participant')]
-    public function updateParticipant(){
 
+
+    public function injectDocument(){
+        return TemplateProcessorService::generateWord();
     }
+
+
     public function submit(){
 
     }
