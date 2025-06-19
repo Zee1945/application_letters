@@ -10,6 +10,7 @@ class TableDraftCost extends Component
 
     public $draft_costs = [];
     public $current_code = '';
+    public $sample =[];
     public function render()
     {
         return view('livewire.forms.table-draft-cost');
@@ -18,12 +19,13 @@ class TableDraftCost extends Component
     #[On('transfer-draft-costs')]
     public function receiveRundowns($draft_costs)
     {
-        $this->draft_costs = $draft_costs;
-        // $this->draft_costs = $this->getDistinctDataByCodeAndItem($draft_costs);
+        $this->sample = $draft_costs;
+        // $this->draft_costs = $draft_costs;
+        $this->draft_costs = $this->getDistinctDataByCodeAndItem($draft_costs);
     }
 
     public function debugger(){
-        $data = $this->getDistinctDataByCodeAndItem( $this->draft_costs);
+        $data = $this->getDistinctDataByCodeAndItem( $this->sample);
         dd($data);
     }
 
@@ -38,6 +40,8 @@ class TableDraftCost extends Component
         //     ['code' => '525112', 'item' => 'Belanja Barang'],
         //     ['code' => '525113', 'item' => 'Belanja Jasa']
         // ];
+
+        $raw_data = $data;
         // Membuat kombinasi unik berdasarkan code dan item
         $uniqueData = array_values(
             array_unique(
@@ -47,24 +51,21 @@ class TableDraftCost extends Component
             )
         );
 
-        $distinctData = array_map(function($item){
-            return ['key'=>$item,'is_parent'=>true,'children_total'=>0,'children'=>[]];
+        $distinctData = array_map(function($code_item) use ($raw_data){
+            list($code, $item) = explode('|', $code_item);
+            $new_item = ['key' => $item,'code'=>$code,'item'=>$item, 'is_parent' => true, 'children_total' => 0, 'children' => []];
+            $new_item['children']= array_filter($raw_data,function($child) use($code,$item,&$new_item){
+                if ($child['code'] == $code && $child['item'] == $item && !empty($child['sub_item'])) {
+                    $new_item['children_total']++;
+                    return $child;
+                }
+            });
+            return $new_item;
         },$uniqueData);
 
-      
+
 
         // Ambil data yang sesuai dengan kombinasi code dan item yang unik
-        $distict_data = array_ma
-        foreach ($distinctData as $ds) {
-
-            list($code, $item) = explode('|', $ds['key']); // Pisahkan code dan item
-            foreach ($data as $key => $dataItem) {
-                if ($dataItem['code'] == $code && $dataItem['item'] == $item) {
-                    $distinctData[$key]['children'][]= $dataItem;
-                    $distinctData[$key]['children_total']++;
-                }
-            }
-        }
 
         return $distinctData;
     }

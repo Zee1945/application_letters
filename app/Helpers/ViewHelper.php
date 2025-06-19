@@ -53,12 +53,22 @@ public static function getHourAndMinute($date_time){
 
         return $formatted_time;
 }
-public static function humanReadableDate($date_time){
 
-        $date = Carbon::createFromFormat('d/m/Y', $date_time);
-        $date->locale('id'); // Pastikan Anda sudah mengatur locale ke 'id' (Indonesia)
-        $formattedDate = $date->isoFormat('dddd, D MMMM YYYY');
-        return $formattedDate;
+
+public static function humanReadableDate($date_time)
+{
+    // Cek jika $date_time null atau kosong
+    if (empty($date_time)) {
+        return '-';
+    }
+
+    try {
+        $date = Carbon::parse($date_time);
+        $date->locale('id');
+        return $date->isoFormat('dddd, D MMMM YYYY');
+    } catch (\Exception $e) {
+        return '-';
+    }
 }
 
 

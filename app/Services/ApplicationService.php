@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Models\Application;
+use App\Models\ApplicationDetail;
+use App\Models\ApplicationDraftCostBudget;
+use App\Models\ApplicationParticipant;
+use App\Models\ApplicationSchedule;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuthService;
@@ -55,6 +59,40 @@ class ApplicationService
 
 
         return $application;
+    }
+
+    public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[])
+    {
+        try {
+            DB::beginTransaction();
+            $app = Application::find($data['application_id']);
+            $app->draft_step_saved = $data['draft_step_saved'];
+            $app->save();
+
+            unset($data['draft_step_saved']);
+            $details = ApplicationDetail::updateOrCreate($data);
+
+                if (!$details) {
+                    return ['status' => false, 'message' => 'data pengajuan Gagal ditambahkan'];
+                }
+                foreach ($participants as $key => $value) {
+                    $participant = ApplicationParticipant::updateOrCreate($value);
+                }
+
+                foreach ($rundowns as $key => $value) {
+                    $rundown = ApplicationSchedule::updateOrCreate($value);
+                }
+                foreach ($draft_costs as $key => $value) {
+                    $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
+                }
+            DB::commit();
+            return['status'=>true,'message'=>'data pengajuan berhasil ditambahkan'];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            dd($th);
+            // throw $th;
+        }
+
     }
 
 

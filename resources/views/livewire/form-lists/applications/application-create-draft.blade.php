@@ -86,6 +86,11 @@
                                             <textarea class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator" placeholder="Satuan Ukur"></textarea>
                                         </div>
                                         <div class="col-12">
+                                            <label for="ActivityVolume" class="form-label fw-bold">Volume Kegiatan
+                                                </label>
+                                            <textarea class="form-control" id="ActivityVolume" wire:model="activity_volume" placeholder="Volume Kegiatan"></textarea>
+                                        </div>
+                                        <div class="col-12">
                                             <label for="GeneralDescription" class="form-label fw-bold">Gambaran
                                                 Umum</label>
                                             <textarea class="form-control" id="GeneralDescription" wire:model="general_description" placeholder="Gambaran Umum"></textarea>
@@ -101,25 +106,43 @@
                                             <textarea class="form-control" id="Beneficiary" wire:model="beneficiaries" placeholder="Penerima Manfaat"></textarea>
                                         </div>
                                         <div class="col-12">
+                                            <label for="activity_scope" class="form-label fw-bold">Lingkup
+                                                Aktifitas</label>
+                                            <textarea class="form-control" id="activity_scope" wire:model="activity_scope" placeholder="Lingkup Aktifitas"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="implementation_method" class="form-label fw-bold"> Metode pelaksanaan</label>
+                                            <textarea class="form-control" id="implementation_method" wire:model="implementation_method" placeholder="Metode pelaksanaan"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="implementation_stages" class="form-label fw-bold"> Tahapan pelaksanaan</label>
+                                            <textarea class="form-control" id="implementation_stages" wire:model="implementation_stages" placeholder="Metode pelaksanaan"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="activity_location" class="form-label fw-bold"> Lokasi Kegiatan</label>
+                                            <textarea class="form-control" id="activity_location" wire:model="activity_location" placeholder="Lokasi Kegiatan"></textarea>
+                                        </div>
+                                        <div class="col-12">
                                             <label for="InputDate" class="form-label fw-bold">Tanggal
                                                 Pelaksanaan</label>
                                             <div class="d-flex align-items-center" id="date-range">
                                                 <!-- Input Tanggal Mulai -->
                                                 <input type="date" class="form-control w-50" id="InputDate"
-                                                    aria-label="Tanggal Pelaksanaan">
+                                                    aria-label="Tanggal Pelaksanaan" wire:model="activity_start_date">
                                                 <!-- Label Sampai -->
+                                                @if (!$this->sameDay)
                                                 <span class="d-flex w-50 align-items-baseline">
-
-
                                                     <span class="ms-2 me-2 hide-is-sameday w-15">Sampai</span>
                                                     <!-- Input Tanggal Selesai -->
                                                     <input type="date" class="form-control hide-is-sameday w-35"
-                                                        id="InputEndDate" aria-label="Tanggal Selesai">
+                                                        id="InputEndDate" aria-label="Tanggal Selesai" wire:model="activity_end_date">
                                                 </span>
+                                                @endif
+
                                             </div>
                                             <!-- Checkbox -->
                                             <div class="form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" id="SameDayEvent"
+                                                <input class="form-check-input" type="checkbox" wire:model="sameDay"
                                                     checked>
                                                 <label class="form-check-label" for="SameDayEvent">
                                                     Acara selesai di hari yang sama
@@ -129,8 +152,7 @@
 
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
-                                                <button class="btn btn-primary px-4 border-none bg-warning me-2"><i
-                                                        class='bx bx-bookmark'></i>Save Draft</button>
+                                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
                                                         class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -214,7 +236,7 @@
                         <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="d-flex">
-                            <button class="btn btn-primary px-4 border-none bg-warning me-2"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                             <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
                                     class='bx bx-right-arrow-alt ms-2'></i></button>
                         </div>
@@ -247,8 +269,8 @@
         </div>
 
         <div id="test-l-4" role="tabpanel" class="{{$this->step == '4'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
-            <h5 class="mb-1">Work Experiences</h5>
-            <p class="mb-4">Can you talk about your past work experience?</p>
+            <h5 class="mb-1">Rancangan Anggaran Biaya</h5>
+            <p class="mb-4">Tabel Rancangan Anggaran Biaya Kegiatan</p>
 
             <div class="row g-3">
                 <div class="col-12">
@@ -259,7 +281,10 @@
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
                         <button class="btn btn-primary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                        <button class="btn btn-success px-4" wire:click="nextStep">Submit</button>
+                        <div class="">
+                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            <button class="btn btn-success px-4">Submit</button>
+                        </div>
                     </div>
                 </div>
             </div><!---end row-->
@@ -276,55 +301,3 @@
 </div>
 <!--end row-->
 </div>
-
-@push('scripts')
-    <script type="module">
-        $(document).ready(function() {
-            console.log('ada isinya lek');
-            // Memeriksa status checkbox saat halaman dimuat
-            toggleDateFields();
-
-            // Menambahkan event listener pada checkbox
-            $('#SameDayEvent').on('change', function() {
-                toggleDateFields();
-            });
-
-            // Fungsi untuk menyembunyikan atau menampilkan elemen berdasarkan checkbox
-            function toggleDateFields() {
-                $('.hide-is-sameday').each(function() {
-                    if ($('#SameDayEvent').is(':checked')) {
-                        // Sembunyikan elemen jika checkbox dicentang
-                        $(this).hide();
-                    } else {
-                        // Tampilkan elemen jika checkbox tidak dicentang
-                        $(this).show();
-                    }
-                });
-            }
-            // $('#stepper1')[0].addEventListener('show.bs-stepper', function (event) {
-            //         console.log('Step akan berubah ke:', event.detail.indexStep);
-            //         $wire.dispatch('update-step', { step: event.detail.indexStep });
-            // });
-
-        });
-
-        // window.nextButton = ()=>{
-        //     window.stepper1.next()
-        // }
-        // window.prevButton = ()=>{
-        //     window.stepper1.previous()
-        // }
-
-
-        // console.log(window.stepper1);
-
-
-        // });
-
-        // $(document).ready(function () {
-        //     console.log('sini');
-
-        //   var stepper = new Stepper($('.bs-stepper')[0])
-        // })
-    </script>
-@endpush

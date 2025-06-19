@@ -17,8 +17,8 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->dateTime('start_date')->nullable(); // Tanggal mulai jadwal
             $table->dateTime('end_date')->nullable(); // Tanggal mulai jadwal
-            $table->string('moderator_text')->nullable(); // Nama jadwal aplikasi
-            $table->string('speaker_text')->nullable(); // Nama jadwal aplikasi
+            $table->text('moderator_text')->nullable(); // Nama jadwal aplikasi
+            $table->text('speaker_text')->nullable(); // Nama jadwal aplikasi
 
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta

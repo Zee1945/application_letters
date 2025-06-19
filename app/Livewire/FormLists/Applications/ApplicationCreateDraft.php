@@ -5,6 +5,7 @@ namespace App\Livewire\FormLists\Applications;
 use App\Imports\ApplicationsImport;
 use App\Livewire\AbstractComponent;
 use App\Models\Application;
+use App\Services\ApplicationService;
 use App\Services\AuthService;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -28,6 +29,8 @@ class ApplicationCreateDraft extends AbstractComponent
     public $activity_end_date;
     public $activity_location;
 
+    public $sameDay =true;
+
 
     // Step 2
     public $participants= [];
@@ -50,8 +53,10 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public function saveDraft($last_saved){
         $this->step = $last_saved;
-      $data = [
-            'draft_step_saved'=> $this->last_saved,
+
+        if ($this->sameDay) $this->activity_end_date = $this->activity_start_date;
+      $generals = [
+            'draft_step_saved'=> $this->step,
             'activity_output' => $this->activity_output,
             'performance_indicator' => $this->performance_indicator,
             'activity_volume' => $this->activity_volume, // lom ada
@@ -63,8 +68,14 @@ class ApplicationCreateDraft extends AbstractComponent
             'implementation_stages' => $this->implementation_stages,
             'activity_start_date' => $this->activity_start_date,
             'activity_end_date' => $this->activity_end_date,
-            'activity_location' => $this->activity_location
+            'activity_location' => $this->activity_location,
+            'application_id' => $this->application_id
         ];
+
+        $application = ApplicationService::storeApplicationDetails($generals,$this->participants,$this->rundowns,$this->draft_costs);
+        // if ($application['status']) {
+
+        // }
     }
 
     #[on('update-participant')]
@@ -122,6 +133,10 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public function clearAllParticipant(){
         $this->participants = [];
+        $this->draft_costs = [];
+        $this->rundowns = [];
+
+
     }
 
 }

@@ -97,7 +97,7 @@
 }
 
 
-@media (max-width:992px) { 
+@media (max-width:992px) {
   .bs-stepper.vertical {
 		-webkit-box-orient: vertical;
 		-webkit-box-direction: normal;

@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('code'); // Nama item biaya
             $table->string('item'); // Nama item biaya
-            $table->string('sub_item'); // Nama item biaya
-            $table->string('volume'); // Nama item biaya
-            $table->string('unit'); // Satuan item biaya
-            $table->integer('cost_per_unit'); // Biaya per unit
-            $table->integer('total'); // Total Biaya
+            $table->string('sub_item')->nullable(); // Nama item biaya
+            $table->string('volume')->nullable(); // Nama item biaya
+            $table->string('unit')->nullable(); // Satuan item biaya
+            $table->integer('cost_per_unit')->nullable(); // Biaya per unit
+            $table->integer('total')->nullable(); // Total Biaya
 
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)

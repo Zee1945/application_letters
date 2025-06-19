@@ -43,8 +43,8 @@ class ApplicationsImport implements ToCollection
             'commitee_position_id' => null,
             'participant_type_id' => null,
             'application_id' => $this->application_id,
-            'department_id' => AuthService::currentAccess()['department_id'],
-            'type' => null,
+            'department_id' => AuthService::currentAccess()['department_id']
+
         ];
         $this->default_draft_cost_fields = [
             'code' => null,
@@ -55,8 +55,8 @@ class ApplicationsImport implements ToCollection
             'cost_per_unit' => null,
             'total' => null,
             'application_id' => $this->application_id,
-            'department_id' => AuthService::currentAccess()['department_id'],
-            'type' => null,
+            'department_id' => AuthService::currentAccess()['department_id']
+
         ];
         $this->default_rundown_fields = [
             'name' => null,
@@ -66,8 +66,8 @@ class ApplicationsImport implements ToCollection
             'moderator_text' => null,
             'speaker_text' => null,
             'application_id' => $this->application_id,
-            'department_id' => AuthService::currentAccess()['department_id'],
-            'type' => null,
+            'department_id' => AuthService::currentAccess()['department_id']
+
         ];
     }
 
@@ -139,7 +139,7 @@ class ApplicationsImport implements ToCollection
                 $this->finest_participant_data[$this->index_participant]['name'] = $value[1] ?? null;
                 $this->finest_participant_data[$this->index_participant]['institution'] = $value[2] ?? null;
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName(strtolower($value[3]))->first()?->id;
-                $this->finest_participant_data[$this->index_participant]['type'] = 'Speakers';
+                // $this->finest_participant_data[$this->index_participant]['type'] = 'Speakers';
                 $this->index_participant++;
             }
         }
@@ -151,7 +151,7 @@ class ApplicationsImport implements ToCollection
             $this->finest_participant_data[$this->index_participant]['name'] = $value[12] ?? null;
             $this->finest_participant_data[$this->index_participant]['institution'] = $value[13] ?? null;
             $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('peserta')->first()?->id;
-            $this->finest_participant_data[$this->index_participant]['type'] = 'Participants';
+            // $this->finest_participant_data[$this->index_participant]['type'] = 'Participants';
             $this->index_participant++;
             }
         }
@@ -163,7 +163,6 @@ class ApplicationsImport implements ToCollection
                 $this->finest_participant_data[$this->index_participant]['name'] = $value[8] ?? null;
                 $this->finest_participant_data[$this->index_participant]['commitee_position_id'] = CommiteePosition::whereName(strtolower($value[7]))->first()?->id;
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('panitia')->first()?->id;
-                $this->finest_participant_data[$this->index_participant]['type'] = 'Commitees';
                 $this->index_participant++;
             }
 
@@ -184,7 +183,7 @@ class ApplicationsImport implements ToCollection
                 $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[30] ?? null;
                 $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[31] ?? null;
                 $this->finest_draft_cost_data[$this->index_draft_cost]['total'] = $total;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';
+                // $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';
                 $this->index_draft_cost++;
             }
 
@@ -203,18 +202,20 @@ class ApplicationsImport implements ToCollection
             //     'moderator_text' => null,
             //     'speaker_text' => null,
             //     'application_id' => $this->application_id,
-            //     'department_id' => AuthService::currentAccess()['department_id'],
-            //     'type' => null,
+            //     'department_id' => AuthService::currentAccess()['department_id']
+            //
             // ];
             if (!empty($value[17])) {
+
+                $date = !empty($value[17]) ? Carbon::createFromFormat('d/m/Y', $value[17]): null;
                 $this->finest_rundown_data[$this->index_rundown] = $this->default_rundown_fields;
-                $this->finest_rundown_data[$this->index_rundown]['date'] = $value[17] ?? null;
+                $this->finest_rundown_data[$this->index_rundown]['date'] = $date;
                 $this->finest_rundown_data[$this->index_rundown]['name'] = $value[20] ?? null;
                 $this->finest_rundown_data[$this->index_rundown]['start_date'] = $this->joinDateTime($value[17],$value[18]);
                 $this->finest_rundown_data[$this->index_rundown]['end_date'] = $this->joinDateTime($value[17], $value[19]);
                 $this->finest_rundown_data[$this->index_rundown]['speaker_text'] = $value[21] ?? null;
                 $this->finest_rundown_data[$this->index_rundown]['moderator_text'] = $value[22] ?? null;
-                $this->finest_rundown_data[$this->index_rundown]['type'] = 'rundown';
+                // $this->finest_rundown_data[$this->index_rundown]['type'] = 'rundown';
                 $this->index_rundown++;
             }
 
