@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('approval_status');
             $table->integer('current_user_approval'); // Nama kegiatan
             $table->string('user_approval_ids'); // Nama kegiatan
-            $table->integer('note')->nullable(); // Nama kegiatan
+            $table->text('note')->nullable(); // Nama kegiatan
             $table->integer('draft_step_saved')->default(1); // Nama kegiatan
             // $table->date('activity_start_date')->nullable(); // Tanggal pelaksanaan
             // $table->date('activity_end_date')->nullable(); // Tanggal pelaksanaan

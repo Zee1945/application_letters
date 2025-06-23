@@ -18,6 +18,7 @@ class ApplicationParticipant extends Model
         'participant_type_id',
         'name',
         'institution',
+        'commitee_position_id',
         'participant_type_id',
         'application_id',
         'department_id',

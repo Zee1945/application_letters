@@ -40,7 +40,7 @@
                             </td>
                             <td>{{ $application->activity_name }}</td>
                             <td>{{ $application->funding_source == 1? 'BLU':'BTOP'}}</td>
-                            <td>{!! viewHelper::statusSubmissionHTML($application->document_status) !!}</td>
+                            <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
                             <td><button type="button" class="btn btn-primary btn-sm radius-30 px-4">View Details</button></td>
                             <td>
                                 <div class="d-flex order-actions">

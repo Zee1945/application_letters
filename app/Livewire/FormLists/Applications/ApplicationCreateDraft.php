@@ -39,20 +39,42 @@ class ApplicationCreateDraft extends AbstractComponent
     public $draft_costs= [];
     public $excel_participant = null;
 
+
+    public function __set($name, $value)
+    {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        }
+    }
+
     public function mount($application_id = null)
     {
+       $this->application = Application::find($application_id);
+
+       $this->participants = $this->application->participants->toArray();
+       $this->rundowns = $this->application->schedules->toArray();
+       $this->draft_costs = $this->application->draftCostBudgets->toArray();
+       $this->application_id = $application_id;
+
+
 
        $this->permissionApplication($application_id);
 
-       $this->application_id = $application_id;
+       $this->handleSameDay(true);
 
     }
     public function render()
     {
+        if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+        if (count($this->draft_costs) > 0) $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
+        if ($this->application->detail) {
+            $this->loadData();
+        }
+
         return view('livewire.form-lists.applications.application-create-draft')->extends('layouts.main');
     }
 
-    public function saveDraft($last_saved){
+    public function saveDraft($last_saved,$is_submit=false){
         $this->step = $last_saved;
 
         if ($this->sameDay) $this->activity_end_date = $this->activity_start_date;
@@ -70,22 +92,53 @@ class ApplicationCreateDraft extends AbstractComponent
             'activity_start_date' => $this->activity_start_date,
             'activity_end_date' => $this->activity_end_date,
             'activity_location' => $this->activity_location,
-            'application_id' => $this->application_id
+            'application_id' => $this->application_id,
+            'department_id' => AuthService::currentAccess()['department_id'],
         ];
 
-        $application = ApplicationService::storeApplicationDetails($generals,$this->participants,$this->rundowns,$this->draft_costs);
-        // if ($application['status']) {
+        $application = ApplicationService::storeApplicationDetails($generals,$this->participants,$this->rundowns,$this->draft_costs,$is_submit);
 
-        // }
+        $this->redirectRoute('applications.create.draft',['application_id'=> $this->application_id],false,true);
     }
 
 
 
     public function injectDocument(){
-        return TemplateProcessorService::generateWord();
+        return TemplateProcessorService::generateWord($this->application);
+    }
+
+    public function loadData(){
+        foreach ($this->application->detail->getAttributes() as $key => $value) {
+            $this->$key = $value;
+        }
+    }
+
+    public function updateFlowStatus($action,$note=''){
+        $tes = ApplicationService::updateFlowApprovalStatus($action,$this->application_id,$note);
+        if ($tes['status']) {
+            $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
+        }
+
     }
 
 
+    public function handleSameDay($is_mount=false){
+        if (!$is_mount) {
+            $this->sameDay = !$this->sameDay;
+        }else{
+            $start_date = $this->application->detail?->activity_start_date;
+            $end_date = $this->application->detail?->activity_end_date;
+            if ($start_date && $end_date) {
+                if ($start_date == $end_date) {
+                    $this->sameDay = true;
+                }else{
+                    $this->sameDay = false;
+                }
+            }else{
+                $this->sameDay = true;
+            }
+        }
+    }
     public function submit(){
 
     }
@@ -101,6 +154,10 @@ class ApplicationCreateDraft extends AbstractComponent
     }
     public function directStep($step){
         $this->step = $step;
+    }
+    public function downloadTemplateExcel(){
+        $savePath = public_path('referensi/template upload data.xlsx');
+        return response()->download($savePath);
     }
 
 

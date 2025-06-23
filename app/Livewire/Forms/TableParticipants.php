@@ -23,23 +23,9 @@ class TableParticipants extends Component
 
     public function render()
     {
-        $get_participant_type = $this->getParticipantTypes();
-        return view('livewire.forms.table-participants', compact('get_participant_type'));
+        return view('livewire.forms.table-participants');
     }
 
-    public function getParticipantTypes()
-    {
-        $model = new ParticipantType();
-        switch ($this->participantType) {
-            case 'speaker':
-                return $model->whereNotIn('name', ['Panitia', 'Peserta'])->get();
-            case 'commitee':
-            case 'participant':
-                return $model->where('name', $this->participantType)->first();
-            default:
-                return $model->all();
-        }
-    }
 
     public function filterParticipantByType(){
         $participant_type= new ParticipantType();

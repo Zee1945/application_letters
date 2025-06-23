@@ -17,6 +17,7 @@ class ApplicationSchedule extends Model
         'name',
         'start_date',
         'end_date',
+        'date',
         'moderator_text',
         'speaker_text',
         'department_id',

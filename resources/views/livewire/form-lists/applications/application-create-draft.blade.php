@@ -8,7 +8,15 @@
         <div class="col-12 mx-auto">
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
-                <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button>
+                <div class="">
+                    {{-- <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button> --}}
+                    @if (viewHelper::actionPermissionButton('approval_process',$this->application))
+                        <button class="btn btn-sm btn-danger" wire:click="updateFlowStatus('reject','proposal tertolak')">Reject</button>
+                        <button class="btn btn-sm btn-warning" wire:click="updateFlowStatus('revise','butuh perbaikan segera !')">Revisi</button>
+                        <button class="btn btn-sm btn-success" wire:click="updateFlowStatus('approve')">Approve</button>
+                    @endif
+
+                </div>
                 {{-- <img src="{{asset('assets/images/logo-img.png')}}" alt="ga ada gambar"> --}}
 
                 <hr />
@@ -70,6 +78,28 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <div class="row" >
+                            <div class="alert alert-warning rejection" role="alert">
+                                <div class="d-flex">
+                                    <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
+                                        <i class="fa-solid fa-triangle-exclamation fw-3 ms-1 fs-2"></i>
+                                    </div>
+                                    <div class="description d-flex flex-column">
+                                        <h6 class="title">Dokumen Butuh Untuk Direvisi !</h6>
+                                        <div class="d-flex flex-column">
+                                            <div class=>
+                                                <span class="fw-bold">Bapak Kabag Umum</span>
+                                                 <span> <i> (pada waktu 25 Mei 2025 pukul 10:10)</i></span>
+                                            </div>
+                                            <div class="notes">
+                                                "Anggaran nya terlalu bengkak, kita sedang efisiensi"
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                              </div>
+                        </div>
                         <div class="">
                             {{-- <form onSubmit="return false"> --}}
                                 <div id="test-l-1" role="tabpanel" class="{{$this->step == '1'? '':'bs-stepper-pane'}}"
@@ -80,64 +110,64 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Hasil (Outcome)</label>
-                                            <textarea class="form-control" id="Outcome" wire:model="activity_output" placeholder="Hasil (Outcome)"
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome" wire:model="activity_output"
                                                 wire:model="activity_outcome"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
                                                 Ukur</label>
-                                            <textarea class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator" placeholder="Satuan Ukur"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="ActivityVolume" class="form-label fw-bold">Volume Kegiatan
                                                 </label>
-                                            <textarea class="form-control" id="ActivityVolume" wire:model="activity_volume" placeholder="Volume Kegiatan"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume" wire:model="activity_volume"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="GeneralDescription" class="form-label fw-bold">Gambaran
                                                 Umum</label>
-                                            <textarea class="form-control" id="GeneralDescription" wire:model="general_description" placeholder="Gambaran Umum"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription" wire:model="general_description" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Maksud dan
                                                 Tujuan</label>
-                                            <textarea class="form-control" id="PurposeAndObjectives" wire:model="objectives" placeholder="Maksud dan Tujuan"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives" wire:model="objectives" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="Beneficiary" class="form-label fw-bold">Penerima
                                                 Manfaat</label>
-                                            <textarea class="form-control" id="Beneficiary" wire:model="beneficiaries" placeholder="Penerima Manfaat"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary" wire:model="beneficiaries" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="activity_scope" class="form-label fw-bold">Lingkup
                                                 Aktifitas</label>
-                                            <textarea class="form-control" id="activity_scope" wire:model="activity_scope" placeholder="Lingkup Aktifitas"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope" wire:model="activity_scope" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="implementation_method" class="form-label fw-bold"> Metode pelaksanaan</label>
-                                            <textarea class="form-control" id="implementation_method" wire:model="implementation_method" placeholder="Metode pelaksanaan"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method" wire:model="implementation_method" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="implementation_stages" class="form-label fw-bold"> Tahapan pelaksanaan</label>
-                                            <textarea class="form-control" id="implementation_stages" wire:model="implementation_stages" placeholder="Metode pelaksanaan"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages" wire:model="implementation_stages" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="activity_location" class="form-label fw-bold"> Lokasi Kegiatan</label>
-                                            <textarea class="form-control" id="activity_location" wire:model="activity_location" placeholder="Lokasi Kegiatan"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location" wire:model="activity_location" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="InputDate" class="form-label fw-bold">Tanggal
                                                 Pelaksanaan</label>
                                             <div class="d-flex align-items-center" id="date-range">
                                                 <!-- Input Tanggal Mulai -->
-                                                <input type="date" class="form-control w-50" id="InputDate"
+                                                <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control w-50" id="InputDate"
                                                     aria-label="Tanggal Pelaksanaan" wire:model="activity_start_date">
                                                 <!-- Label Sampai -->
                                                 @if (!$this->sameDay)
                                                 <span class="d-flex w-50 align-items-baseline">
                                                     <span class="ms-2 me-2 hide-is-sameday w-15">Sampai</span>
                                                     <!-- Input Tanggal Selesai -->
-                                                    <input type="date" class="form-control hide-is-sameday w-35"
+                                                    <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control hide-is-sameday w-35"
                                                         id="InputEndDate" aria-label="Tanggal Selesai" wire:model="activity_end_date">
                                                 </span>
                                                 @endif
@@ -145,8 +175,8 @@
                                             </div>
                                             <!-- Checkbox -->
                                             <div class="form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" wire:model="sameDay"
-                                                    checked>
+                                                <input class="form-check-input" wire:click="handleSameDay()" type="checkbox"
+                                                    {!! $this->sameDay? 'checked':'' !!}>
                                                 <label class="form-check-label" for="SameDayEvent">
                                                     Acara selesai di hari yang sama
                                                 </label>
@@ -155,7 +185,9 @@
 
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
+                                            @if (viewHelper::actionPermissionButton('submit',$this->application))
                                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                            @endif
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
                                                         class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -213,7 +245,7 @@
                                                 <div class="mb-3 d-flex flex-column justify-content-center">
                                                     <label for="file" class="form-label mx-auto">Download Template Excell</label>
                                                     <div class="d-flex justify-content-center">
-                                                        <button class="btn btn-success btn-md mx-auto btn-hover">
+                                                        <button class="btn btn-success btn-md mx-auto btn-hover" wire:loading.class="opacity-50" wire:click="downloadTemplateExcel">
                                                             <i class="fa-solid fa-file-excel me-2"></i> Download Template Peserta
                                                         </button>
                                                     </div>
@@ -226,7 +258,7 @@
                                                             <div class="d-flex justify-content-center">
                                                                 <input type="file" wire:model="excel_participant"
                                                                 id="file" class="form-control" accept=".xlsx,.xls">
-                                                                <button type="submit" class="btn btn-sm btn-info text-white w-25 btn-hover fw-bold"> <i class="fa-solid fa-gears me-2"></i> Generate File</button>
+                                                                <button type="submit" class="btn btn-sm btn-info text-white w-25 btn-hover fw-bold" wire:loading.class="opacity-50"> <i class="fa-solid fa-gears me-2"></i> Generate File</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -239,7 +271,9 @@
                         <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="d-flex">
+                            @if (viewHelper::actionPermissionButton('submit',$this->application))
                             <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            @endif
                             <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
                                     class='bx bx-right-arrow-alt ms-2'></i></button>
                         </div>
@@ -285,8 +319,10 @@
                         <button class="btn btn-primary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
-                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                            <button class="btn btn-success px-4">Submit</button>
+                            @if (viewHelper::actionPermissionButton('submit',$this->application))
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-success px-4" wire:click="saveDraft('1','true')">Submit</button>
+                            @endif
                         </div>
                     </div>
                 </div>
