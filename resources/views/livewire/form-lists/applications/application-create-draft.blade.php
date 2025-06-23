@@ -9,7 +9,7 @@
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
-                    {{-- <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button> --}}
+                    <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
                         <button class="btn btn-sm btn-danger" wire:click="updateFlowStatus('reject','proposal tertolak')">Reject</button>
                         <button class="btn btn-sm btn-warning" wire:click="updateFlowStatus('revise','butuh perbaikan segera !')">Revisi</button>

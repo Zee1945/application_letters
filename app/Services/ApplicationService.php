@@ -99,6 +99,8 @@ class ApplicationService
                         if ( $current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
                             $app->approval_status = 11;
                             $app->save();
+
+                            self::
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->current_user_approval)->first();
                             $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
@@ -195,6 +197,52 @@ class ApplicationService
 
     }
 
+    public static function storeListLetterNumber($app){
+        $fields_name = [
+            [
+            'name'=>'mak',
+            'label'=>'MAK',
+            'value'=>'',
+        ],
+            [
+            'name'=>'nomor_sk',
+            'label'=>'Nomor Sk',
+            'value'=>'',
+        ],
+            [
+            'name'=>'tanggal_sk',
+            'label'=>'Tanggal SK',
+            'value'=>'',
+        ],
+            [
+            'name'=>'tanggal_berlaku_sk',
+            'label'=>'Tanggal Berlaku SK',
+            'value'=>'',
+        ],
+            [
+            'name'=>'nomor_surat_permohonan_speaker',
+            'label'=>'Nomor Surat Permohonan Narasumber/Moderator',
+            'value'=>'',
+        ],
+            [
+            'name'=>'nomor_surat_tugas',
+            'label'=>'Nomor Surat Tugas',
+            'value'=>'',
+        ],
+            [
+            'name'=>'nomor_surat_undangan_peserta',
+            'label'=>'Nomor Surat Undangan Peserta',
+            'value'=>'',
+        ],
+    ];
+
+    foreach ($fields_name as $key => $value) {
+        $app->letterNumbers()->create(
+            [...$value,'department_id'=>$app->department_id,'application_id'=>$app->id]
+        );
+    }
+     
+    }
 
 
     public static function clearData($app){

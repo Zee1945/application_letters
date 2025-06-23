@@ -215,9 +215,11 @@ class TemplateProcessorService
                 ])->withoutVerifying()->post($conversionUrl);
 
 
+                dd($response);
             $json = $response->json();
-
             // dd($json);
+
+            // dd(isset($json['fileUrl']));
             if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
                 $content = file_get_contents($json['fileUrl']);
             }
