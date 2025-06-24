@@ -9,10 +9,12 @@
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
-                    <button class="btn btn-sm btn-danger" wire:click="downloadDocx">Download Document</button>
+                    <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
                         <button class="btn btn-sm btn-danger" wire:click="updateFlowStatus('reject','proposal tertolak')">Reject</button>
                         <button class="btn btn-sm btn-warning" wire:click="updateFlowStatus('revise','butuh perbaikan segera !')">Revisi</button>
+                        <button type="button" class="btn btn-primary" wire:click="openModalConfirm('revise')">Revisi</button>
+
                         <button class="btn btn-sm btn-success" wire:click="updateFlowStatus('approve')">Approve</button>
                     @endif
 
@@ -368,6 +370,46 @@
 </div>
 </div>
 </div>
+
+<div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid fa-triangle-exclamation ms-2 text-warning"></i> Konfirmasi !</h1>
+        <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label fw-bold">Beri Catatan Revisi</label>
+            {{-- <textarea class="form-control" id="message-text"></textarea> --}}
+            <livewire:forms.tinymce-editor :editorId="'notes'"/>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Ya</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('open-modal', (event) => {
+           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
+           modal.show();
+       });
+        Livewire.on('close-modal', (event) => {
+           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
+           modal.hide();
+       });
+    });
+</script>
 </div>
 <!--end row-->
+
 </div>
+
+

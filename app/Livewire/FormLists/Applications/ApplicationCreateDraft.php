@@ -16,6 +16,9 @@ class ApplicationCreateDraft extends AbstractComponent
 {
 
     public $application_id =null;
+
+    public $open_modal_confirm=null;
+    public $notes = null;
     // step 1
     public $activity_output;
     public $performance_indicator;
@@ -117,6 +120,38 @@ class ApplicationCreateDraft extends AbstractComponent
     public function injectDocument(){
         return TemplateProcessorService::generateWord($this->application);
     }
+
+
+    public function openModalConfirm($type='reject'){
+        $this->open_modal_confirm =$type;
+        $this->dispatch('open-modal');
+    }
+
+    public function closeModalConfirm(){
+        $this->open_modal_confirm =null;
+        $this->dispatch('close-modal');
+    }
+
+    public function submitModalConfirm(){
+        dd($this->notes);
+        switch ($this->open_modal_confirm) {
+            case 'revise':
+                
+                break;
+            case 'approve':
+                
+                break;
+            case 'reject':
+                
+                break;
+            default:
+               dd('none of them are match');
+                break;
+        }
+        $this->dispatch('open-modal');
+    }
+
+
 
     public function loadData(){
         foreach ($this->application->detail->getAttributes() as $key => $value) {

@@ -1,9 +1,8 @@
 <div>
     <textarea wire:model="content" class="tinymce-editor" id="tinymce-{{ $editorId }}" name="content"></textarea>
-@push('script')
-
-@endpush
     <script type="module">
+
+//   document.addEventListener('livewire:init', () => {
         tinymce.init({
         selector: '.tinymce-editor',
         target: '#tinymce-{{ $editorId }}',
@@ -60,11 +59,16 @@
                 $(".tox-promotion").remove();
             });
             editor.on('change', () => {
-                // @this.set('content', editor.getContent());
+                                
+                
+
             });
         }
     });
-        </script>
+//  });
+
+</script>
+
 
 
 

@@ -89,13 +89,17 @@ class TemplateProcessorService
 
     public static function downloadDocxGenerated(){
 
-        $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
-            'ResponseContentType' => 'application/octet-stream',
-            'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
-            'filename' => 'generated2.docx',
-        ]);
 
-        return $temp_fileurl;
+        $path =  public_path('referensi/generated2.docx');
+
+        
+        // $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
+        //     'ResponseContentType' => 'application/octet-stream',
+        //     'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
+        //     'filename' => 'generated2.docx',
+        // ]);
+
+        return $path;
     }
 
     public static function generateTableParticipant($participantType,$data){

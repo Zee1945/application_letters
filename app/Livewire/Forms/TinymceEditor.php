@@ -23,4 +23,9 @@ class TinymceEditor extends Component
     {
         return view('livewire.forms.tinymce-editor');
     }
+
+
+    // public function update($){
+
+    // }
 }
