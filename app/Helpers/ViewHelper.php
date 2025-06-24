@@ -3,8 +3,10 @@
 
 namespace App\Helpers;
 
+use App\Models\User;
 use App\Services\AuthService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ViewHelper
 {
@@ -28,9 +30,15 @@ public static function statusSubmissionHTML($status_number)
             $label = 'Approval Process';
             $color = 'primary';
         } elseif ($status_number > 10 && $status_number < 21) {
-            $label = 'Approved';
-            $color = 'success';
-        } elseif ($status_number > 20) {
+            if ($status_number == 11) {
+                $label = 'Filling Letter Number';
+                $color = 'info';
+            }else {
+                $label = 'Approved';
+                $color = 'success';
+            }
+
+        }elseif ($status_number > 20) {
             $label = 'Rejected';
             $color = 'danger';
         } else {
@@ -48,8 +56,30 @@ public static function getHourAndMinute($date_time){
         return $formatted_time;
 }
 
+public static function getCurrentUserProcess($app){
+    $status_number = $app->approval_status;
+    $creator = $app->createdBy->name;
+        if ($status_number < 6) {
+            return $creator;
+        } elseif ($status_number > 5 && $status_number < 11) {
+            return $app->currentUserApproval->user_text;
+        } elseif ($status_number > 10 && $status_number < 21) {
+            if ($status_number == 11) {
+                $get_kabag = User::where('department_id',$app->department_id)->role('kabag')->first();
 
-public static function humanReadableDate($date_time)
+                return $get_kabag->name;
+            } else {
+               return $app->currentUserApproval->user_text;
+            }
+        } elseif ($status_number > 20) {
+            return $app->currentUserApproval?->user_text;
+        } else {
+            return '';
+        }
+    }
+
+
+    public static function humanReadableDate($date_time)
 {
 
     // Cek jika $date_time null atau kosong
@@ -66,12 +96,20 @@ public static function humanReadableDate($date_time)
     }
 }
 
-    public static function handleFieldDisabled($application) {
+    public static function handleFieldDisabled($application,$is_letter_number =false) {
         $status = $application->approval_status;
         if ($status > 5) {
+            if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
+                return '';
+            }
             return 'disabled';
         }
         return '';
+    }
+
+    public static function currencyFormat($amount=0  , $type='rupiah')
+    {
+        return 'Rp ' . number_format($amount, 0, ',', '.');
     }
 
 
@@ -84,6 +122,12 @@ public static function humanReadableDate($date_time)
                 return false;
             case 'submit':
                 if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
+                    return true;
+                }
+                return false;
+            case 'submit-letter-number':
+                if ($app->approval_status == 11 &&
+                    User::where('department_id',$app->department_id)->role('kabag')->first()->id == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;

@@ -56,6 +56,11 @@ class Application extends AbstractModel
     {
         return $this->hasMany(ApplicationUserApproval::class);
     }
+
+    public function currentUserApproval()
+    {
+        return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
+    }
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -72,4 +77,5 @@ class Application extends AbstractModel
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
 }

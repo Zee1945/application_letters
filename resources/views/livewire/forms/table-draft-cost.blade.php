@@ -1,6 +1,4 @@
 <div>
-
-    <button class="btn btn-danger" wire:click="debugger">tess</button>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -26,20 +24,24 @@
                 </tr>
             @empty
             @endforelse --}}
-
+            @php
+                $all_total = 0;
+            @endphp
             @forelse ($draft_costs as $index => $row)
                 <tr>
                     <td rowspan="{{$row['children_total']+1}}"><span class="fw-bold">{{$row['code']}}</span></td>
                     <td rowspan="{{$row['children_total']+1}}"><span class="fw-bold">{{$row['item']}}</span></td>
                 </tr>
                 @forelse ($row['children'] as $child)
+                @php
+                    $all_total+=$child['total'];
+                @endphp
                 <tr>
-
                     <td>{{$child['sub_item']}}</td>
                     <td>{{$child['volume']}}</td>
                     <td>{{$child['unit']}}</td>
-                    <td>{{$child['cost_per_unit']}}</td>
-                    <td>{{$child['total']}}</td>
+                    <td>{{$child['cost_per_unit']?viewHelper::currencyFormat($child['cost_per_unit']):''}}</td>
+                    <td>{{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
                 </tr>
                 @empty
                 @endforelse
@@ -48,7 +50,23 @@
 
             @empty
             @endforelse
-
         </tbody>
     </table>
+    {{-- <div class="row">
+        <div class="col-sm-12">
+            <div class="ms-auto">
+                <table class="table-bordered">
+                    @if (count($draft_costs)>0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td><span class="fw-bold">Total</span></td>
+                        <td><span>{{viewHelper::currencyFormat($all_total)}}</span></td>
+                    </tr>
+                     @endif
+                </table>
+            </div>
+        </div>
+    </div> --}}
+
+
 </div>

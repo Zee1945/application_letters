@@ -50,4 +50,9 @@ protected $fillable = [
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+    public function currentUserApproval()
+    {
+        return $this->hasMany(Application::class, 'current_user_approval', 'user_id');
+    }
 }

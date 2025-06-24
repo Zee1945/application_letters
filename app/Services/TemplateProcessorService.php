@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\ViewHelper;
 use App\Models\CommiteePosition;
 use App\Models\ParticipantType;
 use Illuminate\Support\ServiceProvider;
@@ -44,10 +45,11 @@ class TemplateProcessorService
 
 
         $meta = [
-            'status'   => 'disetujui',
-            'oleh'     => 'Bapak Dekan',
-            'nama'     => 'Prof. Ahmad',
-            'dokumen'  => 'DOC-00123',
+            'status'   => 'Disetujui',
+            'pada'   => ViewHelper::humanReadableDate($application->currentUserApproval->updated_at),
+            'oleh'     => $application->currentUserApproval->user->position->name,
+            'nama'     => $application->currentUserApproval->user->name,
+            'dokumen'  => route('applications.create.draft',['application_id'=>$application->id]),
         ];
             $qrPath = self::generateQrCode($meta);
 
@@ -55,7 +57,6 @@ class TemplateProcessorService
 
 
             $templatePath = public_path('referensi/dummy_inject_word.docx');
-            // dd($templatePath);
             $savePath = public_path('referensi/generated2.docx');
 
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -80,9 +81,23 @@ class TemplateProcessorService
 
             Storage::disk('local')->put($storage_path, file_get_contents($savePath));
 
-            $converted_to_pdf = self::convertToPdf('referensi/generated2.docx');
-            return response()->download($converted_to_pdf);
+            // $converted_to_pdf = self::convertToPdf('referensi/generated2.docx');
+            // return response()->download($savePath);
+
+            return true;
     }
+
+    public static function downloadDocxGenerated(){
+
+        $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
+            'ResponseContentType' => 'application/octet-stream',
+            'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
+            'filename' => 'generated2.docx',
+        ]);
+
+        return $temp_fileurl;
+    }
+
     public static function generateTableParticipant($participantType,$data){
         $rows = [];
         foreach ($data as $index => $row) {
@@ -198,28 +213,26 @@ class TemplateProcessorService
 
         // dd(config('onlyoffice.DOC_SERV_SITE_URL'));
 
+        // Log::info('Isi log file_url '. $fileUrl);
 
         $content = "";
 
         if (config('onlyoffice.DOC_SERV_SITE_URL')) {
             $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'ConvertService.ashx';
 
-            // dd($conversionUrl);
+            // dd($fileUrl);
             $response = Http::timeout(90)->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'json')
                 ->withHeaders([
                     'Accept' => 'application/json',
                     'User-Agent' => 'Thunder Client (https://www.thunderclient.com)',
-                    'Content-Type' => 'text/plain',
+                    'Content-Type' => 'application/json',
                     'Accept-Encoding' => 'gzip, deflate, br',
                     'Connection' => 'keep-alive',
                 ])->withoutVerifying()->post($conversionUrl);
 
+                $json = $response->json();
 
-                dd($response);
-            $json = $response->json();
-            // dd($json);
-
-            // dd(isset($json['fileUrl']));
+            // dd($json['fileUrl']);
             if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
                 $content = file_get_contents($json['fileUrl']);
             }
@@ -234,8 +247,19 @@ class TemplateProcessorService
         Log::info('START CONVERT FILE TO PDF');
 
         $file_url = url($file_url);
+
+
+        $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
+            'ResponseContentType' => 'application/octet-stream',
+            'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
+            'filename' => 'generated2.docx',
+        ]);
+        // $temp_fileurl = public_path('storage/docx-genearte/hasil_generate.docx');
+
+
+        // dd($temp_fileurl);
         // $file_url = Storage::disk('local')->get('referensi/genearted.docx');
-        $content = self::onlyOfficeConversion('docx', 'pdf', $file_url);
+        $content = self::onlyOfficeConversion('docx', 'pdf', $temp_fileurl);
         $repo_path = public_path('referensi/mypdf.pdf');
 
         if ($content) {

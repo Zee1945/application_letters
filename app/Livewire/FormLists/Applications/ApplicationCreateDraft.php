@@ -39,6 +39,8 @@ class ApplicationCreateDraft extends AbstractComponent
     public $draft_costs= [];
     public $excel_participant = null;
 
+    public $letter_numbers=[];
+
 
     public function __set($name, $value)
     {
@@ -51,10 +53,17 @@ class ApplicationCreateDraft extends AbstractComponent
     {
        $this->application = Application::find($application_id);
 
+       $this->step = $this->application->draft_step_saved;
        $this->participants = $this->application->participants->toArray();
        $this->rundowns = $this->application->schedules->toArray();
        $this->draft_costs = $this->application->draftCostBudgets->toArray();
        $this->application_id = $application_id;
+
+
+        $keysToKeep = ['id', 'letter_label', 'letter_name', 'type_field', 'letter_number'];
+        $this->letter_numbers = array_map(function ($item) use ($keysToKeep) {
+            return array_intersect_key($item, array_flip($keysToKeep));
+        }, $this->application->letterNumbers->toArray());
 
 
 
@@ -62,6 +71,8 @@ class ApplicationCreateDraft extends AbstractComponent
 
        $this->handleSameDay(true);
 
+        //  $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+        //  $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
     }
     public function render()
     {
@@ -111,6 +122,18 @@ class ApplicationCreateDraft extends AbstractComponent
         foreach ($this->application->detail->getAttributes() as $key => $value) {
             $this->$key = $value;
         }
+    }
+    public function updateLetterNumber(){
+       $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
+       if ($res) {
+            $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
+        }
+    }
+
+
+    public function downloadDocx()
+    {
+        return response()->download(TemplateProcessorService::downloadDocxGenerated());
     }
 
     public function updateFlowStatus($action,$note=''){

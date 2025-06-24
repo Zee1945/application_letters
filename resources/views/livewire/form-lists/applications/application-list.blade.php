@@ -28,7 +28,7 @@
                             <th>Kegiatan</th>
                             <th>Sumber Pendanaan</th>
                             <th>Status Pengajuan</th>
-                            <th>Lihat Detail</th>
+                            <th>Pemroses Saat ini</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -41,9 +41,10 @@
                             <td>{{ $application->activity_name }}</td>
                             <td>{{ $application->funding_source == 1? 'BLU':'BTOP'}}</td>
                             <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
-                            <td><button type="button" class="btn btn-primary btn-sm radius-30 px-4">View Details</button></td>
+                            <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
                             <td>
                                 <div class="d-flex order-actions">
+                                    <a href="javascript:;" class="me-3"><i class="fa-regular fa-eye"></i></a>
                                     <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
                                     <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
                                 </div>

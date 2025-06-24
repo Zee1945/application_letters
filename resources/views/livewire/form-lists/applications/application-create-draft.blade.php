@@ -9,7 +9,7 @@
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
-                    <button class="btn btn-sm btn-danger" wire:click="injectDocument">inject word</button>
+                    <button class="btn btn-sm btn-danger" wire:click="downloadDocx">Download Document</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
                         <button class="btn btn-sm btn-danger" wire:click="updateFlowStatus('reject','proposal tertolak')">Reject</button>
                         <button class="btn btn-sm btn-warning" wire:click="updateFlowStatus('revise','butuh perbaikan segera !')">Revisi</button>
@@ -176,7 +176,7 @@
                                             <!-- Checkbox -->
                                             <div class="form-check mt-2">
                                                 <input class="form-check-input" wire:click="handleSameDay()" type="checkbox"
-                                                    {!! $this->sameDay? 'checked':'' !!}>
+                                                    {!! $this->sameDay? 'checked':'' !!} {!! viewHelper::handleFieldDisabled($this->application) !!}>
                                                 <label class="form-check-label" for="SameDayEvent">
                                                     Acara selesai di hari yang sama
                                                 </label>
@@ -210,7 +210,7 @@
                                         </div>
                                         <div class="action-button">
                                             @if (count($this->participants)>0)
-                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant'><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
+                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
 
                                             @endif
                                         </div>
@@ -322,6 +322,37 @@
                             @if (viewHelper::actionPermissionButton('submit',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                 <button class="btn btn-success px-4" wire:click="saveDraft('1','true')">Submit</button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div><!---end row-->
+
+        </div>
+        <div id="test-l-4" role="tabpanel" class="{{$this->step == '5'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+            <h5 class="mb-1">Nomor Surat</h5>
+            <p class="mb-4">Form isian nomor surat</p>
+
+            <div class="row g-3">
+                <div class="col-12">
+
+                   @forelse ($this->letter_numbers as $key => $item)
+                   <div class="mb-3">
+                    <label for="{{$item['letter_name']}}" class="form-label fw-bold">{{$item['letter_label']}}</label>
+                    <input type="{{$item['type_field']}}" wire:model="letter_numbers.{{$key}}.letter_number" class="form-control" name="{{$item['letter_name']}}"  id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+                  </div>
+                    @empty
+                   @endforelse
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
+                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                        <div class="">
+                            @if (viewHelper::actionPermissionButton('submit-letter-number',$this->application))
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('5')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-success px-4" wire:click="updateLetterNumber()">Submit</button>
                             @endif
                         </div>
                     </div>

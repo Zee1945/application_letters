@@ -13,6 +13,7 @@ use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class ApplicationService
 {
@@ -100,7 +101,7 @@ class ApplicationService
                             $app->approval_status = 11;
                             $app->save();
 
-                            self::
+                            self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->current_user_approval)->first();
                             $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
@@ -200,48 +201,69 @@ class ApplicationService
     public static function storeListLetterNumber($app){
         $fields_name = [
             [
-            'name'=>'mak',
-            'label'=>'MAK',
-            'value'=>'',
+            'letter_name'=>'mak',
+            'letter_label'=>'MAK',
+            'type_field'=>'text',
+            'letter_number'=>null,
         ],
             [
-            'name'=>'nomor_sk',
-            'label'=>'Nomor Sk',
-            'value'=>'',
+            'letter_name'=>'nomor_sk',
+            'letter_label'=>'Nomor Sk',
+                'type_field' => 'text',
+
+                'letter_number'=>null,
         ],
             [
-            'name'=>'tanggal_sk',
-            'label'=>'Tanggal SK',
-            'value'=>'',
+            'letter_name'=>'tanggal_sk',
+            'letter_label'=>'Tanggal SK',
+                'type_field' => 'date',
+
+                'letter_number'=>null,
         ],
             [
-            'name'=>'tanggal_berlaku_sk',
-            'label'=>'Tanggal Berlaku SK',
-            'value'=>'',
+            'letter_name'=>'tanggal_berlaku_sk',
+            'letter_label'=>'Tanggal Berlaku SK',
+                'type_field' => 'date',
+
+                'letter_number'=>null,
         ],
             [
-            'name'=>'nomor_surat_permohonan_speaker',
-            'label'=>'Nomor Surat Permohonan Narasumber/Moderator',
-            'value'=>'',
+            'letter_name'=>'nomor_surat_permohonan_speaker',
+            'letter_label'=>'Nomor Surat Permohonan Narasumber/Moderator',
+                'type_field' => 'text',
+
+                'letter_number'=>null,
         ],
             [
-            'name'=>'nomor_surat_tugas',
-            'label'=>'Nomor Surat Tugas',
-            'value'=>'',
+            'letter_name'=>'nomor_surat_tugas',
+            'letter_label'=>'Nomor Surat Tugas',
+                'type_field' => 'text',
+
+                'letter_number'=>null,
         ],
             [
-            'name'=>'nomor_surat_undangan_peserta',
-            'label'=>'Nomor Surat Undangan Peserta',
-            'value'=>'',
+            'letter_name'=>'nomor_surat_undangan_peserta',
+                'letter_label'=>'Nomor Surat Undangan Peserta',
+                'type_field' => 'text',
+
+                'letter_number'=>null,
         ],
     ];
 
     foreach ($fields_name as $key => $value) {
-        $app->letterNumbers()->create(
-            [...$value,'department_id'=>$app->department_id,'application_id'=>$app->id]
-        );
+        // dd([[...$value, 'department_id' => $app->department_id, 'application_id' => $app->id]]);
+        try {
+                $app->letterNumbers()->create(
+                    [...$value, 'department_id' => $app->department_id, 'application_id' => $app->id]
+                );
+        } catch (\Throwable $th) {
+            throw $th;
+            dd($th);
+        }
     }
-     
+
+    return true;
+
     }
 
 
@@ -267,6 +289,25 @@ class ApplicationService
             }
         }
 
+
+        return true;
+    }
+    public static function updateLetterNumber($letterNumbers,$app){
+        try {
+            DB::beginTransaction();
+            foreach ($letterNumbers as $key => $value) {
+                $field = $app->letterNumbers()->find($value['id'])->update($value);
+            }
+
+            $app->update(['approval_status'=>12]);
+            TemplateProcessorService::generateWord($app);
+            DB::commit();
+        } catch (\Throwable $th) {
+            //throw $th;
+            DB::rollBack();
+            dd($th);
+            return false;
+        }
 
         return true;
     }
