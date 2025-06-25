@@ -21,15 +21,15 @@
         <a href="{{route('applications.index')}}" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">Applications</div>
+            <div class="menu-title">Proposal</div>
         </a>
 
     </li>
     <li>
-        <a href="javascript:;" >
+        <a href="{{route('report.index')}}" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">Approval</div>
+            <div class="menu-title">LPJ</div>
         </a>
 
     </li>

@@ -7,9 +7,11 @@ use App\Models\ApplicationDetail;
 use App\Models\ApplicationDraftCostBudget;
 use App\Models\ApplicationParticipant;
 use App\Models\ApplicationSchedule;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuthService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -115,11 +117,13 @@ class ApplicationService
                     if ($current_user_id == $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11 ) {
                         $app->approval_status = 2;
                         $app->note = $note;
+                        $app->updated_at = Carbon::now();
                         $app->save();
 
                         $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
                         $user_approvals->status = 2;
                         $user_approvals->note = $note;
+                        $user_approvals->updated_at = Carbon::now();
                         $user_approvals->save();
                     }
                     break;
@@ -133,6 +137,7 @@ class ApplicationService
                         $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
                         $user_approvals->status = 21;
                         $user_approvals->note = $note;
+                        $user_approvals->updated_at = Carbon::now();
                         $user_approvals->save();
                     }
 
@@ -300,6 +305,11 @@ class ApplicationService
             }
 
             $app->update(['approval_status'=>12]);
+            $app->update(['approval_status'=>12]);
+
+            $department = Department::find($app->department_id);
+            $department->current_limit_submission = $department->current_limit_submission+1;
+            $department->save();
             TemplateProcessorService::generateWord($app);
             DB::commit();
         } catch (\Throwable $th) {
@@ -310,6 +320,11 @@ class ApplicationService
         }
 
         return true;
+    }
+
+    public static function getListReport(){
+       $list = Application::where('approval_status',12)->get();
+       return $list;
     }
 
 

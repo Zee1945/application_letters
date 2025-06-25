@@ -1,12 +1,12 @@
 <div>
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Application</div>
+        <div class="breadcrumb-title pe-3">LPJ</div>
         <div class="ps-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
                     </li>
-                    <li class="breadcrumb-item active" aria-current="page">List Application</li>
+                    <li class="breadcrumb-item active" aria-current="page">List LPJ</li>
                 </ol>
             </nav>
         </div>
@@ -33,7 +33,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($applications as $key => $application)
+                        @forelse ($reports as $key => $application)
                         <tr>
                             <td>
                                 {{$key+1}}
@@ -45,7 +45,7 @@
                             <td>
                                 <div class="d-flex order-actions">
                                     <a href="javascript:;" class="me-3"><i class="fa-regular fa-eye"></i></a>
-                                    <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
+                                    <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i>Buat LPJ</a>
                                     <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
                                 </div>
                             </td>
@@ -55,11 +55,6 @@
                             <td colspan="4" class="text-center">No applications found.</td>
                         </tr>
                     @endforelse
-                    <tr>
-                        <td colspan="4">
-                            Sisa kuota pengajuan Proposal department : <span class="fw-bold"> {{$department->limit_submission  - $department->current_limit_submission }}</span> dari <span class="fw-bold"> {{$department->limit_submission}}</span> pengajuan
-                        </td>
-                    </tr>
 
                     </tbody>
                 </table>

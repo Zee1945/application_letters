@@ -11,11 +11,9 @@
                 <div class="">
                     <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
-                        <button class="btn btn-sm btn-danger" wire:click="updateFlowStatus('reject','proposal tertolak')">Reject</button>
-                        <button class="btn btn-sm btn-warning" wire:click="updateFlowStatus('revise','butuh perbaikan segera !')">Revisi</button>
-                        <button type="button" class="btn btn-primary" wire:click="openModalConfirm('revise')">Revisi</button>
-
-                        <button class="btn btn-sm btn-success" wire:click="updateFlowStatus('approve')">Approve</button>
+                        <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject')">Reject</button>
+                        <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise')">Revisi</button>
+                        <button class="btn btn-sm btn-success" wire:click="openModalConfirm('approve')">Approve</button>
                     @endif
 
                 </div>
@@ -80,21 +78,21 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="row" >
-                            <div class="alert alert-warning rejection" role="alert">
+                        <div class="row {{$application->approval_status == 2 || $application->approval_status > 20?'':'d-none'}}">
+                            <div class="alert {{$application->approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
                                 <div class="d-flex">
                                     <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
-                                        <i class="fa-solid fa-triangle-exclamation fw-3 ms-1 fs-2"></i>
+                                        <i class="fa-solid {{$application->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                     </div>
                                     <div class="description d-flex flex-column">
-                                        <h6 class="title">Dokumen Butuh Untuk Direvisi !</h6>
+                                        <h6 class="title"> {{$application->approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
                                         <div class="d-flex flex-column">
                                             <div class=>
-                                                <span class="fw-bold">Bapak Kabag Umum</span>
-                                                 <span> <i> (pada waktu 25 Mei 2025 pukul 10:10)</i></span>
+                                                <span class="fw-bold">{{$application->currentUserApproval->user->name}}</span>
+                                                 <small> <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at,'d-m-Y H:i:s') !!})</i></small>
                                             </div>
                                             <div class="notes">
-                                                "Anggaran nya terlalu bengkak, kita sedang efisiensi"
+                                                "{{$application->note}}"
                                             </div>
                                         </div>
                                     </div>
@@ -372,24 +370,24 @@
 </div>
 
 <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid fa-triangle-exclamation ms-2 text-warning"></i> Konfirmasi !</h1>
+        <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['icon_class']}} ms-2 text-{{ viewHelper::handleConfirmModal($this->open_modal_confirm)['color']}}"></i> {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['title']}}</h1>
         <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <label for="message-text" class="col-form-label fw-bold">Beri Catatan Revisi</label>
-            {{-- <textarea class="form-control" id="message-text"></textarea> --}}
-            <livewire:forms.tinymce-editor :editorId="'notes'"/>
+            <label for="message-text" class="col-form-label fw-bold">Beri Alasan {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['text_reaseon']}}</label>
+            <textarea class="form-control" wire:model="notes" id="message-text"></textarea>
+            {{-- <livewire:forms.tinymce-editor :editorId="'notes'"/> --}}
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Ya</button>
+        <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Submit</button>
       </div>
     </div>
   </div>

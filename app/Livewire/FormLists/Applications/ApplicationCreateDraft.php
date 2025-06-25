@@ -129,25 +129,12 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public function closeModalConfirm(){
         $this->open_modal_confirm =null;
+        $this->notes='';
         $this->dispatch('close-modal');
     }
 
     public function submitModalConfirm(){
-        dd($this->notes);
-        switch ($this->open_modal_confirm) {
-            case 'revise':
-                
-                break;
-            case 'approve':
-                
-                break;
-            case 'reject':
-                
-                break;
-            default:
-               dd('none of them are match');
-                break;
-        }
+        $this->updateFlowStatus($this->open_modal_confirm, $this->notes);
         $this->dispatch('open-modal');
     }
 
@@ -174,6 +161,7 @@ class ApplicationCreateDraft extends AbstractComponent
     public function updateFlowStatus($action,$note=''){
         $tes = ApplicationService::updateFlowApprovalStatus($action,$this->application_id,$note);
         if ($tes['status']) {
+            $this->dispatch('closeModalConfirm');
             $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
         }
 
@@ -217,8 +205,6 @@ class ApplicationCreateDraft extends AbstractComponent
         $savePath = public_path('referensi/template upload data.xlsx');
         return response()->download($savePath);
     }
-
-
 
     public function importParticipant(){
 

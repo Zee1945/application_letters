@@ -1,10 +1,11 @@
-<div>
-    <textarea wire:model="content" class="tinymce-editor" id="tinymce-{{ $editorId }}" name="content"></textarea>
+<div wire:ignore>
+    <textarea class="tinymce-editor" id="tinymce-{{ $editorId }}" name="content"></textarea>
     <script type="module">
-
 //   document.addEventListener('livewire:init', () => {
+        window.$is_disabled = {{$is_disabled}}
         tinymce.init({
         selector: '.tinymce-editor',
+
         target: '#tinymce-{{ $editorId }}',
         // target: $('tinymce-'{{ $editorId }}),
         skin: 'tinymce-5',
@@ -22,6 +23,7 @@
         pagebreak_separator: '<p style="page-break-after: always;"></p>',
         image_advtab: true,
         file_picker_types: 'image',
+        editable_root: window.$is_disabled,
         table_use_colgroups: false,
         table_style_by_css: false,
         line_height_formats: '0 1 1.1 1.2 1.3 1.4 1.5 2',
@@ -58,10 +60,11 @@
             editor.on('init', function(e) {
                 $(".tox-promotion").remove();
             });
-            editor.on('change', () => {
-                                
-                
 
+
+            editor.on('change', () => {
+                @this.dispatch('update-content-value', {value:editor.getContent()});
+                // @this.dispatch('content', editor.getContent());
             });
         }
     });

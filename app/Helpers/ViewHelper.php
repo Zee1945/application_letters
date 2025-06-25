@@ -96,12 +96,20 @@ public static function getCurrentUserProcess($app){
     }
 }
 
+    public static function formatDateToHumanReadable($date, $format = 'd m Y')
+    {
+        $date = Carbon::parse($date)->locale('id');
+        return $date->translatedFormat($format);
+    }
+
     public static function handleFieldDisabled($application,$is_letter_number =false) {
         $status = $application->approval_status;
-        if ($status > 5) {
+        if ($status > 5 ) {
             if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
                 return '';
             }
+            return 'disabled';
+        }else if($status < 5 && $application->created_by != AuthService::currentAccess()['id']){
             return 'disabled';
         }
         return '';
@@ -110,6 +118,48 @@ public static function getCurrentUserProcess($app){
     public static function currencyFormat($amount=0  , $type='rupiah')
     {
         return 'Rp ' . number_format($amount, 0, ',', '.');
+    }
+    public static function handleConfirmModal($modal_type='')
+    {
+        $array_info = [];
+        switch ($modal_type) {
+            case 'reject':
+                $array_info = [
+                    'color'=>'danger',
+                    'title'=> 'Anda yakin ingin menolak?',
+                    'text_reaseon'=>'penolakan',
+                    'icon_class'=> 'fa-circle-xmark',
+                ];
+
+                break;
+            case 'revise':
+                $array_info = [
+                    'color' => 'warning',
+                    'title' => 'Anda yakin ingin mengajukan revisi?',
+                    'text_reaseon' => 'revisi',
+                    'icon_class' => 'fa-triangle-exclamation',
+                ];
+
+                break;
+            case 'approve':
+                $array_info = [
+                    'color' => 'success',
+                    'title' => 'Anda yakin ingin menyetujui ?',
+                    'text_reaseon' => '',
+                    'icon_class' => 'fa-circle-check',
+                ];
+                break;
+
+            default:
+                $array_info = [
+                    'color' => '',
+                    'title' => '',
+                    'text_reaseon' => '',
+                    'icon_class' => '',
+                ];
+                break;
+        }
+        return $array_info;
     }
 
 
