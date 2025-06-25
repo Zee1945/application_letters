@@ -43,7 +43,7 @@ class TemplateProcessorService
             $speaker_participant = self::generateTableParticipant('speaker', $get_speakers);
             $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
-
+        
         $meta = [
             'status'   => 'Disetujui',
             'pada'   => ViewHelper::humanReadableDate($application->currentUserApproval->updated_at),
@@ -58,8 +58,20 @@ class TemplateProcessorService
 
             $templatePath = public_path('referensi/dummy_inject_word.docx');
             $savePath = public_path('referensi/generated2.docx');
-
+            // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BTOP';
+                }
+                $templateProcessor->setValue($key, $value);
+            }
+
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+
+            }
+
             // Inject variabel
             $templateProcessor->cloneRowAndSetValues('commitee_role', $commitee_participant);
             $templateProcessor->cloneRowAndSetValues('speaker_name', $speaker_participant);

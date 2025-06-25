@@ -21,6 +21,9 @@ class Department extends Model
         'code',
         'delete_note',
         'created_by',
+        'limit_submission',
+        'current_limit_submission',
+        'parent_id',
         'updated_by',
         'deleted_by',
     ];

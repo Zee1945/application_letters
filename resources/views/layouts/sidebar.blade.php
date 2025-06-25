@@ -21,7 +21,7 @@
         <a href="{{route('applications.index')}}" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">Proposal</div>
+            <div class="menu-title">Surat</div>
         </a>
 
     </li>
