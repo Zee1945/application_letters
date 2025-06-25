@@ -10,6 +10,7 @@
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
                     <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
+                    <button class="btn btn-sm btn-danger" wire:click="debug">Debug</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
                         <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject')">Reject</button>
                         <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise')">Revisi</button>
@@ -117,6 +118,11 @@
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
                                                 Ukur</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
+                                                Ukur</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="unit_of_measurment"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="ActivityVolume" class="form-label fw-bold">Volume Kegiatan

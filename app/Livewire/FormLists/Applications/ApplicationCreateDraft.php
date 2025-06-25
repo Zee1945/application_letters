@@ -32,6 +32,7 @@ class ApplicationCreateDraft extends AbstractComponent
     public $activity_start_date;
     public $activity_end_date;
     public $activity_location;
+    public $unit_of_measurment;
 
     public $sameDay =true;
 
@@ -96,6 +97,7 @@ class ApplicationCreateDraft extends AbstractComponent
             'draft_step_saved'=> $this->step,
             'activity_output' => $this->activity_output,
             'performance_indicator' => $this->performance_indicator,
+            'unit_of_measurment' => $this->unit_of_measurment,
             'activity_volume' => $this->activity_volume, // lom ada
             'general_description' => $this->general_description,
             'objectives' => $this->objectives,
@@ -137,6 +139,8 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->updateFlowStatus($this->open_modal_confirm, $this->notes);
         $this->dispatch('open-modal');
     }
+
+    
 
 
 
@@ -185,8 +189,8 @@ class ApplicationCreateDraft extends AbstractComponent
             }
         }
     }
-    public function submit(){
-
+    public function debug(){
+        TemplateProcessorService::generateWord($this->application);
     }
     public function nextStep()
     {

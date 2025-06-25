@@ -19,9 +19,11 @@ return new class extends Migration
             $table->integer('sequence')->nullable();
             $table->integer('status')->default(0); // Status persetujuan (0: pending, 1: approved, 2: process 3: rejected)
             $table->text('note')->nullable(); // Catatan persetujuan (jika ada)
+            $table->integer('report_status')->default(0); // Status persetujuan (0: pending, 1: approved, 2: process 3: rejected)
+            $table->text('report_note')->nullable(); // Catatan persetujuan (jika ada)
 
-            $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
-            $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)
+            $table->unsignedBigInteger('application_id')->nullable(); 
+            $table->unsignedBigInteger('department_id')->nullable(); 
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)
             $table->unsignedBigInteger('created_by')->nullable(); // Dibuat oleh (ID user)
             $table->unsignedBigInteger('updated_by')->nullable(); // Diubah oleh (ID user)

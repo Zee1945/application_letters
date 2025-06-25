@@ -52,11 +52,11 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center">No applications found.</td>
+                            <td colspan="6" class="text-center">No applications found.</td>
                         </tr>
                     @endforelse
                     <tr>
-                        <td colspan="4">
+                        <td colspan="6">
                             Sisa kuota pengajuan Proposal department : <span class="fw-bold"> {{$department->limit_submission  - $department->current_limit_submission }}</span> dari <span class="fw-bold"> {{$department->limit_submission}}</span> pengajuan
                         </td>
                     </tr>

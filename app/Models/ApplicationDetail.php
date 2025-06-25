@@ -18,6 +18,7 @@ class ApplicationDetail extends Model
         'activity_outcome',
         'activity_output',
         'performance_indicator',
+        'unit_of_measurment',
         'activity_volume',
         'general_description',
         'objectives',

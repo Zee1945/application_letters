@@ -18,21 +18,27 @@ class DepartmentSeeder extends Seeder
                 'id'=>1,
                 'name' => 'Rektorat',
                 'code' => 'REKTORAT',
+                'limit_submission' => 2,
+
             ],
             [
                 'id'=>2,
                 'name' => 'Sains dan Teknologi',
                 'code' => 'SAINTEK',
+                'limit_submission' => 2,
+
             ],
             [
                 'id'=>3,
                 'name' => 'Sosial dan Humaniora',
                 'code' => 'SOSHUM',
+                'limit_submission' => 2,
             ],
             [
                 'id'=>4,
                 'name' => 'Lembaga Penelitian dan Pengabdian Masyarakat',
                 'code' => 'LP2M',
+                'limit_submission' => 2,
             ]
         ];
         foreach ($departemts as $department) {

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('activity_outcome')->nullable(); // Hasil/output kegiatan
             $table->text('activity_output')->nullable(); // Keluaran kegiatan
             $table->string('performance_indicator')->nullable(); // Indikator kinerja kegiatan
+            $table->string('unit_of_measurment')->nullable(); // Indikator kinerja kegiatan
             $table->string('activity_volume')->nullable(); // Volume kegiatan
             $table->text('general_description')->nullable(); // Gambaran umum
             $table->text('objectives')->nullable(); // Maksud dan tujuan
