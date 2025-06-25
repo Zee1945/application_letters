@@ -305,7 +305,8 @@ class ApplicationService
             }
 
             $app->update(['approval_status'=>12]);
-            $app->update(['approval_status'=>12]);
+
+            // $app->report->create([''])
 
             $department = Department::find($app->department_id);
             $department->current_limit_submission = $department->current_limit_submission+1;

@@ -15,6 +15,10 @@ public static function currentAccess()
 {
     return AuthService::currentAccess();
 }
+public static function statusLpjHTML($status_number)
+{
+
+}
 public static function statusSubmissionHTML($status_number)
 {
     $label = '';
