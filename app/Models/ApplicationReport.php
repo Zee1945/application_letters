@@ -20,6 +20,8 @@ class ApplicationReport extends Model
         'obstacles',
         'conclusion',
         'recommendations',
+        'current_user_approval',
+        'approval_status',
         'closing',
         'speaker_material',
         'notulen',

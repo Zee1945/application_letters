@@ -14,6 +14,8 @@ protected $fillable = [
     'sequence',
     'status',
     'note',
+    'report_status',
+    'report_note',
     'application_id',
     'department_id',
     'delete_note',

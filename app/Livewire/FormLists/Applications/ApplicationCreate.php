@@ -17,6 +17,12 @@ class ApplicationCreate extends Component
     public $fund_source; // Sumber Pendanaan
     public $verificator ; // Verifikator/Penandatangan
 
+    public function mount()
+    {
+        $is_has_quota = ApplicationService::hasDepartmentQuota();
+        if (!$is_has_quota) return redirect()->route('applications.index');
+    }
+
     public function render()
     {
         $user_approvers = User::approvers()->get();

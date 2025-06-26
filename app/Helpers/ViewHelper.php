@@ -3,6 +3,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Department;
 use App\Models\User;
 use App\Services\AuthService;
 use Carbon\Carbon;
@@ -15,9 +16,36 @@ public static function currentAccess()
 {
     return AuthService::currentAccess();
 }
-public static function statusLpjHTML($status_number)
+public static function statusReportHTML($status_number)
 {
+        $label = '';
+        $color = '';
+        // $bg_color = '';
+        if ($status_number == 0) {
+            $label = 'Unsubmitted';
+            $color = 'danger';
+        } elseif ($status_number == 2) {
+            $label = 'Revise';
+            $color = 'warning';
+        } elseif ($status_number > 5 && $status_number < 11) {
+            $label = 'Approval Process';
+            $color = 'primary';
+        } elseif ($status_number > 10 && $status_number < 21) {
+            if ($status_number == 11) {
+                $label = 'Filling Letter Number';
+                $color = 'info';
+            } else {
+                $label = 'Approved';
+                $color = 'success';
+            }
+        } elseif ($status_number > 20) {
+            $label = 'Rejected';
+            $color = 'danger';
+        } else {
+            // Default case if needed
+        }
 
+        return '<div class="badge border border-2 rounded-pill text-' . $color . ' bg-light-' . $color . ' p-2 text-uppercase px-3"><i class="bx bxs-circle me-1"></i>' . $label . '</div>';
 }
 public static function statusSubmissionHTML($status_number)
 {
@@ -60,8 +88,8 @@ public static function getHourAndMinute($date_time){
         return $formatted_time;
 }
 
-public static function getCurrentUserProcess($app){
-    $status_number = $app->approval_status;
+public static function getCurrentUserProcess($app,$is_report=false){
+    $status_number = $is_report? $app->report->approval_status :$app->approval_status;
     $creator = $app->createdBy->name;
         if ($status_number < 6) {
             return $creator;
@@ -106,8 +134,8 @@ public static function getCurrentUserProcess($app){
         return $date->translatedFormat($format);
     }
 
-    public static function handleFieldDisabled($application,$is_letter_number =false) {
-        $status = $application->approval_status;
+    public static function handleFieldDisabled($application,$is_letter_number =false,$is_report=false) {
+        $status = $is_report ? $application->report->approval_status : $application->approval_status;
         if ($status > 5 ) {
             if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
                 return '';
@@ -148,9 +176,9 @@ public static function getCurrentUserProcess($app){
             case 'approve':
                 $array_info = [
                     'color' => 'success',
-                    'title' => 'Anda yakin ingin menyetujui ?',
+                    'title' => 'Konfirmasi',
                     'text_reaseon' => '',
-                    'icon_class' => 'fa-circle-check',
+                    'icon_class' => '',
                 ];
                 break;
 
@@ -167,7 +195,9 @@ public static function getCurrentUserProcess($app){
     }
 
 
-    public static function actionPermissionButton($action,$app) {
+    public static function actionPermissionButton($action,$app=null) {
+        $department = Department::find(AuthService::currentAccess()['department_id']);
+        $quota_remaining = $department->limit_submission - $department->current_limit_submission;
         switch ($action) {
             case 'approval_process':
                 if ($app->approval_status > 5 && $app->approval_status < 11 && $app->current_user_approval == AuthService::currentAccess()['id']) {
@@ -175,13 +205,23 @@ public static function getCurrentUserProcess($app){
                 }
                 return false;
             case 'submit':
-                if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
+                if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
+                    return true;
+                }
+                return false;
+            case 'submit-report':
+                if ($app->report->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;
             case 'submit-letter-number':
                 if ($app->approval_status == 11 &&
                     User::where('department_id',$app->department_id)->role('kabag')->first()->id == AuthService::currentAccess()['id']) {
+                    return true;
+                }
+                return false;
+            case 'create-new-application':
+                if ($quota_remaining > 0) {
                     return true;
                 }
                 return false;
@@ -192,6 +232,8 @@ public static function getCurrentUserProcess($app){
 
         return false;
     }
+
+
 
 
 

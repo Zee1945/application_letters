@@ -18,7 +18,6 @@
                 <div class="position-relative">
                     <input type="text" class="form-control ps-5 radius-30" placeholder="Search Order"> <span class="position-absolute top-50 product-show translate-middle-y"><i class="bx bx-search"></i></span>
                 </div>
-              <div class="ms-auto"><a href="{{ route('applications.create') }}" class="btn btn-primary radius-30 mt-2 mt-lg-0"><i class="bx bxs-plus-square"></i>Pengajuan Baru</a></div>
             </div>
             <div class="table-responsive">
                 <table class="table mb-0">
@@ -38,12 +37,12 @@
                                 {{$key+1}}
                             </td>
                             <td>{{ $application->activity_name }}</td>
-                            <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
-                            <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
+                            <td>{!! viewHelper::statusReportHTML($application->report?->approval_status) !!}</td>
+                            <td>{!! viewHelper::getCurrentUserProcess($application,true) !!}</td>
                             <td>
                                 <div class="d-flex order-actions">
                                     <a href="javascript:;" class="me-3"><i class="fa-regular fa-eye"></i></a>
-                                    <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
+                                    <a href="{{route('reports.create',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
                                     <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
                                 </div>
                             </td>

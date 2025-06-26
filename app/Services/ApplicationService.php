@@ -48,6 +48,12 @@ class ApplicationService
                     'department_id'        => AuthService::currentAccess()['department_id'],
                     'created_by'           => AuthService::currentAccess()['id'],
                 ]);
+
+                $application->report()->create([
+                    'current_user_approval'=> $get_finance->id,
+                    'approval_status'=> 0,
+                    'department_id'=> AuthService::currentAccess()['department_id'],
+                ]);
                 // Create ApplicationUserApproval records for each verifier
                 foreach ($get_verificators as $key => $verifier) {
 
@@ -61,6 +67,7 @@ class ApplicationService
                         'user_text' => $verifier->name, // Assuming you want to store the name of the verifier
                         'sequence' => $sequence, // Assuming sequence starts at 1
                         'status' => 0, // Assuming 0 means pending
+                        'report_status' => 0, // Assuming 0 means pending
                         'application_id' => $application->id,
                         'department_id' => AuthService::currentAccess()['department_id'], // Assuming the department ID is from the current user
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
@@ -87,6 +94,12 @@ class ApplicationService
             case 'submit':
                     if ($app->created_by == $current_user_id && $app->approval_status < 6) {
                         $app->approval_status = 6;
+                        $app->save();
+                    }
+                    break;
+            case 'submit-report':
+                    if ($app->created_by == $current_user_id && $app->approval_status < 6) {
+                        $app->report->approval_status = 6;
                         $app->save();
                     }
                     break;
@@ -165,6 +178,49 @@ class ApplicationService
             if ($is_submit) {
                self::updateFlowApprovalStatus('submit', $data['application_id']);
             }
+            $app->save();
+
+            unset($data['draft_step_saved']);
+            if ($app->detail?->exists) {
+                $details = $app->detail()->update($data);
+            }else{
+                $details = $app->detail()->create($data);
+            }
+
+
+            self::clearData($app);
+
+
+            if (!$details) {
+                    return ['status' => false, 'message' => 'data pengajuan Gagal ditambahkan'];
+                }
+
+
+                foreach ($participants as $key => $value) {
+                    $participant = ApplicationParticipant::updateOrCreate($value);
+                }
+
+                foreach ($rundowns as $key => $value) {
+                    $rundown = ApplicationSchedule::updateOrCreate($value);
+                }
+                foreach ($draft_costs as $key => $value) {
+                    $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
+                }
+            DB::commit();
+            return['status'=>true,'message'=>'data pengajuan berhasil ditambahkan'];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            dd($th);
+            // throw $th;
+        }
+
+    }
+    public static function storeReport($data)
+    {
+        try {
+            DB::beginTransaction();
+            $app = Application::find($data['application_id']);
+            self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             $app->save();
 
             unset($data['draft_step_saved']);
@@ -306,8 +362,6 @@ class ApplicationService
 
             $app->update(['approval_status'=>12]);
 
-            // $app->report->create([''])
-
             $department = Department::find($app->department_id);
             $department->current_limit_submission = $department->current_limit_submission+1;
             $department->save();
@@ -326,6 +380,14 @@ class ApplicationService
     public static function getListReport(){
        $list = Application::where('approval_status',12)->get();
        return $list;
+    }
+    public static function hasDepartmentQuota(){
+        $department = Department::find(AuthService::currentAccess()['department_id']);
+        $quota_remaining = $department->limit_submission - $department->current_limit_submission;
+        if ($quota_remaining > 0) {
+            return true;
+        }
+        return false;
     }
 
 

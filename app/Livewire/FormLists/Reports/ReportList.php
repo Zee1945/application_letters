@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\FormLists\Report;
+namespace App\Livewire\FormLists\Reports;
 
 use App\Models\Application;
 use App\Services\ApplicationService;
@@ -11,6 +11,6 @@ class ReportList extends Component
     public function render()
     {
         $reports= ApplicationService::getListReport();
-        return view('livewire.form-lists.report.report-list',compact('reports'))->extends('layouts.main');
+        return view('livewire.form-lists.reports.report-list',compact('reports'))->extends('layouts.main');
     }
 }

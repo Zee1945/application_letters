@@ -1,7 +1,7 @@
 <div>
     <!--breadcrumb-->
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Form Pengajuan</div>
+        <div class="breadcrumb-title pe-3">Form LPJ</div>
     </div>
     <!--end breadcrumb-->
     <div class="row">
@@ -41,8 +41,8 @@
                                 <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                     <div class="bs-stepper-circle">2</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Peran</h5>
-                                        <p class="mb-0 steper-sub-title">Peran dalam kegiatan</p>
+                                        <h5 class="mb-0 steper-title">Upload Lampiran</h5>
+                                        <p class="mb-0 steper-sub-title">Upload File Lampiran </p>
                                     </div>
                                 </div>
                             </div>
@@ -51,28 +51,8 @@
                                 <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
                                     <div class="bs-stepper-circle">3</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Rundown</h5>
-                                        <p class="mb-0 steper-sub-title">Susunan Acara</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bs-stepper-line"></div>
-                            <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 4? 'active':''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger4" aria-controls="test-l-4">
-                                    <div class="bs-stepper-circle">4</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">RAB</h5>
-                                        <p class="mb-0 steper-sub-title">Rancangan Anggaran</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bs-stepper-line"></div>
-                            <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 5? 'active':''}}" role="tab" wire:click="directStep('5')" id="stepper1trigger4" aria-controls="test-l-4">
-                                    <div class="bs-stepper-circle">5</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">Nomor Surat</h5>
-                                        <p class="mb-0 steper-sub-title">Isian Nomor Surat</p>
+                                        <h5 class="mb-0 steper-title">Upload SPJ</h5>
+                                        <p class="mb-0 steper-sub-title">Upload Realisasi SPJ</p>
                                     </div>
                                 </div>
                             </div>
@@ -106,93 +86,40 @@
                                 <div id="test-l-1" role="tabpanel" class="{{$this->step == '1'? '':'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger1">
                                     <h5 class="mb-1">Formulir Umum</h5>
-                                    <p class="mb-4">Formulir untuk Gambaran Umum Maksud dan Tujuan Acara</p>
+                                    <p class="mb-4">Formulir untuk Gambaran Umum Kesimpulan Acara</p>
 
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <label for="Outcome" class="form-label fw-bold">Hasil (Outcome)</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome" wire:model="activity_output"
-                                                wire:model="activity_outcome"></textarea>
+                                            <label for="Outcome" class="form-label fw-bold">Kata Pengantar</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                                wire:model="introduction"></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
-                                                Ukur</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"></textarea>
+                                            <label for="UnitOfMeasurement" class="form-label fw-bold">
+                                                Kendala</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
-                                                Ukur</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="unit_of_measurment"></textarea>
+                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Simpulan</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="ActivityVolume" class="form-label fw-bold">Volume Kegiatan
+                                            <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume" wire:model="activity_volume"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="GeneralDescription" class="form-label fw-bold">Gambaran
-                                                Umum</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription" wire:model="general_description" ></textarea>
+                                            <label for="closing" class="form-label fw-bold">Penutup</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="closing" wire:model="closing" ></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="PurposeAndObjectives" class="form-label fw-bold">Maksud dan
-                                                Tujuan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives" wire:model="objectives" ></textarea>
+                                            <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Pelaksanaan Kegiatan </label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
                                         </div>
-                                        <div class="col-12">
-                                            <label for="Beneficiary" class="form-label fw-bold">Penerima
-                                                Manfaat</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary" wire:model="beneficiaries" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="activity_scope" class="form-label fw-bold">Lingkup
-                                                Aktifitas</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope" wire:model="activity_scope" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="implementation_method" class="form-label fw-bold"> Metode pelaksanaan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method" wire:model="implementation_method" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="implementation_stages" class="form-label fw-bold"> Tahapan pelaksanaan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages" wire:model="implementation_stages" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="activity_location" class="form-label fw-bold"> Lokasi Kegiatan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location" wire:model="activity_location" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="InputDate" class="form-label fw-bold">Tanggal
-                                                Pelaksanaan</label>
-                                            <div class="d-flex align-items-center" id="date-range">
-                                                <!-- Input Tanggal Mulai -->
-                                                <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control w-50" id="InputDate"
-                                                    aria-label="Tanggal Pelaksanaan" wire:model="activity_start_date">
-                                                <!-- Label Sampai -->
-                                                @if (!$this->sameDay)
-                                                <span class="d-flex w-50 align-items-baseline">
-                                                    <span class="ms-2 me-2 hide-is-sameday w-15">Sampai</span>
-                                                    <!-- Input Tanggal Selesai -->
-                                                    <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control hide-is-sameday w-35"
-                                                        id="InputEndDate" aria-label="Tanggal Selesai" wire:model="activity_end_date">
-                                                </span>
-                                                @endif
-
-                                            </div>
-                                            <!-- Checkbox -->
-                                            <div class="form-check mt-2">
-                                                <input class="form-check-input" wire:click="handleSameDay()" type="checkbox"
-                                                    {!! $this->sameDay? 'checked':'' !!} {!! viewHelper::handleFieldDisabled($this->application) !!}>
-                                                <label class="form-check-label" for="SameDayEvent">
-                                                    Acara selesai di hari yang sama
-                                                </label>
-                                            </div>
-                                        </div>
-
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
-                                            @if (viewHelper::actionPermissionButton('submit',$this->application))
-                                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                            @if (viewHelper::actionPermissionButton('submit-report',$this->application))
+                                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="saveDraft('1')">Submit LPJ</button>
                                             @endif
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
@@ -216,7 +143,7 @@
                                         </div>
                                         <div class="action-button">
                                             @if (count($this->participants)>0)
-                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
+                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application,false,true) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
 
                                             @endif
                                         </div>

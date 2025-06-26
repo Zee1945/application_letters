@@ -4,7 +4,8 @@ use App\Http\Controllers\Trans\ApplicationController;
 use App\Livewire\FormLists\Applications\ApplicationCreate;
 use App\Livewire\FormLists\Applications\ApplicationCreateDraft;
 use App\Livewire\FormLists\Applications\ApplicationList;
-use App\Livewire\FormLists\Report\ReportList;
+use App\Livewire\FormLists\Reports\ReportCreate;
+use App\Livewire\FormLists\Reports\ReportList;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
@@ -33,8 +34,8 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
         Route::group(['prefix' => 'report'], function () {
             Route::get('/', ReportList::class)
                 ->name('report.index');
-            // Route::get('create', ApplicationCreate::class)
-            //     ->name('applications.create');
+            Route::get('create/{application_id}', ReportCreate::class)
+                ->name('reports.create');
             // Route::get('create/{application_id}/draft', ApplicationCreateDraft::class)
             //     ->name('applications.create.draft');
 
