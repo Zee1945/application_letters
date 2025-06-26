@@ -50,9 +50,6 @@ class ReportCreate extends AbstractComponent
         $this->application = Application::find($application_id);
 
         $this->step = $this->application->draft_step_saved;
-        $this->participants = $this->application->participants->toArray();
-        $this->rundowns = $this->application->schedules->toArray();
-        $this->draft_costs = $this->application->draftCostBudgets->toArray();
         $this->application_id = $application_id;
 
 
@@ -79,7 +76,7 @@ class ReportCreate extends AbstractComponent
         return view('livewire.form-lists.reports.report-create')->extends('layouts.main');
     }
 
-    public function saveDraft($is_submit = false)
+    public function store()
     {
 
     // public $introduction;
@@ -99,9 +96,11 @@ class ReportCreate extends AbstractComponent
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
 
-        $application = ApplicationService::storeReport($generals);
+        $report = ApplicationService::storeReport($generals);
+        if ($report['status']) {
+            $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
+        }
 
-        $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
     }
 
 
@@ -137,7 +136,7 @@ class ReportCreate extends AbstractComponent
 
     public function loadData()
     {
-        foreach ($this->application->detail->getAttributes() as $key => $value) {
+        foreach ($this->application->report->getAttributes() as $key => $value) {
             $this->$key = $value;
         }
     }

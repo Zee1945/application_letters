@@ -99,8 +99,7 @@ class ApplicationService
                     break;
             case 'submit-report':
                     if ($app->created_by == $current_user_id && $app->approval_status < 6) {
-                        $app->report->approval_status = 6;
-                        $app->save();
+                        $app->report()->update(['approval_status'=>6]);
                     }
                     break;
             case 'approve':
@@ -126,6 +125,32 @@ class ApplicationService
 
                     }
                     break;
+            case 'approve-report':
+                    if ($current_user_id ==  $app->report->current_user_approval && $app->report->approval_status > 5 && $app->report->approval_status < 11) {
+                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
+                        $user_approvals->report_status = 11;
+                        $user_approvals->save();
+
+                        $max_seq = $app->userApprovals()->max('sequence');
+                        $approval_max_seq = $app->userApprovals()->where('sequence',$max_seq)->first();
+                        if ( $current_user_id == $approval_max_seq->user_id && $approval_max_seq->report_status > 10 && $approval_max_seq->report_status < 21) {
+                            $app->report->approval_status = 11;
+                            $app->report->save();
+
+                            $department = Department::find($app->department_id);
+                            $department->current_limit_submission = $department->current_limit_submission-1;
+                            $department->save();
+
+                            // self::storeListLetterNumber($app);
+                        }else{
+                            $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
+                            $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
+                            $app->report->current_user_approval = $next_user->user_id;
+                            $app->report->save();
+                        }
+
+                    }
+                    break;
             case 'revise':
                     if ($current_user_id == $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11 ) {
                         $app->approval_status = 2;
@@ -140,7 +165,36 @@ class ApplicationService
                         $user_approvals->save();
                     }
                     break;
+            case 'revise-report':
+                    if ($current_user_id == $app->report->current_user_approval && $app->report->approval_status > 5 && $app->report->approval_status < 11 ) {
+                        $app->approval_status = 2;
+                        $app->report()->note = $note;
+                        $app->report()->updated_at = Carbon::now();
+                        $app->save();
+
+                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
+                        $user_approvals->report_status = 2;
+                        $user_approvals->report_note = $note;
+                        $user_approvals->updated_at = Carbon::now();
+                        $user_approvals->save();
+                    }
+                    break;
             case 'reject':
+                    if ($current_user_id ==  $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11) {
+                        $app->report()->approval_status = 21;
+                        $app->report()->note = $note;
+                        $app->save();
+
+
+                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
+                        $user_approvals->report_status = 21;
+                        $user_approvals->report_note = $note;
+                        $user_approvals->updated_at = Carbon::now();
+                        $user_approvals->save();
+                    }
+
+                    break;
+            case 'reject-report':
                     if ($current_user_id ==  $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11) {
                         $app->approval_status = 21;
                         $app->note = $note;
@@ -222,35 +276,17 @@ class ApplicationService
             $app = Application::find($data['application_id']);
             self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             $app->save();
-
-            unset($data['draft_step_saved']);
-            if ($app->detail?->exists) {
-                $details = $app->detail()->update($data);
-            }else{
-                $details = $app->detail()->create($data);
-            }
+            $reports = $app->report()->update($data);
 
 
-            self::clearData($app);
+            // self::clearData($app);
 
 
-            if (!$details) {
-                    return ['status' => false, 'message' => 'data pengajuan Gagal ditambahkan'];
-                }
-
-
-                foreach ($participants as $key => $value) {
-                    $participant = ApplicationParticipant::updateOrCreate($value);
-                }
-
-                foreach ($rundowns as $key => $value) {
-                    $rundown = ApplicationSchedule::updateOrCreate($value);
-                }
-                foreach ($draft_costs as $key => $value) {
-                    $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
+            if (!$reports) {
+                    return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
                 }
             DB::commit();
-            return['status'=>true,'message'=>'data pengajuan berhasil ditambahkan'];
+            return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
         } catch (\Throwable $th) {
             DB::rollBack();
             dd($th);

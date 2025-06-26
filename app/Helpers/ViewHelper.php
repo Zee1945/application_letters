@@ -31,13 +31,8 @@ public static function statusReportHTML($status_number)
             $label = 'Approval Process';
             $color = 'primary';
         } elseif ($status_number > 10 && $status_number < 21) {
-            if ($status_number == 11) {
-                $label = 'Filling Letter Number';
-                $color = 'info';
-            } else {
                 $label = 'Approved';
                 $color = 'success';
-            }
         } elseif ($status_number > 20) {
             $label = 'Rejected';
             $color = 'danger';
@@ -94,9 +89,12 @@ public static function getCurrentUserProcess($app,$is_report=false){
         if ($status_number < 6) {
             return $creator;
         } elseif ($status_number > 5 && $status_number < 11) {
+            if ($is_report) {
+                return $app->report->currentUserApproval->user_text;
+            }
             return $app->currentUserApproval->user_text;
         } elseif ($status_number > 10 && $status_number < 21) {
-            if ($status_number == 11) {
+            if ($status_number == 11 && !$is_report) {
                 $get_kabag = User::where('department_id',$app->department_id)->role('kabag')->first();
 
                 return $get_kabag->name;
@@ -195,14 +193,22 @@ public static function getCurrentUserProcess($app,$is_report=false){
     }
 
 
-    public static function actionPermissionButton($action,$app=null) {
+    public static function actionPermissionButton($action,$app=null, $is_report=false) {
         $department = Department::find(AuthService::currentAccess()['department_id']);
         $quota_remaining = $department->limit_submission - $department->current_limit_submission;
         switch ($action) {
             case 'approval_process':
-                if ($app->approval_status > 5 && $app->approval_status < 11 && $app->current_user_approval == AuthService::currentAccess()['id']) {
-                    return true;
+                if (!$is_report) {
+                      if ($app->approval_status > 5 && $app->approval_status < 11 && $app->current_user_approval == AuthService::currentAccess()['id']) {
+                            return true;
+                        }
+                }else{
+                    
+                    if ($app->report->approval_status > 5 && $app->report->approval_status < 11 && $app->report->current_user_approval == AuthService::currentAccess()['id']) {
+                        return true;
+                    }
                 }
+              
                 return false;
             case 'submit':
                 if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {

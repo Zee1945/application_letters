@@ -56,4 +56,9 @@ class ApplicationReport extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+    public function currentUserApproval()
+    {
+        return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
+    }
 }

@@ -9,12 +9,13 @@
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
-                    <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
-                    <button class="btn btn-sm btn-danger" wire:click="debug">Debug</button>
-                    @if (viewHelper::actionPermissionButton('approval_process',$this->application))
-                        <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject')">Reject</button>
-                        <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise')">Revisi</button>
-                        <button class="btn btn-sm btn-success" wire:click="openModalConfirm('approve')">Approve</button>
+                    @if ($application->report->approval_status == 12)
+                        <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
+                    @endif
+                    @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
+                        <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject-report')">Reject</button>
+                        <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise-report')">Revisi</button>
+                        <button class="btn btn-sm btn-success" wire:click="openModalConfirm('approve-report')">Approve</button>
                     @endif
 
                 </div>
@@ -119,7 +120,7 @@
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
                                             @if (viewHelper::actionPermissionButton('submit-report',$this->application))
-                                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="saveDraft('1')">Submit LPJ</button>
+                                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store">Submit LPJ</button>
                                             @endif
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
@@ -310,7 +311,7 @@
         <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        @if ($this->open_modal_confirm == 'approve')
+        @if ($this->open_modal_confirm == 'approve-report')
         <div class="">
                 <div class="row">
                     <div class="d-flex flex-column align-items-center">
@@ -337,7 +338,7 @@
 
       </div>
       <div class="modal-footer">
-        @if ($this->open_modal_confirm != 'approve')
+        @if ($this->open_modal_confirm != 'approve-report')
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
             <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Submit</button>
         @endif
