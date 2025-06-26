@@ -61,7 +61,7 @@
                     @endforelse
                     <tr>
                         <td colspan="6">
-                            Limit pengajuan proposal Department : <span class="fw-bold"> {{$department->current_limit_submission }}</span> dari <span class="fw-bold"> {{$department->limit_submission}}</span> batas pengajuan proposal. {{viewHelper::actionPermissionButton('create-new-application')? '':'Submit LPJ sebelum melakukan pengajuan baru'}}
+                            Sisa kesempatan pengajuan proposal Departemen: <span class="fw-bold"> {{$department->limit_submission - $department->current_limit_submission }}</span> dari <span class="fw-bold"> {{$department->limit_submission}}</span>. {{viewHelper::actionPermissionButton('create-new-application')? '':'Submit LPJ sebelum melakukan pengajuan baru'}}
 
                         </td>
                     </tr>
