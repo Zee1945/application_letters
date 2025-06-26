@@ -117,8 +117,7 @@
                                                 wire:model="activity_outcome"></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
-                                                Ukur</label>
+                                            <label for="UnitOfMeasurement" class="form-label fw-bold">Indikator kinerja kegiatan</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"></textarea>
                                         </div>
                                         <div class="col-12">
