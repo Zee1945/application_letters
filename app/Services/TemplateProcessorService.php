@@ -43,7 +43,7 @@ class TemplateProcessorService
             $speaker_participant = self::generateTableParticipant('speaker', $get_speakers);
             $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
-        
+
         $meta = [
             'status'   => 'Disetujui',
             'pada'   => ViewHelper::humanReadableDate($application->currentUserApproval->updated_at),
@@ -93,10 +93,10 @@ class TemplateProcessorService
 
             Storage::disk('local')->put($storage_path, file_get_contents($savePath));
 
-            // $converted_to_pdf = self::convertToPdf('referensi/generated2.docx');
-            // return response()->download($savePath);
+            $converted_to_pdf = self::convertToPdf('referensi/generated2.docx');
+            return response()->download($savePath);
 
-            return true;
+            // return true;
     }
 
     public static function downloadDocxGenerated(){
@@ -104,7 +104,7 @@ class TemplateProcessorService
 
         $path =  public_path('referensi/generated2.docx');
 
-        
+
         // $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
         //     'ResponseContentType' => 'application/octet-stream',
         //     'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
@@ -227,6 +227,8 @@ class TemplateProcessorService
             'key' => $key ?: (string)now()->getTimestampMs()
         ];
 
+        // dd($config);
+
         // dd(config('onlyoffice.DOC_SERV_SITE_URL'));
 
         // Log::info('Isi log file_url '. $fileUrl);
@@ -245,13 +247,14 @@ class TemplateProcessorService
                     'Accept-Encoding' => 'gzip, deflate, br',
                     'Connection' => 'keep-alive',
                 ])->withoutVerifying()->post($conversionUrl);
-
+                    // dd($response);
                 $json = $response->json();
 
             // dd($json['fileUrl']);
             if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
                 $content = file_get_contents($json['fileUrl']);
             }
+                // Anda bisa mengembalikan nilai error atau message jika perlu
         }
 
         return $content;
@@ -275,7 +278,12 @@ class TemplateProcessorService
 
         // dd($temp_fileurl);
         // $file_url = Storage::disk('local')->get('referensi/genearted.docx');
-        $content = self::onlyOfficeConversion('docx', 'pdf', $temp_fileurl);
+
+        $path = parse_url($temp_fileurl, PHP_URL_PATH);
+        // Mendapatkan ekstensi file
+        $fileInfo = pathinfo($path);
+        $extension = $fileInfo['extension'];
+        $content = self::onlyOfficeConversion($extension, 'pdf', $temp_fileurl);
         $repo_path = public_path('referensi/mypdf.pdf');
 
         if ($content) {

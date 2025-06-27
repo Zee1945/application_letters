@@ -12,7 +12,7 @@
                     @if ($application->approval_status == 12)
                         <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
                     @endif
-                    {{-- <button class="btn btn-sm btn-danger" wire:click="debug">Debug</button> --}}
+                    <button class="btn btn-sm btn-danger" wire:click="debug">Debug</button>
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application))
                         <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject')">Reject</button>
                         <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise')">Revisi</button>

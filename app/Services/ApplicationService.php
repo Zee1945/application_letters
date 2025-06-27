@@ -98,8 +98,9 @@ class ApplicationService
                     }
                     break;
             case 'submit-report':
-                    if ($app->created_by == $current_user_id && $app->approval_status < 6) {
-                        $app->report()->update(['approval_status'=>6]);
+                    if ($app->created_by == $current_user_id && $app->report->approval_status < 6) {
+                        $app->report->approval_status = 6 ;
+                        $app->report->save();
                     }
                     break;
             case 'approve':
@@ -276,7 +277,7 @@ class ApplicationService
             $app = Application::find($data['application_id']);
             self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             $app->save();
-            $reports = $app->report()->update($data);
+            $reports = $app->report->update($data);
 
 
             // self::clearData($app);

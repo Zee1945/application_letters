@@ -1,0 +1,13 @@
+# Ignore sistem file dan log
+.DS_Store
+Thumbs.db
+
+# Ignore folder git
+.git
+
+# Ignore node_modules
+node_modules
+
+# Ignore log dan file IDE
+*.log
+.vscode/

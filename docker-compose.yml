@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: laravel-app
+    volumes:
+      - .:/var/www/html  # Adjust path to your Laravel project
+    ports:
+      - "8000:80"
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - onlyoffice
+
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: application_letters
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  onlyoffice:
+    image: onlyoffice/documentserver
+    container_name: onlyoffice-documentserver
+    environment:
+      JWT_ENABLED: "false"
+    ports:
+      - "8006:80"  # Change to the appropriate port if needed
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
