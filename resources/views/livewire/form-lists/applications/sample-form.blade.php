@@ -46,7 +46,7 @@
                                     <select id="input7" class="form-select">
                                         <option selected>---Pilih sumber pendanaan---</option>
                                         <option>BLU</option>
-                                        <option>BTOP</option>
+                                        <option>BOPTN</option>
                                     </select>
                                 </div>
                                 <div class="col-md-12">
@@ -54,7 +54,7 @@
                                     <select id="verifikator" class="form-select select2">
                                         <option selected>---Pilih verifikator---</option>
                                         <option>BLU</option>
-                                        <option>BTOP</option>
+                                        <option>BOPTN</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">

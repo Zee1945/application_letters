@@ -22,7 +22,7 @@
                                     <select id="input7" class="form-select" wire:model="fund_source">
                                         <option selected>---Pilih sumber pendanaan---</option>
                                         <option value="1">BLU</option>
-                                        <option value="2">BTOP</option>
+                                        <option value="2">BOPTN</option>
                                     </select>
                                 </div>
                                 <div class="col-md-12">

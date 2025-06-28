@@ -43,7 +43,7 @@
                                 {{$key+1}}
                             </td>
                             <td>{{ $application->activity_name }}</td>
-                            <td>{{ $application->funding_source == 1? 'BLU':'BTOP'}}</td>
+                            <td>{{ $application->funding_source == 1? 'BLU':'BOPTN'}}</td>
                             <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
                             <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
                             <td>

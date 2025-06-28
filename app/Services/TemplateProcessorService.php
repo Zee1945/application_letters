@@ -62,7 +62,7 @@ class TemplateProcessorService
             $templateProcessor = new TemplateProcessor($templatePath);
             foreach ($application->getAttributes() as $key => $value) {
                 if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BTOP';
+                    $value = $value==1? 'BLU':'BOPTN';
                 }
                 $templateProcessor->setValue($key, $value);
             }
@@ -93,8 +93,15 @@ class TemplateProcessorService
 
             Storage::disk('local')->put($storage_path, file_get_contents($savePath));
 
-            $converted_to_pdf = self::convertToPdf('referensi/generated2.docx');
-            return response()->download($savePath);
+
+
+        $temp_fileurl = Storage::disk('local')->temporaryUrl($storage_path, now()->addHours(1), [
+            'ResponseContentType' => 'application/octet-stream',
+            'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
+            'filename' => 'generated2.docx',
+        ]);
+            $converted_to_pdf = self::convertToPdf($temp_fileurl);
+            return response()->download($converted_to_pdf);
 
             // return true;
     }
@@ -218,12 +225,42 @@ class TemplateProcessorService
 
 
 
+    public static function onlyOfficeConversion1($from, $to, $fileUrl, $key = null)
+    {
+        // $filePath = url('referensi/generated2.docx');
+        $filePath = storage_path('app/public/docx-genearted/hasil_generate.docx');  // Akses file dari folder public Laravel
+        if (config('onlyoffice.DOC_SERV_SITE_URL')) {
+            $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'convert';
+            // $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'ConvertService.ashx';
+        // $onlyOfficeUrl = 'http://onlyoffice:80/convert';  // Ganti dengan URL OnlyOffice di Docker
+
+        $response = Http::attach(
+            'file',
+            fopen($filePath, 'r'),
+            'generated2.docx'
+        )->post($conversionUrl);
+
+        $saved_path = ' /converted-file.pdf';
+
+        dd($response);
+        if ($response->successful()) {
+            // Simpan hasil konversi ke folder public
+            file_put_contents(public_path('referensi/converted-file.pdf'), $response->body());
+
+            return $saved_path;
+        } else {
+            // Tangani error
+            return response()->json(['error' => 'File conversion failed'], 500);
+        }
+    }
+    }
     public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     {
         $config = [
             'fileType' => $from,
             'outputtype' => $to,
-            'url' => $fileUrl,
+            'url' => 'http://laravel-app/referensi/generated2.docx',
+            // 'url' => $fileUrl,
             'key' => $key ?: (string)now()->getTimestampMs()
         ];
 
@@ -238,8 +275,8 @@ class TemplateProcessorService
         if (config('onlyoffice.DOC_SERV_SITE_URL')) {
             $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'ConvertService.ashx';
 
-            // dd($fileUrl);
-            $response = Http::timeout(90)->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'json')
+            // dd($config);
+            $response = Http::timeout(90)->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'application/json')
                 ->withHeaders([
                     'Accept' => 'application/json',
                     'User-Agent' => 'Thunder Client (https://www.thunderclient.com)',
@@ -247,14 +284,12 @@ class TemplateProcessorService
                     'Accept-Encoding' => 'gzip, deflate, br',
                     'Connection' => 'keep-alive',
                 ])->withoutVerifying()->post($conversionUrl);
-                    // dd($response);
                 $json = $response->json();
 
-            // dd($json['fileUrl']);
             if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
                 $content = file_get_contents($json['fileUrl']);
+                dd($content);
             }
-                // Anda bisa mengembalikan nilai error atau message jika perlu
         }
 
         return $content;
@@ -265,25 +300,20 @@ class TemplateProcessorService
 
         Log::info('START CONVERT FILE TO PDF');
 
-        $file_url = url($file_url);
 
 
-        $temp_fileurl = Storage::disk('local')->temporaryUrl('docx-genearted/hasil_generate.docx', now()->addHours(1), [
-            'ResponseContentType' => 'application/octet-stream',
-            'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
-            'filename' => 'generated2.docx',
-        ]);
+
         // $temp_fileurl = public_path('storage/docx-genearte/hasil_generate.docx');
 
 
         // dd($temp_fileurl);
         // $file_url = Storage::disk('local')->get('referensi/genearted.docx');
 
-        $path = parse_url($temp_fileurl, PHP_URL_PATH);
+        $path = parse_url($file_url, PHP_URL_PATH);
         // Mendapatkan ekstensi file
         $fileInfo = pathinfo($path);
         $extension = $fileInfo['extension'];
-        $content = self::onlyOfficeConversion($extension, 'pdf', $temp_fileurl);
+        $content = self::onlyOfficeConversion($extension, 'pdf', $file_url);
         $repo_path = public_path('referensi/mypdf.pdf');
 
         if ($content) {
@@ -292,7 +322,7 @@ class TemplateProcessorService
             return $repo_path;
         }
         Log::info('END CONVERT FILE TO PDF - FAILED');
-        return false;
+        return $content;
     }
 
 

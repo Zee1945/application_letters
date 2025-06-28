@@ -38,9 +38,9 @@ RUN composer install
 # Set permissions for Laravel storage and cache directories
 # RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 # Configure Apache to allow access to storage directory
-# RUN echo "<Directory /var/www/html/storage>" >> /etc/apache2/apache2.conf
-# RUN echo "    Require all granted" >> /etc/apache2/apache2.conf
-# RUN echo "</Directory>" >> /etc/apache2/apache2.conf
+RUN echo "<Directory /var/www/html/storage>" >> /etc/apache2/apache2.conf
+RUN echo "    Require all granted" >> /etc/apache2/apache2.conf
+RUN echo "</Directory>" >> /etc/apache2/apache2.conf
 
 # Set permissions for Laravel storage and cache directories
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
