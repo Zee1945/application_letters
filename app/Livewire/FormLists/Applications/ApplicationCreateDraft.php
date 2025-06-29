@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
@@ -140,7 +141,7 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->dispatch('open-modal');
     }
 
-    
+
 
 
 
@@ -190,7 +191,8 @@ class ApplicationCreateDraft extends AbstractComponent
         }
     }
     public function debug(){
-        TemplateProcessorService::generateWord($this->application);
+        Storage::disk('minio')->put('test.txt', 'Hello MinIO!');
+        // TemplateProcessorService::generateWord($this->application);
     }
     public function nextStep()
     {
