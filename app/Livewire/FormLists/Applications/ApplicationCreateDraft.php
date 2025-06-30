@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -191,11 +192,10 @@ class ApplicationCreateDraft extends AbstractComponent
         }
     }
     public function debug(){
-        // dd(env('MINIO_BUCKET'));
         
         try {
-            $result = Storage::disk('minio')->put('test.txt', 'Hello MinIO!');
-            $file  = Storage::disk('minio')->get('test.txt');
+            $result = Storage::disk('minio')->put('tes/test.txt', 'Hello MinIO!');
+            $file  = Storage::disk('minio')->get('tes/test.txt');
             return Response::make($file, 200, [
                 'Content-Type' => 'application/octet-stream',
                 'Content-Disposition' => 'attachment; filename="tes.txt"',

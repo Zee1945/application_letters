@@ -52,7 +52,7 @@ return [
             'secret' => env('MINIO_SECRET_KEY'),
             'region' => 'us-east-1', // Tidak terlalu relevan, bisa diabaikan
             'bucket' => env('MINIO_BUCKET'),
-            'endpoint' => env('MINIO_ENDPOINT'), // Menggunakan endpoint MinIO di localhost
+            'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'), 
             'use_path_style_endpoint' => env('MINIO_USE_PATH_STYLE_ENDPOINT',true), // Menentukan gaya endpoint untuk MinIO
             'throw' => true,
             'report' => true,
@@ -66,7 +66,7 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
             'throw' => false,
             'report' => false,
         ],
