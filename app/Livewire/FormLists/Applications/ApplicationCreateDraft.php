@@ -191,7 +191,21 @@ class ApplicationCreateDraft extends AbstractComponent
         }
     }
     public function debug(){
-        Storage::disk('minio')->put('test.txt', 'Hello MinIO!');
+        // dd(env('MINIO_BUCKET'));
+        
+        try {
+            $result = Storage::disk('minio')->put('test.txt', 'Hello MinIO!');
+            $file  = Storage::disk('minio')->get('test.txt');
+            return Response::make($file, 200, [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'attachment; filename="tes.txt"',
+            ]);
+            // dd($result); // true jika berhasil, false jika gagal
+        } catch (\Exception $e) {
+            // Tangkap pesan kesalahan dan tampilkan
+            dd($e);
+        }
+        // dd($tes);
         // TemplateProcessorService::generateWord($this->application);
     }
     public function nextStep()
