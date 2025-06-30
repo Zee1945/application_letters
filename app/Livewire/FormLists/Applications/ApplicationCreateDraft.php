@@ -192,15 +192,16 @@ class ApplicationCreateDraft extends AbstractComponent
         }
     }
     public function debug(){
-        
+
         try {
-            $result = Storage::disk('minio')->put('tes/test.txt', 'Hello MinIO!');
-            $file  = Storage::disk('minio')->get('tes/test.txt');
-            return Response::make($file, 200, [
-                'Content-Type' => 'application/octet-stream',
-                'Content-Disposition' => 'attachment; filename="tes.txt"',
-            ]);
+            // $result = Storage::disk('minio')->put('tes/test.txt', 'Hello MinIO!');
+            // $file  = Storage::disk('minio')->get('tes/test.txt');
+            // return Response::make($file, 200, [
+            //     'Content-Type' => 'application/octet-stream',
+            //     'Content-Disposition' => 'attachment; filename="tes.txt"',
+            // ]);
             // dd($result); // true jika berhasil, false jika gagal
+            $res = TemplateProcessorService::generateWord($this->application);
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);

@@ -32,9 +32,11 @@ class TemplateProcessorService
      *
      * @return void
      */
+    public static $application = null;
+
     public static function generateWord($application=null)
     {
-        // dd($application);
+        self::$application = $application;
         $get_commitees = self::filterParticipantByType('commitee',$application->participants);
         $get_speakers = self::filterParticipantByType('speaker',$application->participants);
         $get_participant = self::filterParticipantByType('participant',$application->participants);
@@ -89,21 +91,18 @@ class TemplateProcessorService
 
             $templateProcessor->saveAs($savePath);
 
-            $storage_path = 'docx-genearted/hasil_generate.docx';
+            $storage_path = 'docx-generated/hasil_generate.docx';
 
-            Storage::disk('local')->put($storage_path, file_get_contents($savePath));
-
-
-
-        $temp_fileurl = Storage::disk('local')->temporaryUrl($storage_path, now()->addHours(1), [
+            Storage::disk('minio')->put($storage_path, file_get_contents($savePath));
+        $temp_fileurl = Storage::disk('minio')->temporaryUrl($storage_path, now()->addHours(1), [
             'ResponseContentType' => 'application/octet-stream',
             'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
             'filename' => 'generated2.docx',
         ]);
             $converted_to_pdf = self::convertToPdf($temp_fileurl);
-            return response()->download($converted_to_pdf);
+            // return response()->download($converted_to_pdf);
 
-            // return true;
+            return true;
     }
 
     public static function downloadDocxGenerated(){
@@ -259,8 +258,8 @@ class TemplateProcessorService
         $config = [
             'fileType' => $from,
             'outputtype' => $to,
-            'url' => 'http://laravel-app/referensi/generated2.docx',
-            // 'url' => $fileUrl,
+            // 'url' => 'http://laravel-app/referensi/generated2.docx',
+            'url' => $fileUrl,
             'key' => $key ?: (string)now()->getTimestampMs()
         ];
 
@@ -288,7 +287,7 @@ class TemplateProcessorService
 
             if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
                 $content = file_get_contents($json['fileUrl']);
-                dd($content);
+
             }
         }
 
@@ -314,12 +313,16 @@ class TemplateProcessorService
         $fileInfo = pathinfo($path);
         $extension = $fileInfo['extension'];
         $content = self::onlyOfficeConversion($extension, 'pdf', $file_url);
-        $repo_path = public_path('referensi/mypdf.pdf');
-
+        $get_path = FileManagementService::getPathStorage(self::$application->id,'application');
+        $get_filename = FileManagementService::generateFilename(self::$application->activity_name,self::$application->id,'TOR');
+        $target_dir = $get_path.'/'.$get_filename;
         if ($content) {
-            $res = $content->saveAs($repo_path);
+            $res = Storage::disk('minio')->put($target_dir, $content);
+            // if ($res) {
+            //    FileManagementService::storeFile(self::$application,$get_path,explode($get_filename)[1]);
+            // }
             Log::info('END CONVERT FILE TO PDF - SUCCESS');
-            return $repo_path;
+            return $res;
         }
         Log::info('END CONVERT FILE TO PDF - FAILED');
         return $content;

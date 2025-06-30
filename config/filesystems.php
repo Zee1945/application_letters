@@ -48,14 +48,14 @@ return [
         ],
         'minio' => [
             'driver' => 's3',
-            'key'    => env('MINIO_ACCESS_KEY'),
-            'secret' => env('MINIO_SECRET_KEY'),
+            'key'    => env('MINIO_ACCESS_KEY_ID'),
+            'secret' => env('MINIO_SECRET_ACCESS_KEY'),
             'region' => 'us-east-1', // Tidak terlalu relevan, bisa diabaikan
             'bucket' => env('MINIO_BUCKET'),
-            'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'), 
+            'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'),
             'use_path_style_endpoint' => env('MINIO_USE_PATH_STYLE_ENDPOINT',true), // Menentukan gaya endpoint untuk MinIO
-            'throw' => true,
-            'report' => true,
+            'throw' => false,
+            'report' => false,
         ],
 
         's3' => [
