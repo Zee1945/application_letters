@@ -11,6 +11,7 @@ class Files extends AbstractModel
 
     protected $fillable = [
         'filename',
+        'file_type',
         'encrypted_filename',
         'mimetype',
         'belongs_to',

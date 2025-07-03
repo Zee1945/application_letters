@@ -55,11 +55,10 @@ class TemplateProcessorService
         ];
             $qrPath = self::generateQrCode($meta);
 
-
-
-
             $templatePath = public_path('referensi/dummy_inject_word.docx');
-            $temp_saved = public_path('temp/generated_output.docx');
+            $directory_temp = 'doc/temp/generated_output.docx';
+            $write_output = public_path($directory_temp);
+            $url_temp_convert = url($directory_temp);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
             foreach ($application->getAttributes() as $key => $value) {
@@ -89,23 +88,33 @@ class TemplateProcessorService
         ]);
             // end set qr code ttd
 
-            $templateProcessor->saveAs($temp_saved);
-
-            $storage_path = 'docx-generated/hasil_generate.docx';
-
-            $store_minio = Storage::disk('minio')->put($storage_path, file_get_contents($savePath)) ?;
-        $temp_fileurl = Storage::disk('minio')->temporaryUrl($storage_path, now()->addHours(1), [
+            $templateProcessor->saveAs($write_output);
+        Storage::disk('minio')->put($directory_temp, file_get_contents($write_output));
+        $temp_fileurl = Storage::disk('minio')->temporaryUrl($directory_temp, now()->addHours(1), [
             'ResponseContentType' => 'application/octet-stream',
             'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
-            'filename' => 'generated2.docx',
+            'filename' => 'generated_output.docx',
         ]);
             $content= FileManagementService::convertToPdf($temp_fileurl);
             if ($content) {
+                $store_document = FileManagementService::storeFileApplication($content,$application,'letters');
+                if ($store_document['status']) {
+                    // unlink($write_output);
+                    // Storage::disk('minio')->delete($write_output);
+                    $filename = $store_document['data']->filename;
+                    Storage::disk('minio')->temporaryUrl($store_document['data']->path.'/'.$filename, now()->addHours(1), [
+                        'ResponseContentType' => 'application/octet-stream',
+                        'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
+                        'filename' => $filename,
+                    ]);
+                }
 
             }
-            // return response()->download($converted_to_pdf);
+        // return response()->download($converted_to_pdf);
 
-            return true;
+
+
+            return false;
     }
 
     public static function downloadDocxGenerated(){

@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->id();
             $table->string('filename');
-            $table->string('encrypted_filename');
-            $table->string('mimetype');
-            $table->string('file_type'); //isinya bisa jadi draft_tor,tor, monev lpj
-            $table->string('belongs_to');
-            $table->string('path');
-            $table->string('storage_type');
-            $table->bigInteger('filesize');
+            $table->text('encrypted_filename')->nullable();
+            $table->string('mimetype')->nullable();
+            $table->string('file_type')->nullable(); //isinya bisa jadi draft_tor,tor, monev lpj
+            $table->string('belongs_to')->nullable();
+            $table->string('path')->nullable();
+            $table->string('storage_type')->nullable();
+            $table->bigInteger('filesize')->nullable();
             $table->unsignedBigInteger('application_id');
             $table->unsignedBigInteger('department_id');
             $table->timestamps();

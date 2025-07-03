@@ -3,11 +3,15 @@
 namespace App\Services;
 
 use App\Helpers\ViewHelper;
+use App\Models\Files;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Storage;
+use Sqids\Sqids;
 
 class FileManagementService
 {
@@ -17,32 +21,66 @@ class FileManagementService
      * @return void
      */
 
-     public static function setPathStorage($application_id,$type='application'){
+     public static function setPathStorage($application_id,$type='letter'){
         $current = Carbon::now();
         return $current->year.'-'.$current->month.'/'.$application_id.'/'.$type;
      }
 
-     public static function getPathStorage($application_id, $type = 'application'){
+     public static function getPathStorage($application_id, $type = 'letter'){
         return self::setPathStorage($application_id, $type);
      }
 
 
 
-     public static function encryptedFileName(){
+     public static function encrypted($str){
+
 
      }
-     public static function storeFile($content ){
+     public static function storeFileApplication($content,$application,$trans_type){
 
-        $get_path = FileManagementService::getPathStorage(self::$application->id, 'application');
-        $get_filename = FileManagementService::generateFilename(self::$application->activity_name, self::$application->id, 'TOR');
-        $target_dir = $get_path . '/' . $get_filename;
+        $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
+        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name, $application->id, 'TOR'));
+        $target_dir = $get_path . '/' . $filename.'.'.$ext;
+        // dd($target_dir);
         if ($content) {
             $res = Storage::disk('minio')->put($target_dir, $content);
+            // dd($res);
             if ($res) {
-                FileManagementService::storeFile(self::$application, $get_path, explode($get_filename)[1]);
+                $mime_type = pathinfo(Storage::disk('minio')->url($target_dir), PATHINFO_EXTENSION);
+                $fileSize = 10000;
+                try {
+                    DB::beginTransaction();
+                    $data = [
+                        'filename'=> $filename.'.'.$ext,
+                        'encrypted_filename'=> Crypt::encryptString($filename),
+                        'mimetype'=> $mime_type,
+                        'belongs_to'=> $trans_type,
+                        'file_type'=> 'TOR',
+                        'path'=> $get_path,
+                        'storage_type'=>'minio',
+                        'filesize'=>$fileSize,
+                        'application_id'=>$application->id,
+                        'department_id'=>$application->department_id,
+                        'created_by'=>AuthService::currentAccess()['id'],
+                        'updated_by'=>AuthService::currentAccess()['id']
+                    ];
+                    $res = Files::create($data);
+
+                    if (!$res) {
+                        DB::rollBack();
+                        return ['status' => false, 'message' => 'Gagal Simpan File','data'=>null];
+                    }
+                    DB::commit();
+                    return ['status'=>true,'message'=> 'Berhasil Simpan File','data' => $res];
+                } catch (\Throwable $th) {
+                    //throw $th;
+                    DB::rollBack();
+                    dd($th);
+                }
+                // Files::create($application, $get_path, explode($get_filename)[1]);
             }
             Log::info('END CONVERT FILE TO PDF - SUCCESS');
-            return $res;
+            return ['status'=>false,'message'=>'Gagal menyimpan file ke storage'];
         }
      }
 

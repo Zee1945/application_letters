@@ -54,8 +54,8 @@ return [
             'bucket' => env('MINIO_BUCKET'),
             'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'),
             'use_path_style_endpoint' => env('MINIO_USE_PATH_STYLE_ENDPOINT',true), // Menentukan gaya endpoint untuk MinIO
-            'throw' => false,
-            'report' => false,
+            'throw' => true,
+            'report' => true,
         ],
 
         's3' => [
