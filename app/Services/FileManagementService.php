@@ -61,8 +61,8 @@ class FileManagementService
                         'filesize'=>$fileSize,
                         'application_id'=>$application->id,
                         'department_id'=>$application->department_id,
-                        'created_by'=>AuthService::currentAccess()['id'],
-                        'updated_by'=>AuthService::currentAccess()['id']
+                        'created_by'=>$application->created_by,
+                        'updated_by'=>$application->created_by
                     ];
                     $res = Files::create($data);
 

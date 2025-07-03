@@ -57,7 +57,7 @@ class TemplateProcessorService
 
             $templatePath = public_path('referensi/dummy_inject_word.docx');
             $directory_temp = 'doc/temp/generated_output.docx';
-            $write_output = public_path($directory_temp);
+            $write_output = public_path(path: $directory_temp);
             $url_temp_convert = url($directory_temp);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -99,8 +99,8 @@ class TemplateProcessorService
             if ($content) {
                 $store_document = FileManagementService::storeFileApplication($content,$application,'letters');
                 if ($store_document['status']) {
-                    // unlink($write_output);
-                    // Storage::disk('minio')->delete($write_output);
+                    unlink($write_output);
+                    Storage::disk('minio')->delete($directory_temp);
                     $filename = $store_document['data']->filename;
                     Storage::disk('minio')->temporaryUrl($store_document['data']->path.'/'.$filename, now()->addHours(1), [
                         'ResponseContentType' => 'application/octet-stream',

@@ -3,6 +3,7 @@
 namespace App\Livewire\FormLists\Applications;
 
 use App\Imports\ApplicationsImport;
+use App\Jobs\GenerateApplicationFileJob;
 use App\Livewire\AbstractComponent;
 use App\Models\Application;
 use App\Services\ApplicationService;
@@ -201,7 +202,8 @@ class ApplicationCreateDraft extends AbstractComponent
             //     'Content-Disposition' => 'attachment; filename="tes.txt"',
             // ]);
             // dd($result); // true jika berhasil, false jika gagal
-            $res = TemplateProcessorService::generateWord($this->application);
+            // $res = 
+            GenerateApplicationFileJob::dispatch($this->application);
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);
