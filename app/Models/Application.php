@@ -77,5 +77,9 @@ class Application extends AbstractModel
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+    public function applicationFiles()
+    {
+        return $this->hasMany(ApplicationFile::class);
+    }
 
 }

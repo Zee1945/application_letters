@@ -3,6 +3,7 @@
 use App\Http\Controllers\Trans\ApplicationController;
 use App\Livewire\FormLists\Applications\ApplicationCreate;
 use App\Livewire\FormLists\Applications\ApplicationCreateDraft;
+use App\Livewire\FormLists\Applications\ApplicationDetail;
 use App\Livewire\FormLists\Applications\ApplicationList;
 use App\Livewire\FormLists\Reports\ReportCreate;
 use App\Livewire\FormLists\Reports\ReportList;
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 ->name('applications.index');
             Route::get('create', ApplicationCreate::class)
                 ->name('applications.create');
+            Route::get('{application_id}', ApplicationDetail::class)
+                ->name('applications.detail');
             Route::get('create/{application_id}/draft', ApplicationCreateDraft::class)
                 ->name('applications.create.draft');
 

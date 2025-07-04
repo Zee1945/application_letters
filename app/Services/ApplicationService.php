@@ -73,8 +73,28 @@ class ApplicationService
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
                     ]);
                 }
-                DB::commit();
-                return $application;
+
+            $application_files = [
+                'Draft TOR',
+                'TOR',
+                'SK',
+                'LPJ',
+                'Surat Permohonan Narsum',
+                'Surat Permohonan Moderator',
+                'Surat Undangan Peserta',
+                'Surat Tugas',
+                'Jadwal Kegiatan',
+            ];
+            foreach ($application_files as $name) {
+                $application->applicationFiles()->create( [
+                    'type_name'    => $name,
+                    'code'         => strtolower(str_replace(' ', '_', $name)),
+                    'trans_type'   => $name !== 'LPJ'?1:2,
+                    'department_id' => $application->department_id,
+                ]);
+            }
+            DB::commit();
+            return $application;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;

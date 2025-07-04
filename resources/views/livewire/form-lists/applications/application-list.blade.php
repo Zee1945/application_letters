@@ -48,7 +48,7 @@
                             <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
                             <td>
                                 <div class="d-flex order-actions">
-                                    <a href="javascript:;" class="me-3"><i class="fa-regular fa-eye"></i></a>
+                                    <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class="fa-regular fa-eye"></i></a>
                                     <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
                                     <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
                                 </div>

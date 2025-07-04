@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class GenerateApplicationFileJob implements ShouldQueue
 {
@@ -31,5 +32,11 @@ class GenerateApplicationFileJob implements ShouldQueue
         //
 
         TemplateProcessorService::generateWord($this->application);
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        // Ini dipanggil kalau job gagal total
+        Log::error('Job gagal: ' . $exception->getMessage());
     }
 }
