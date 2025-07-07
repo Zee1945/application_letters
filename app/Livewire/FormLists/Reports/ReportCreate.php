@@ -10,11 +10,12 @@ use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportCreate extends AbstractComponent
 {
-
+    use WithFileUploads;
     public $application_id = null;
 
     public $open_modal_confirm = null;
@@ -30,7 +31,7 @@ class ReportCreate extends AbstractComponent
 
 
     // Step 2
-    public $participants = [];
+    public $speakers_info = [];
     public $rundowns = [];
     public $draft_costs = [];
     public $excel_participant = null;
@@ -51,7 +52,7 @@ class ReportCreate extends AbstractComponent
 
         $this->step = $this->application->draft_step_saved;
         $this->application_id = $application_id;
-
+        $this->draft_costs = $this->application->draftCostBudgets->toArray();
 
         $keysToKeep = ['id', 'letter_label', 'letter_name', 'type_field', 'letter_number'];
         $this->letter_numbers = array_map(function ($item) use ($keysToKeep) {
@@ -61,8 +62,6 @@ class ReportCreate extends AbstractComponent
 
 
         $this->permissionApplication($application_id);
-
-        $this->handleSameDay(true);
 
         //  $this->dispatch('transfer-rundowns', [...$this->rundowns]);
         //  $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
@@ -76,15 +75,19 @@ class ReportCreate extends AbstractComponent
         return view('livewire.form-lists.reports.report-create')->extends('layouts.main');
     }
 
+    #[On('transfer-speakerInformation')]
+    public function receiveSpeakerInformation($speaker_info){
+        $this->speakers_info = $speaker_info;
+    }
+
+    #[On('transfer-realization')]
+    public function receiveRealization($draft_costs)
+    {
+        $this->draft_costs = $draft_costs;
+    }
+
     public function store()
     {
-
-    // public $introduction;
-    // public $activity_description;
-    // public $obstacles;
-    // public $conclusion;
-    // public $recommendations;
-    // public $closing;
         $generals = [
             'introduction' => $this->introduction,
             'activity_description' => $this->activity_description,
@@ -96,7 +99,7 @@ class ReportCreate extends AbstractComponent
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
 
-        $report = ApplicationService::storeReport($generals);
+        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info);
         if ($report['status']) {
             $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
         }
@@ -163,25 +166,6 @@ class ReportCreate extends AbstractComponent
         }
     }
 
-
-    public function handleSameDay($is_mount = false)
-    {
-        if (!$is_mount) {
-            $this->sameDay = !$this->sameDay;
-        } else {
-            $start_date = $this->application->detail?->activity_start_date;
-            $end_date = $this->application->detail?->activity_end_date;
-            if ($start_date && $end_date) {
-                if ($start_date == $end_date) {
-                    $this->sameDay = true;
-                } else {
-                    $this->sameDay = false;
-                }
-            } else {
-                $this->sameDay = true;
-            }
-        }
-    }
     public function debug()
     {
         TemplateProcessorService::generateWord($this->application);

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('unit')->nullable(); // Satuan item biaya
             $table->integer('cost_per_unit')->nullable(); // Biaya per unit
             $table->integer('total')->nullable(); // Total Biaya
-
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)

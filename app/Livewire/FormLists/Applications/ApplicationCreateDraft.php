@@ -32,8 +32,7 @@ class ApplicationCreateDraft extends AbstractComponent
     public $activity_scope;
     public $implementation_method;
     public $implementation_stages;
-    public $activity_start_date;
-    public $activity_end_date;
+    public $activity_dates;
     public $activity_location;
     public $unit_of_measurment;
 
@@ -76,7 +75,6 @@ class ApplicationCreateDraft extends AbstractComponent
 
        $this->permissionApplication($application_id);
 
-       $this->handleSameDay(true);
 
         //  $this->dispatch('transfer-rundowns', [...$this->rundowns]);
         //  $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
@@ -95,7 +93,6 @@ class ApplicationCreateDraft extends AbstractComponent
     public function saveDraft($last_saved,$is_submit=false){
         $this->step = $last_saved;
 
-        if ($this->sameDay) $this->activity_end_date = $this->activity_start_date;
       $generals = [
             'draft_step_saved'=> $this->step,
             'activity_output' => $this->activity_output,
@@ -108,13 +105,11 @@ class ApplicationCreateDraft extends AbstractComponent
             'activity_scope' => $this->activity_scope,
             'implementation_method' => $this->implementation_method,
             'implementation_stages' => $this->implementation_stages,
-            'activity_start_date' => $this->activity_start_date,
-            'activity_end_date' => $this->activity_end_date,
+            'activity_dates' => $this->activity_dates,
             'activity_location' => $this->activity_location,
             'application_id' => $this->application_id,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
-
         $application = ApplicationService::storeApplicationDetails($generals,$this->participants,$this->rundowns,$this->draft_costs,$is_submit);
 
         $this->redirectRoute('applications.create.draft',['application_id'=> $this->application_id],false,true);
@@ -175,28 +170,11 @@ class ApplicationCreateDraft extends AbstractComponent
     }
 
 
-    public function handleSameDay($is_mount=false){
-        if (!$is_mount) {
-            $this->sameDay = !$this->sameDay;
-        }else{
-            $start_date = $this->application->detail?->activity_start_date;
-            $end_date = $this->application->detail?->activity_end_date;
-            if ($start_date && $end_date) {
-                if ($start_date == $end_date) {
-                    $this->sameDay = true;
-                }else{
-                    $this->sameDay = false;
-                }
-            }else{
-                $this->sameDay = true;
-            }
-        }
-    }
     public function debug(){
 
         try {
-            GenerateApplicationFileJob::dispatch($this->application);
-            // TemplateProcessorService::generateWord($this->application);
+            // GenerateApplicationFileJob::dispatch($this->application);
+            TemplateProcessorService::generateWord($this->application);
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);

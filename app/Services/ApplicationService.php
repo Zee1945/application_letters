@@ -290,12 +290,12 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data)
+    public static function storeReport($data,$realization=[],$speakers_info=[])
     {
+        dd($realization,$speakers_info);
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
-            self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             $app->save();
             $reports = $app->report->update($data);
 
@@ -306,6 +306,7 @@ class ApplicationService
             if (!$reports) {
                     return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
                 }
+            self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             DB::commit();
             return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
         } catch (\Throwable $th) {

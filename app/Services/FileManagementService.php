@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ViewHelper;
+use App\Models\Application;
 use App\Models\Files;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
@@ -36,12 +37,11 @@ class FileManagementService
 
 
      }
-     public static function storeFileApplication($content,$application,$trans_type){
+     public static function storeFileApplication($content,$application,$trans_type,$file_code=null){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
-        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name, $application->id, 'TOR'));
+        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code ));
         $target_dir = $get_path . '/' . $filename.'.'.$ext;
-        // dd($target_dir);
         if ($content) {
             $res = Storage::disk('minio')->put($target_dir, $content);
             // dd($res);
@@ -66,10 +66,19 @@ class FileManagementService
                     ];
                     $res = Files::create($data);
 
+
+
                     if (!$res) {
                         DB::rollBack();
                         return ['status' => false, 'message' => 'Gagal Simpan File','data'=>null];
                     }
+                    $update_file_type = $application->applicationFiles()->where('code',$file_code)->first();
+                    $update_file_type->file_id = $res->id;
+                    $update_file_type->status_ready = 3;
+                    $update_file_type->save();
+
+
+
                     DB::commit();
                     return ['status'=>true,'message'=> 'Berhasil Simpan File','data' => $res];
                 } catch (\Throwable $th) {
@@ -84,13 +93,14 @@ class FileManagementService
         }
      }
 
-     public static function generateFilename($filename, $application_id, $fileType='',$mimeType = 'pdf'){
+     public static function generateFilename($filename, $application, $fileCode='',$mimeType = 'pdf'){
+        $file_type_name = $application->applicationFiles()->whereCode($fileCode)->first()->type_name;
         $carbon = Carbon::now();
         $filename = explode('.',$filename)[0];
         $date = $carbon->format('Ymd');
         $time = $carbon->format('His');
         $timestamp = $carbon->timestamp;
-        $new_filename = $fileType.'-'.$filename.'-'.$application_id.'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
+        $new_filename = $file_type_name.'-'.$filename.'-'.$application->id.'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
         return $new_filename;
      }
 

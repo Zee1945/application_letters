@@ -26,4 +26,9 @@ class Files extends AbstractModel
         'deleted_at',
         'deleted_by',
     ];
+
+    public function applicationDraftCostBudgets()
+    {
+        return $this->belongsToMany(ApplicationDraftCostBudget::class, 'draft_cost_budget_files');
+    }
 }

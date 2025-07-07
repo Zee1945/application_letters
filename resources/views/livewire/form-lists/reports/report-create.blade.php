@@ -42,8 +42,8 @@
                                 <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                     <div class="bs-stepper-circle">2</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Upload Lampiran</h5>
-                                        <p class="mb-0 steper-sub-title">Upload File Lampiran </p>
+                                        <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
+                                        <p class="mb-0 steper-sub-title">Isi Form Narasumber </p>
                                     </div>
                                 </div>
                             </div>
@@ -52,8 +52,8 @@
                                 <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
                                     <div class="bs-stepper-circle">3</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Upload SPJ</h5>
-                                        <p class="mb-0 steper-sub-title">Upload Realisasi SPJ</p>
+                                        <h5 class="mb-0 steper-title">Realisasi</h5>
+                                        <p class="mb-0 steper-sub-title">Isi Form Realisasi</p>
                                     </div>
                                 </div>
                             </div>
@@ -138,67 +138,23 @@
 
                                     <div class="d-flex justify-content-between">
                                         <div class="">
-                                            <h5 class="mb-1">Peran dalam Kegiatan</h5>
-                                            <p class="mb-4">Untuk memilih Narasumber, Moderator, Panitia maupun
-                                                Peserta Acara .</p>
-                                        </div>
-                                        <div class="action-button">
-                                            @if (count($this->participants)>0)
-                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application,false,true) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
-
-                                            @endif
+                                            <h5 class="mb-1">Informasi Narasumber</h5>
+                                            <p class="mb-4">Isi Form Informasi Narasumber</p>
                                         </div>
                                     </div>
 
 
                                     <div class="row g-3">
-                                        @if (count($this->participants) > 0)
                                             <div class="col-12">
                                                 <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Narasumber dan Moderator</h6>
+                                                    <h6>Isi Informasi Narasumber</h6>
                                                 </label>
                                                 <div class="">
-                                                    <livewire:forms.table-participants :participants="$this->participants" :participantType="'speaker'" />
+                                                    <livewire:forms.table-speaker-informations :participants="$this->application->participants"/>
                                                 </div>
                                             </div>
-                                            <div class="col-12">
-                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Panitia</h6>
-                                                </label>
-                                                <livewire:forms.table-participants :participants="$this->participants" :participantType="'commitee'" />
-                                            </div>
-                                            <div class="col-12">
-                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Peserta</h6>
-                                                </label>
-                                                <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" />
-                                            </div>
-                                        @else
-                                            <!-- Button trigger modal -->
-                                            <div class="d-flex w-100 flex-column justify-content-center">
-                                                <div class="mb-3 d-flex flex-column justify-content-center">
-                                                    <label for="file" class="form-label mx-auto">Download Template Excell</label>
-                                                    <div class="d-flex justify-content-center">
-                                                        <button class="btn btn-success btn-md mx-auto btn-hover" wire:loading.class="opacity-50" wire:click="downloadTemplateExcel">
-                                                            <i class="fa-solid fa-file-excel me-2"></i> Download Template Peserta
-                                                        </button>
-                                                    </div>
 
-                                                </div>
-                                                    <div class="mb-3 d-flex flex-column justify-content-center">
-                                                        <form wire:submit.prevent="importParticipant">
-                                                        <label for="file" class="form-label mx-auto">Pilih File Excel
-                                                            (.xlsx)</label>
-                                                            <div class="d-flex justify-content-center">
-                                                                <input type="file" wire:model="excel_participant"
-                                                                id="file" class="form-control" accept=".xlsx,.xls">
-                                                                <button type="submit" class="btn btn-sm btn-info text-white w-25 btn-hover fw-bold" wire:loading.class="opacity-50"> <i class="fa-solid fa-gears me-2"></i> Generate File</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                            </div>
 
-                @endif
 
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
@@ -217,35 +173,15 @@
 
         </div>
 
-        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger3">
-            <h5 class="mb-1">Susunan Acara</h5>
-            <p class="mb-4">Berisi Jadwal Susunan Acara</p>
 
 
-            <div class="row g-3">
-                <div class="col-12">
-                    <livewire:forms.table-rundown/>
-                    {{-- <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" /> --}}
-                </div>
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
-                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                        <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
-                                class='bx bx-right-arrow-alt ms-2'></i></button>
-                    </div>
-                </div>
-            </div><!---end row-->
-
-        </div>
-
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
-            <h5 class="mb-1">Rancangan Anggaran Biaya</h5>
-            <p class="mb-4">Tabel Rancangan Anggaran Biaya Kegiatan</p>
+        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+            <h5 class="mb-1">Realisasi Anggaran</h5>
+            <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 
             <div class="row g-3">
                 <div class="col-12">
-                   <livewire:forms.table-draft-cost/>
+                   <livewire:forms.table-realization :draftCost="$this->draft_costs"/>
                 </div>
 
                 <div class="col-12">

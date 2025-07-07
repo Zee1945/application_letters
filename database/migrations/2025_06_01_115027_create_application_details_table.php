@@ -24,8 +24,7 @@ return new class extends Migration
             $table->text('activity_scope')->nullable(); // Ruang lingkup kegiatan
             $table->text('implementation_method')->nullable(); // Metode pelaksanaan
             $table->text('implementation_stages')->nullable(); // Tahapan pelaksanaan
-            $table->date('activity_start_date')->nullable(); // Tanggal pelaksanaan
-            $table->date('activity_end_date')->nullable(); // Tanggal pelaksanaan
+            $table->string('activity_dates')->nullable(); // Tanggal pelaksanaan
             $table->string('activity_location')->nullable(); // Tempat pelaksanaan
 
             // $table->string('speaker_name')->nullable(); // Nama narasumber

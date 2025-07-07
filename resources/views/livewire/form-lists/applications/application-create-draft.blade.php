@@ -167,27 +167,12 @@
                                                 Pelaksanaan</label>
                                             <div class="d-flex align-items-center" id="date-range">
                                                 <!-- Input Tanggal Mulai -->
-                                                <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control w-50" id="InputDate"
-                                                    aria-label="Tanggal Pelaksanaan" wire:model="activity_start_date">
-                                                <!-- Label Sampai -->
-                                                @if (!$this->sameDay)
-                                                <span class="d-flex w-50 align-items-baseline">
-                                                    <span class="ms-2 me-2 hide-is-sameday w-15">Sampai</span>
-                                                    <!-- Input Tanggal Selesai -->
-                                                    <input type="date" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control hide-is-sameday w-35"
-                                                        id="InputEndDate" aria-label="Tanggal Selesai" wire:model="activity_end_date">
-                                                </span>
-                                                @endif
+                                                <input type="text" class="form-control w-100" id="InputDate"
+                                                    aria-label="Tanggal Pelaksanaan" wire:model="activity_dates" {!! viewHelper::handleFieldDisabled($this->application) !!}>
+                                                    <!-- Label Sampai -->
+                                                </div>
+                                                <small>*isi dengan format dd-mm-yyyy (contoh: 20-05-2025), jika acara lebih dari 1 hari, tambah tanggal kedua dst dengan pemisah tanda koma (,) </small>
 
-                                            </div>
-                                            <!-- Checkbox -->
-                                            <div class="form-check mt-2">
-                                                <input class="form-check-input" wire:click="handleSameDay()" type="checkbox"
-                                                    {!! $this->sameDay? 'checked':'' !!} {!! viewHelper::handleFieldDisabled($this->application) !!}>
-                                                <label class="form-check-label" for="SameDayEvent">
-                                                    Acara selesai di hari yang sama
-                                                </label>
-                                            </div>
                                         </div>
 
                                         <div class="col-12 d-flex justify-content-end">
@@ -323,7 +308,7 @@
 
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
+                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit',$this->application))

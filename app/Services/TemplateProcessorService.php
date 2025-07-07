@@ -97,7 +97,7 @@ class TemplateProcessorService
         ]);
             $content= FileManagementService::convertToPdf($temp_fileurl);
             if ($content) {
-                $store_document = FileManagementService::storeFileApplication($content,$application,'letters');
+                $store_document = FileManagementService::storeFileApplication($content,$application,'letters','draft_tor');
                 if ($store_document['status']) {
                     unlink($write_output);
                     Storage::disk('minio')->delete($directory_temp);

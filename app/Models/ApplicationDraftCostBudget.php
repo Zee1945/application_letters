@@ -49,4 +49,9 @@ class ApplicationDraftCostBudget extends Model
     {
         return $this->belongsTo(Department::class);
     }
+    public function files()
+    {
+        return $this->belongsToMany(Files::class, 'draft_cost_budget_files');
+    }
+
 }

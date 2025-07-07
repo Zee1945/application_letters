@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('letter_label')->nullable(); // Nama jadwal aplikasi
             $table->string('type_field')->nullable(); // Nama jadwal aplikasi
             $table->string('letter_number')->nullable(); // Tanggal mulai jadwal
+            $table->string('letter_date')->nullable(); // Tanggal mulai jadwal
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // ID departemen
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)

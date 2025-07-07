@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('user_approval_ids'); // Nama kegiatan
             $table->text('note')->nullable(); // Nama kegiatan
             $table->integer('draft_step_saved')->default(1); // Nama kegiatan
-            // $table->date('activity_start_date')->nullable(); // Tanggal pelaksanaan
+            // $table->date('activity_dates')->nullable(); // Tanggal pelaksanaan
             // $table->date('activity_end_date')->nullable(); // Tanggal pelaksanaan
             // $table->string('activity_location')->nullable(); // Tempat pelaksanaan
             $table->unsignedBigInteger('department_id')->nullable(); // Dibuat oleh (ID user)

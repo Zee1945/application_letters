@@ -42,6 +42,26 @@ public static function statusReportHTML($status_number)
 
         return '<div class="badge border border-2 rounded-pill text-' . $color . ' bg-light-' . $color . ' p-2 text-uppercase px-3"><i class="bx bxs-circle me-1"></i>' . $label . '</div>';
 }
+public static function generateStatusFileHTML($status_number)
+{
+        $label = '';
+        $color = '';
+        // $bg_color = '';
+        if ($status_number == 0) {
+            $label = 'Belum Tersedia';
+            $color = 'secondary';
+        } elseif ($status_number == 2) {
+            $label = 'Proses';
+            $color = 'info';
+        } elseif ($status_number == 3) {
+            $label = 'Tersedia';
+            $color = 'success';
+        } else {
+            // Default case if needed
+        }
+
+        return '<span class="badge rounded-pill bg-pastel-' . $color . '">' . $label . '</span>';
+}
 public static function statusSubmissionHTML($status_number)
 {
     $label = '';
@@ -203,12 +223,12 @@ public static function getCurrentUserProcess($app,$is_report=false){
                             return true;
                         }
                 }else{
-                    
+
                     if ($app->report->approval_status > 5 && $app->report->approval_status < 11 && $app->report->current_user_approval == AuthService::currentAccess()['id']) {
                         return true;
                     }
                 }
-              
+
                 return false;
             case 'submit':
                 if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
