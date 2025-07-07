@@ -120,6 +120,22 @@ class FileManagementService
         return $content;
     }
 
+   public static function getFileStorage($path,$application,$extend_dir=null, $disk = 'minio') {
+    if (Storage::disk($disk)->exists($path)) {
+        $set_path_directory = FileManagementService::setPathStorage($application->id).($extend_dir?'/'.$extend_dir:'');
+        if (Storage::disk($disk)->getMimeType($path) !== false) {
+            return [
+                'fileName'=>basename($path),
+                'size'=>Storage::disk($disk)->size($path),
+                'mimeType'=>Storage::disk($disk)->mimeType($path),
+                'path'=>$set_path_directory,
+                'content'=>Storage::disk($disk)->get($path)
+            ];
+        }
+        return 'Path ditemukan, tapi bukan file atau direktori yang bisa dibaca.';
+    }
+}
+
     public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     {
         $config = [

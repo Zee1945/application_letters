@@ -26,15 +26,15 @@
 
                     <td>
                         <input type="file"
-                               wire:model="rows.{{ $new_index }}.file_cv"
-                               id="file_cv_{{ $index }}"
+                               wire:model="rows.{{ $new_index }}.cv_file_id"
+                               id="cv_file_id_{{ $index }}"
                                class="form-control"
                                accept=".pdf">
                     </td>
 
                     <td>
                         <input type="file"
-                               wire:model="rows.{{ $new_index }}.img_ktp"
+                               wire:model="rows.{{ $new_index }}.idcard_file_id"
                                id="file_ktp_{{ $index }}"
                                class="form-control"
                                accept=".jpg,.jpeg,.png,.pdf">
@@ -42,7 +42,7 @@
 
                     <td>
                         <input type="file"
-                               wire:model="rows.{{ $new_index }}.img_npwp"
+                               wire:model="rows.{{ $new_index }}.npwp_file_id"
                                id="file_npwp_{{ $index }}"
                                class="form-control"
                                accept=".jpg,.jpeg,.png,.pdf">

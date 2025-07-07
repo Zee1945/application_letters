@@ -45,7 +45,6 @@ class TableRealization extends Component
     public function normalizeRealization($realizations)
     {
         return array_map(function($item) use ($realizations){
-            $item['realization'] = null;
             $item['file_id'] = null;
             foreach ($realizations as $key => $value) {
                 if (count($value['children']) > 0) {

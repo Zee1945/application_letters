@@ -299,9 +299,10 @@ class ApplicationService
             $app->save();
             $reports = $app->report->update($data);
 
-
-            // self::clearData($app);
-
+            // store file id ke tabel draft_cost_application 
+            foreach ($realization as $key => $value) {
+                $get_file_storage = FileManagementService::getFileStorage('path');
+            }
 
             if (!$reports) {
                     return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
