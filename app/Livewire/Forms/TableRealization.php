@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\ApplicationDraftCostBudget;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -13,17 +14,18 @@ class TableRealization extends Component
     use WithFileUploads; // Tambahkan trait ini agar bisa meng-handle file upload
 
     public $draft_costs = [];
+    public $application = [];
     public $realizations = [];
     public $img_nota = []; // Array untuk menampung file yang diupload
 
-    public function mount($draftCost=null)
+    public function mount($draftCost=null, $application)
     {
+        $this->application = $application;
         $this->draft_costs = $draftCost;
         $this->realizations = $this->getDistinctDataByCodeAndItem($draftCost);
         $this->realizations = array_map(function ($item) {
             if (count($item['children']) > 0) {
                 foreach ($item['children'] as $key => &$value) {
-                    $value['realization'] = null;
                     $value['file_id'] = null;
                 }
             }
@@ -38,9 +40,11 @@ class TableRealization extends Component
     }
 
     // Fungsi untuk handle multiple file upload ke MinIO
-    public function save()
+    public function debug($draft_id)
     {
-       dd($this->normalizeRealization($this->realizations));
+       $tes = ApplicationDraftCostBudget::find($draft_id);
+       dd($tes->files()->get());
+       
     }
     public function normalizeRealization($realizations)
     {

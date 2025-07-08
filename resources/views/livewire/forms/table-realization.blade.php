@@ -49,10 +49,22 @@
 
                     </div> </td>
                     <td>{{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
-                    <td><input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="InputDate"
-                        aria-label="Biaya Realisasi"></td>
-                    <td><input type="file" class="form-control w-100" wire:model='realizations.{{$index}}.children.{{$index_child}}.file_id'
-                        aria-label="Gambar Nota"></td>
+                    <td>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                            <span>{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
+                        @else
+                        <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="InputDate"
+                        aria-label="Biaya Realisasi">
+                        @endif
+                    </td>
+                    <td>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                            file_id => {{$this->debug($child['id'])}}
+                        @else
+                            <input type="file" class="form-control w-100" wire:model='realizations.{{$index}}.children.{{$index_child}}.file_id'
+                            aria-label="Gambar Nota">
+                        @endif
+                    </td>
                 </tr>
                 @empty
                 @endforelse

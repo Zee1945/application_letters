@@ -43,22 +43,29 @@ class FileManagementService
 
 
      public static function storeFiles($metafile = [],$application,$trans_type){
-        if (!empty($metadata)) {
-            $data = [
-                'filename' => $filename . '.' . $ext,
-                'encrypted_filename' => Crypt::encryptString($filename),
-                'mimetype' => $mime_type,
-                'belongs_to' => $trans_type,
-                'file_type' => 'TOR',
-                'path' => $get_path,
-                'storage_type' => 'minio',
-                'filesize' => $fileSize,
-                'application_id' => $application->id,
-                'department_id' => $application->department_id,
-                'created_by' => $application->created_by,
-                'updated_by' => $application->created_by
-            ];
-            $res = Files::create($data);
+         if (count($metafile)) {
+            $moveFileStorage = Storage::disk('minio')->put($metafile['path'],$metafile['content']); 
+
+            if ($moveFileStorage) {
+                $data = [
+                    'filename' => $metafile['fileName'],
+                    'encrypted_filename' => Crypt::encryptString($metafile['fileName']),
+                    'mimetype' => $metafile['mimeType'],
+                    'belongs_to' => $trans_type,
+                    'path' => $metafile['path'],
+                    'storage_type' => 'minio',
+                    'filesize' => $metafile['size'],
+                    'application_id' => $application->id,
+                    'department_id' => $application->department_id,
+                    'created_by' => $application->created_by,
+                    'updated_by' => $application->created_by
+                ];
+                $res = Files::create($data);
+                if (!$res) {
+                    return ['status'=>false,'message'=>'failed to store new file data','data'=>[]];
+                }
+             return ['status'=>true,'message'=>'success store new data','data'=>$res];
+            }
         }
      }
      public static function storeFileApplication($content,$application,$trans_type,$file_code=null){
@@ -147,7 +154,7 @@ class FileManagementService
    public static function getFileStorage($path,$application,$extend_dir=null,$type ='', $disk = 'minio') {
     if (Storage::disk($disk)->exists($path)) {
         $set_path_directory = FileManagementService::setPathStorage($application->id,$type).($extend_dir?'/'.$extend_dir:'');
-        if (Storage::disk($disk)->getMimeType($path) !== false) {
+        if (Storage::disk($disk)->mimeType($path) !== false) {
             return [
                 'fileName'=>basename($path),
                 'size'=>Storage::disk($disk)->size($path),

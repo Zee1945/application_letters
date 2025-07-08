@@ -23,7 +23,9 @@ class ApplicationParticipant extends Model
         'application_id',
         'department_id',
         'delete_note',
-
+        'cv_file_id',
+        'idcard_file_id',
+        'npwp_file_id',
         'created_by',
         'updated_by',
         'deleted_by',

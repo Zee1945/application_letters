@@ -29,6 +29,6 @@ class Files extends AbstractModel
 
     public function applicationDraftCostBudgets()
     {
-        return $this->belongsToMany(ApplicationDraftCostBudget::class, 'draft_cost_budget_files');
+        return $this->belongsToMany(ApplicationDraftCostBudget::class, 'draft_cost_budget_files', 'file_id', 'application_draft_cost_budget_id');
     }
 }

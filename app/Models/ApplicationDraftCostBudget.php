@@ -21,6 +21,7 @@ class ApplicationDraftCostBudget extends Model
         'volume',
         'unit',
         'cost_per_unit',
+        'realization',
         'total',
         'created_by',
         'updated_by',
@@ -51,7 +52,7 @@ class ApplicationDraftCostBudget extends Model
     }
     public function files()
     {
-        return $this->belongsToMany(Files::class, 'draft_cost_budget_files');
+        return $this->belongsToMany(Files::class, 'draft_cost_budget_files', 'application_draft_cost_budget_id', 'file_id');
     }
 
 }

@@ -181,7 +181,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                   <livewire:forms.table-realization :draftCost="$this->draft_costs"/>
+                   <livewire:forms.table-realization :draftCost="$this->draft_costs" :application="$this->application"/>
                 </div>
 
                 <div class="col-12">

@@ -292,24 +292,60 @@ class ApplicationService
     }
     public static function storeReport($data,$realization=[],$speakers_info=[])
     {
-        dd($realization,$speakers_info);
+        // dd($speakers_info);
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
-            $app->save();
             $reports = $app->report->update($data);
+            
+            // store file ke minio dan tambah ke table files 
+            foreach ($speakers_info as $key => $spk) {
+                    // "participant_id" => 1
+                    // "cv_file_id" => "temp/report/speaker-information/1/application.pdf-1-cv_file_id.pdf"
+                    // "idcard_file_id" => "temp/report/speaker-information/1/tandaterima_disposisi_168_1742660389.pdf-1-idcard_file_id.pdf"
+                    // "npwp_file_id" => "temp/report/speaker-information/1/dummy.pdf-1-npwp_file_id.pdf"
+                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id'];
+                    foreach ($columns as $col) {
+                        if ($spk[$col]) {
+                            $new_dir = str_replace('temp/report/', '', $spk[$col]);
+                            $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
+                            $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+                            $participant= ApplicationParticipant::find($spk['participant_id']);
+                            $participant->$col = $files['data']->id;
+                            $participant->save();
+                        }
+                    }
 
+            }
             // store file id ke tabel draft_cost_application
             foreach ($realization as $key => $value) {
-                $new_dir = str_replace('temp/', '', $path);
-                $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir);
+                if ($value['file_id']) {
+                    $new_dir = str_replace('temp/report/', '', $value['file_id']);
+                    $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
 
-                $store_file_realization = FileManagementService::storeFiles()
-            }
-
-            if (!$reports) {
-                    return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
+                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+                    $draf_cost= ApplicationDraftCostBudget::find($value['id']);
+                    $draf_cost->realization = $value['realization'];
+                    $draf_cost->save();
+                    $draf_cost->files()->attach($files['data']->id); 
                 }
+            }
+            
+
+            // foreach ($speakers_info as $key => $value) {
+            //     $new_dir = str_replace('temp/report/', '', $path);
+            //     $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
+
+            //     $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+            //     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
+            //     $draf_cost->files()->attach($files->id); 
+            // }
+
+
+
+            // if (!$reports) {
+            //         return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
+            //     }
             self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             DB::commit();
             return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
