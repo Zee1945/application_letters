@@ -299,9 +299,12 @@ class ApplicationService
             $app->save();
             $reports = $app->report->update($data);
 
-            // store file id ke tabel draft_cost_application 
+            // store file id ke tabel draft_cost_application
             foreach ($realization as $key => $value) {
-                $get_file_storage = FileManagementService::getFileStorage('path');
+                $new_dir = str_replace('temp/', '', $path);
+                $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir);
+
+                $store_file_realization = FileManagementService::storeFiles()
             }
 
             if (!$reports) {
@@ -426,6 +429,7 @@ class ApplicationService
             $department->save();
             TemplateProcessorService::generateWord($app);
             DB::commit();
+            return true;
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
@@ -433,7 +437,6 @@ class ApplicationService
             return false;
         }
 
-        return true;
     }
 
     public static function getListReport(){

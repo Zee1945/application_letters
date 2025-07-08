@@ -57,7 +57,7 @@ class TemplateProcessorService
 
             $templatePath = public_path('referensi/dummy_inject_word.docx');
             $directory_temp = 'temp/docx/generated_output.docx';
-            $write_output = public_path(path: $directory_temp);
+            $write_output = public_path($directory_temp);
             $url_temp_convert = url($directory_temp);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
