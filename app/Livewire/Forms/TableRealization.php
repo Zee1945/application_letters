@@ -42,9 +42,10 @@ class TableRealization extends Component
     // Fungsi untuk handle multiple file upload ke MinIO
     public function debug($draft_id)
     {
-       $tes = ApplicationDraftCostBudget::find($draft_id);
-       dd($tes->files()->get());
-       
+       $draft_cost_budget = ApplicationDraftCostBudget::find($draft_id);
+       $files = $draft_cost_budget->files()->get();
+       return $files;
+
     }
     public function normalizeRealization($realizations)
     {
@@ -76,6 +77,13 @@ class TableRealization extends Component
     }
 
     // Menyaring data berdasarkan code dan item yang unik
+    public function openModalPreview($draft_cost_id)
+    {
+        $draft_cost_budget = ApplicationDraftCostBudget::find($draft_cost_id);
+        $files = $draft_cost_budget->files()->get();
+
+        $this->dispatch('open-modal-preview',[...$files]);
+    }
     public function getDistinctDataByCodeAndItem($data)
     {
         $raw_data = $data;

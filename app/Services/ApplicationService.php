@@ -297,8 +297,8 @@ class ApplicationService
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
             $reports = $app->report->update($data);
-            
-            // store file ke minio dan tambah ke table files 
+
+            // store file ke minio dan tambah ke table files
             foreach ($speakers_info as $key => $spk) {
                     // "participant_id" => 1
                     // "cv_file_id" => "temp/report/speaker-information/1/application.pdf-1-cv_file_id.pdf"
@@ -309,10 +309,12 @@ class ApplicationService
                         if ($spk[$col]) {
                             $new_dir = str_replace('temp/report/', '', $spk[$col]);
                             $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
-                            $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+                            $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
                             $participant= ApplicationParticipant::find($spk['participant_id']);
                             $participant->$col = $files['data']->id;
                             $participant->save();
+
+
                         }
                     }
 
@@ -323,14 +325,14 @@ class ApplicationService
                     $new_dir = str_replace('temp/report/', '', $value['file_id']);
                     $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
 
-                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report', $value['file_id']);
                     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
                     $draf_cost->realization = $value['realization'];
                     $draf_cost->save();
-                    $draf_cost->files()->attach($files['data']->id); 
+                    $draf_cost->files()->attach($files['data']->id);
                 }
             }
-            
+
 
             // foreach ($speakers_info as $key => $value) {
             //     $new_dir = str_replace('temp/report/', '', $path);
@@ -338,7 +340,7 @@ class ApplicationService
 
             //     $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
             //     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
-            //     $draf_cost->files()->attach($files->id); 
+            //     $draf_cost->files()->attach($files->id);
             // }
 
 

@@ -283,6 +283,8 @@
   </div>
 </div>
 
+
+
 <script type="module">
     document.addEventListener('livewire:init', () => {
         Livewire.on('open-modal', (event) => {
@@ -293,6 +295,7 @@
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.hide();
        });
+
     });
 </script>
 </div>

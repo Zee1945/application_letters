@@ -53,13 +53,23 @@
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                             <span>{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
                         @else
-                        <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="InputDate"
+                        Rp. <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="InputDate"
                         aria-label="Biaya Realisasi">
                         @endif
                     </td>
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            file_id => {{$this->debug($child['id'])}}
+
+                            {{-- Untuk menampilkan gambar --}}
+
+
+                            {{-- Untuk menampilkan PDF (embedded) --}}
+
+
+                            {{-- Atau download link --}}
+
+                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$child['id']}})">Lihat</button>
+
                         @else
                             <input type="file" class="form-control w-100" wire:model='realizations.{{$index}}.children.{{$index_child}}.file_id'
                             aria-label="Gambar Nota">
@@ -77,6 +87,6 @@
     </table>
     <button class="btn btn-primary mt-3" wire:click="save">Simpan File</button>
 
-
+    <livewire:utils.modal-preview/>
 
 </div>

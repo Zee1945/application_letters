@@ -42,9 +42,9 @@ class FileManagementService
 
 
 
-     public static function storeFiles($metafile = [],$application,$trans_type){
+     public static function storeFiles($metafile = [],$application,$trans_type,$temp_dir=''){
          if (count($metafile)) {
-            $moveFileStorage = Storage::disk('minio')->put($metafile['path'],$metafile['content']); 
+            $moveFileStorage = Storage::disk('minio')->put($metafile['path'],$metafile['content']);
 
             if ($moveFileStorage) {
                 $data = [
@@ -64,6 +64,9 @@ class FileManagementService
                 if (!$res) {
                     return ['status'=>false,'message'=>'failed to store new file data','data'=>[]];
                 }
+                if ($temp_dir) {
+                    Storage::disk('minio')->delete($temp_dir);
+                }
              return ['status'=>true,'message'=>'success store new data','data'=>$res];
             }
         }
@@ -77,8 +80,8 @@ class FileManagementService
             $res = Storage::disk('minio')->put($target_dir, $content);
             // dd($res);
             if ($res) {
-                $mime_type = pathinfo(Storage::disk('minio')->url($target_dir), PATHINFO_EXTENSION);
-                $fileSize = 10000;
+                $mime_type = Storage::disk('minio')->mimeType($target_dir);
+                $fileSize = Storage::disk('minio')->size($target_dir);
                 try {
                     DB::beginTransaction();
                     $data = [
@@ -86,7 +89,7 @@ class FileManagementService
                         'encrypted_filename'=> Crypt::encryptString($filename),
                         'mimetype'=> $mime_type,
                         'belongs_to'=> $trans_type,
-                        'file_type'=> 'TOR',
+                        'file_type'=> $file_code,
                         'path'=> $get_path,
                         'storage_type'=>'minio',
                         'filesize'=>$fileSize,
@@ -163,8 +166,12 @@ class FileManagementService
                 'content'=>Storage::disk($disk)->get($path)
             ];
         }
-        return 'Path ditemukan, tapi bukan file atau direktori yang bisa dibaca.';
+        return [];
+    }else{
+
+      return [];
     }
+
 }
 
     public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
