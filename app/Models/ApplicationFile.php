@@ -14,14 +14,11 @@ class ApplicationFile extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'type_name',
-        'code',
         'file_id',
-        'trans_type',
+        'file_type_id',
         'status_ready',
         'application_id',
         'department_id',
-        'delete_note',
     ];
 
     public function application()
@@ -35,5 +32,20 @@ class ApplicationFile extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    public function fileType()
+    {
+        return $this->belongsTo(FileType::class, 'file_type_id');
+    }
+
+    public function scopeWithFileCodeAndParent($query, $file_code)
+    {
+        return $query->whereHas('fileType', function ($query) use ($file_code) {
+            $query->where('code', $file_code)
+                ->where(function ($q) {
+                    $q->whereNotNull('parent_id')  // Mencari yang parent_id tidak null
+                        ->orWhereNull('parent_id'); // Jika tidak ada, mencari yang parent_id null
+                });
+        });
     }
 }

@@ -68,9 +68,10 @@
                                                 </div>
                                                 @if ($item->status_ready == 3)
                                                 {{-- @dump($item->file->filename ?? null) --}}
-                                                <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}')"><u>{{$item->type_name}}</u></span>
+                                                <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}')"><u>{{$item->fileType->name}}</u> <span class="bg-pastel-primary rounded-circle">
+                                                    <i class="fa-solid fa-signature"></i></span></span>
                                                 @else
-                                                <span>{{$item->type_name}}</span>
+                                                <span>{{$item->fileType->name}}</span>
                                                 @endif
                                             </div>
                                         </td>

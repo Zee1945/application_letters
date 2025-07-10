@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('filename');
             $table->text('encrypted_filename')->nullable();
             $table->string('mimetype')->nullable();
-            $table->string('file_type')->nullable(); //isinya bisa jadi draft_tor,tor, monev lpj
             $table->string('belongs_to')->nullable();
             $table->string('path')->nullable();
             $table->string('storage_type')->nullable();

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\FileType;
 use App\Models\ParticipantType;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -23,6 +24,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ParticipantTypeSeeder::class,
             CommiteePositionSeeder::class,
+            FileTypeSeeder::class,
         ]);
 
         // User::factory()->create([

@@ -55,5 +55,4 @@
         </tbody>
     </table>
 
-    <button class="btn btn-primary mt-3" wire:click="saveFiles">Simpan File</button>
 </div>

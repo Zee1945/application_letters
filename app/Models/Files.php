@@ -11,7 +11,6 @@ class Files extends AbstractModel
 
     protected $fillable = [
         'filename',
-        'file_type',
         'encrypted_filename',
         'mimetype',
         'belongs_to',
@@ -27,8 +26,21 @@ class Files extends AbstractModel
         'deleted_by',
     ];
 
-    public function applicationDraftCostBudgets()
+    // Relasi ke parent (self-relation)
+    public function parent()
     {
-        return $this->belongsToMany(ApplicationDraftCostBudget::class, 'draft_cost_budget_files', 'file_id', 'application_draft_cost_budget_id');
+        return $this->belongsTo(FileType::class, 'parent_id');
+    }
+
+    // Relasi ke children (self-relation)
+    // public function children()
+    // {
+    //     return $this->hasMany(FileType::class, 'parent_id');
+    // }
+
+    // Relasi ke ApplicationFile
+    public function applicationFiles()
+    {
+        return $this->hasMany(ApplicationFile::class, 'file_type_id');
     }
 }

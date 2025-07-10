@@ -8,6 +8,8 @@ use App\Models\ApplicationDraftCostBudget;
 use App\Models\ApplicationParticipant;
 use App\Models\ApplicationSchedule;
 use App\Models\Department;
+use App\Models\FileType;
+use App\Models\LogApproval;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuthService;
@@ -29,7 +31,6 @@ class ApplicationService
 
     public static function storeApplications($data)
     {
-        // Assuming you have an Application model
 
         try {
             DB::beginTransaction();
@@ -73,23 +74,11 @@ class ApplicationService
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
                     ]);
                 }
-
-            $application_files = [
-                'Draft TOR',
-                'TOR',
-                'SK',
-                'LPJ',
-                'Surat Permohonan Narsum',
-                'Surat Permohonan Moderator',
-                'Surat Undangan Peserta',
-                'Surat Tugas',
-                'Jadwal Kegiatan',
-            ];
-            foreach ($application_files as $name) {
-                $application->applicationFiles()->create( [
-                    'type_name'    => $name,
-                    'code'         => strtolower(str_replace(' ', '_', $name)),
-                    'trans_type'   => $name !== 'LPJ'?1:2,
+            $get_file_types = FileType::all();
+                // dd($application->applicationFiles,$get_file_types);
+            foreach ($get_file_types as $ft) {
+                $application->applicationFiles()->create([
+                    'file_type_id'    => $ft->id,
                     'department_id' => $application->department_id,
                 ]);
             }
@@ -101,9 +90,30 @@ class ApplicationService
         }
 
 
-        return $application;
+        // return $application;
     }
 
+
+
+
+    public static function storeLogApproval($action, $application_id,$note='')
+    {
+        $log = LogApproval::create([
+            'notes'=>$note,
+            'location_city'=>'Yogyakarta',
+            'action'=>$action,
+            'trans_type'=>strpos($action, 'report')?2:1,
+            'application_id'=> $application_id,
+            'user_id'=> AuthService::currentAccess()['id'],
+            'position_id'=> AuthService::currentAccess()['position_id'],
+            'department_id'=> AuthService::currentAccess()['department_id']
+        ]);
+
+        if (!$log) {
+           return ['status'=>false,'message'=>'gagal menambahkan riwayat approval !'];
+        }
+        return ['status' => true, 'message' => 'Berhasil menambahkan riwayat approval !'];
+    }
     public static function updateFlowApprovalStatus($action, $application_id,$note='')
     {
         try {
@@ -115,6 +125,7 @@ class ApplicationService
                     if ($app->created_by == $current_user_id && $app->approval_status < 6) {
                         $app->approval_status = 6;
                         $app->save();
+                        self::storeLogApproval('approve', $application_id, '');
                     }
                     break;
             case 'submit-report':
@@ -135,7 +146,7 @@ class ApplicationService
                         if ( $current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
                             $app->approval_status = 11;
                             $app->save();
-
+                            self::storeLogApproval($action,$application_id,'');
                             self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->current_user_approval)->first();

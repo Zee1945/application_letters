@@ -88,8 +88,6 @@
             @endforelse
         </tbody>
     </table>
-    <button class="btn btn-primary mt-3" wire:click="save">Simpan File</button>
-
     <livewire:utils.modal-preview/>
 
 </div>

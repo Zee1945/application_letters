@@ -39,12 +39,12 @@ class ReportCreate extends AbstractComponent
     public $letter_numbers = [];
 
 
-    public function __set($name, $value)
-    {
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-        }
-    }
+    // public function __set($name, $value)
+    // {
+    //     if (property_exists($this, $name)) {
+    //         $this->$name = $value;
+    //     }
+    // }
 
     public function mount($application_id = null)
     {
@@ -59,7 +59,9 @@ class ReportCreate extends AbstractComponent
             return array_intersect_key($item, array_flip($keysToKeep));
         }, $this->application->letterNumbers->toArray());
 
-
+        if ($this->application->report) {
+            $this->loadData();
+        }
 
         $this->permissionApplication($application_id);
 
@@ -68,9 +70,6 @@ class ReportCreate extends AbstractComponent
     }
     public function render()
     {
-        if ($this->application->detail) {
-            $this->loadData();
-        }
 
         return view('livewire.form-lists.reports.report-create')->extends('layouts.main');
     }
@@ -98,6 +97,8 @@ class ReportCreate extends AbstractComponent
             'application_id' => $this->application_id,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
+
+        // dd($generals);
 
         $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info);
         if ($report['status']) {

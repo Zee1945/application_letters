@@ -89,7 +89,6 @@ class FileManagementService
                         'encrypted_filename'=> Crypt::encryptString($filename),
                         'mimetype'=> $mime_type,
                         'belongs_to'=> $trans_type,
-                        'file_type'=> $file_code,
                         'path'=> $get_path,
                         'storage_type'=>'minio',
                         'filesize'=>$fileSize,
@@ -106,7 +105,9 @@ class FileManagementService
                         DB::rollBack();
                         return ['status' => false, 'message' => 'Gagal Simpan File','data'=>null];
                     }
-                    $update_file_type = $application->applicationFiles()->where('code',$file_code)->first();
+                    $update_file_type = $application->applicationFiles()
+                        ->withFileCodeAndParent($file_code)
+                        ->first();
                     $update_file_type->file_id = $res->id;
                     $update_file_type->status_ready = 3;
                     $update_file_type->save();
@@ -128,7 +129,7 @@ class FileManagementService
      }
 
      public static function generateFilename($filename, $application, $fileCode='',$mimeType = 'pdf'){
-        $file_type_name = $application->applicationFiles()->whereCode($fileCode)->first()->type_name;
+         $file_type_name = $application->applicationFiles()->withFileCodeAndParent($fileCode)->first()->fileType->name;
         $carbon = Carbon::now();
         $filename = explode('.',$filename)[0];
         $date = $carbon->format('Ymd');

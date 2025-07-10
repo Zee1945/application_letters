@@ -42,18 +42,28 @@
                                 <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                     <div class="bs-stepper-circle">2</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
-                                        <p class="mb-0 steper-sub-title">Isi Form Narasumber </p>
+                                        <h5 class="mb-0 steper-title">Notulensi</h5>
+                                        <p class="mb-0 steper-sub-title">Form Notulensi</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-3">
-                                <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
+                                <div class="step-trigger {{$this->step == 3? 'active':''}} " role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
                                     <div class="bs-stepper-circle">3</div>
                                     <div class="">
+                                        <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
+                                        <p class="mb-0 steper-sub-title">Form Narasumber</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bs-stepper-line"></div>
+                            <div class="step" data-target="#test-l-4">
+                                <div class="step-trigger {{$this->step == 4? 'active':''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger4" aria-controls="test-l-4">
+                                    <div class="bs-stepper-circle">4</div>
+                                    <div class="">
                                         <h5 class="mb-0 steper-title">Realisasi</h5>
-                                        <p class="mb-0 steper-sub-title">Isi Form Realisasi</p>
+                                        <p class="mb-0 steper-sub-title">Form Realisasi</p>
                                     </div>
                                 </div>
                             </div>
@@ -138,6 +148,46 @@
 
                                     <div class="d-flex justify-content-between">
                                         <div class="">
+                                            <h5 class="mb-1">Notulensi</h5>
+                                            <p class="mb-4">Isi Notulensi Kegiatan</p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row g-3">
+                                            <div class="col-12">
+                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
+                                                    <h6>Isi Notulensi Kegiatan</h6>
+                                                </label>
+                                                <div class="">
+                                                    tesssssssssss
+                                                    {{-- <livewire:forms.table-speaker-informations :participants="$this->application->participants"/> --}}
+                                                </div>
+                                            </div>
+
+
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
+                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                        <div class="d-flex">
+                            @if (viewHelper::actionPermissionButton('submit',$this->application))
+                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            @endif
+                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
+                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div><!---end row-->
+
+        </div>
+                                <div id="test-l-3" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}"
+                                    aria-labelledby="stepper1trigger2">
+
+                                    <div class="d-flex justify-content-between">
+                                        <div class="">
                                             <h5 class="mb-1">Informasi Narasumber</h5>
                                             <p class="mb-4">Isi Form Informasi Narasumber</p>
                                         </div>
@@ -175,7 +225,7 @@
 
 
 
-        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
             <h5 class="mb-1">Realisasi Anggaran</h5>
             <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 
@@ -192,37 +242,6 @@
                             @if (viewHelper::actionPermissionButton('submit',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                 <button class="btn btn-success px-4" wire:click="saveDraft('1','true')">Submit</button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div><!---end row-->
-
-        </div>
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '5'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
-            <h5 class="mb-1">Nomor Surat</h5>
-            <p class="mb-4">Form isian nomor surat</p>
-
-            <div class="row g-3">
-                <div class="col-12">
-
-                   @forelse ($this->letter_numbers as $key => $item)
-                   <div class="mb-3">
-                    <label for="{{$item['letter_name']}}" class="form-label fw-bold">{{$item['letter_label']}}</label>
-                    <input type="{{$item['type_field']}}" wire:model="letter_numbers.{{$key}}.letter_number" class="form-control" name="{{$item['letter_name']}}"  id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
-                  </div>
-                    @empty
-                   @endforelse
-                </div>
-
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
-                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                        <div class="">
-                            @if (viewHelper::actionPermissionButton('submit-letter-number',$this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('5')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-success px-4" wire:click="updateLetterNumber()">Submit</button>
                             @endif
                         </div>
                     </div>
