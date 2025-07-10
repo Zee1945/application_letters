@@ -190,37 +190,10 @@ class ReportCreate extends AbstractComponent
         return response()->download($savePath);
     }
 
-    public function importParticipant()
-    {
-
-        $this->import('participant');
-    }
 
 
-    public function import($type)
-    {
-        // $this->validate([
-        //     'excel_participant' => 'required|mimes:xlsx,xls', // Maksimal 10MB
-        //     // 'excel_participant' => 'required|mimes:xlsx,xls|max:102400', // Maksimal 10MB
-        // ]);
 
-        switch ($type) {
-            case 'participant':
-                $importer = new ApplicationsImport($this->application_id);
-                Excel::import($importer, $this->excel_participant, 'local', \Maatwebsite\Excel\Excel::XLSX);
-                $rows = $importer; // Ambil hasil olahan
-                $this->participants = $rows->finest_participant_data;
-                $this->rundowns = $rows->finest_rundown_data;
-                $this->draft_costs = $rows->finest_draft_cost_data;
 
-                $this->dispatch('transfer-rundowns', [...$this->rundowns]);
-                $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
-                break;
-            default:
-                # code...
-                break;
-        }
-    }
 
     public function clearAllParticipant()
     {

@@ -292,7 +292,6 @@ class ApplicationService
     }
     public static function storeReport($data,$realization=[],$speakers_info=[])
     {
-        // dd($speakers_info);
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);

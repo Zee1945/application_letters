@@ -53,8 +53,11 @@
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                             <span>{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
                         @else
-                        Rp. <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="InputDate"
-                        aria-label="Biaya Realisasi">
+                        <div class="d-flex">
+                           <span class="align-items-baseline"> Rp.</span> <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
+                            aria-label="Biaya Realisasi">
+                        </div>
+
                         @endif
                     </td>
                     <td>
@@ -72,7 +75,7 @@
 
                         @else
                             <input type="file" class="form-control w-100" wire:model='realizations.{{$index}}.children.{{$index_child}}.file_id'
-                            aria-label="Gambar Nota">
+                            aria-label="Gambar Nota" accept=".jpg,.jpeg,.png,.pdf">
                         @endif
                     </td>
                 </tr>

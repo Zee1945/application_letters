@@ -80,8 +80,8 @@ class TableRealization extends Component
     public function openModalPreview($draft_cost_id)
     {
         $draft_cost_budget = ApplicationDraftCostBudget::find($draft_cost_id);
-        $files = $draft_cost_budget->files()->get();
-
+        $files = $draft_cost_budget->files()->get()->toArray();
+        // $file_ids = $draft_cost_budget->files()->get()->pluck('id')->toArray();
         $this->dispatch('open-modal-preview',[...$files]);
     }
     public function getDistinctDataByCodeAndItem($data)
