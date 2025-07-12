@@ -23,4 +23,9 @@ class FileType extends Model
     ];
 
 
+    public function parent(){
+        return $this->belongsTo(FileType::class,'parent_id','id');
+    }
+
+
 }

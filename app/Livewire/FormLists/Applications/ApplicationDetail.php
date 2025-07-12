@@ -11,8 +11,11 @@ use Livewire\Component;
 class ApplicationDetail extends Component
 {
     public $application_id = null;
+    public $application_files = [];
     public function mount($application_id){
         $this->application_id = $application_id;
+
+
     }
 
     public function render()
@@ -31,5 +34,10 @@ class ApplicationDetail extends Component
                 'filename' => $filename,
             ]);
             return redirect()->to($url);
+    }
+
+
+    public function mappingFile(){
+
     }
 }

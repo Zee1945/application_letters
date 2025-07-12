@@ -174,7 +174,7 @@ class ApplicationCreateDraft extends AbstractComponent
 
         try {
             // GenerateApplicationFileJob::dispatch($this->application);
-            TemplateProcessorService::generateWord($this->application);
+            TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);

@@ -53,6 +53,7 @@
                         <table class="table table-striped table-sm mb-0">
                             <thead>
                                 <tr>
+                                    <th class="text-center" style="width: 45%">Parent</th>
                                     <th class="text-center" style="width: 45%">Status</th>
                                     <th style="width: 45%">Nama File</th>
                                 </tr>
@@ -60,6 +61,7 @@
                             <tbody>
                                 @foreach ($app->applicationFiles as $item)
                                     <tr>
+                                        <td>{{$item->fileType->parent?->name}}</td>
                                         <td class="text-center">{!! viewHelper::generateStatusFileHTML($item->status_ready) !!}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
