@@ -96,6 +96,7 @@ class ApplicationCreateDraft extends AbstractComponent
       $generals = [
             'draft_step_saved'=> $this->step,
             'activity_output' => $this->activity_output,
+            'activity_outcome' => $this->activity_outcome,
             'performance_indicator' => $this->performance_indicator,
             'unit_of_measurment' => $this->unit_of_measurment,
             'activity_volume' => $this->activity_volume, // lom ada

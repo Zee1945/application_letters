@@ -68,6 +68,9 @@ class TemplateProcessorService
             case 'draft_tor':
                 self::generateTor($application, $templatePath, $directory_temp, $file_type);
                 break;
+            case 'laporan_kegiatan':
+                self::generateReportActivity($application, $templatePath, $directory_temp, $file_type);
+                break;
             default:
                 # code...
                 break;
@@ -99,6 +102,7 @@ class TemplateProcessorService
         $meta = [
             'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->position->created_at),
             'Jabatan'     => $log_approval->position->name,
+            'Lokasi'     => $log_approval->location_city,
             'Nama'     => $log_approval->user->name,
             'NIP'     => 'soon to be update',
             // 'nip'     => $log_approval->user->nip??'soon to be update',
@@ -121,32 +125,69 @@ class TemplateProcessorService
             $moderator_participant = self::generateTableParticipant('moderator', $get_moderator);
             $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
+            $get_rundowns = self::generateTableRundown($application->schedules);
+
+            $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
+
             $metadata_signer = self::getSignerMetadata($application,$file_type);
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
+            $temp=[];
             foreach ($application->getAttributes() as $key => $value) {
                 if ($key == 'funding_source') {
                     $value = $value==1? 'BLU':'BOPTN';
                 }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
                 $templateProcessor->setValue($key, $value);
             }
 
 
-
+            $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
                 $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+
             }
 
-            $templateProcessor->setValue('department_name', ucfirst($application->department->name));
-            $templateProcessor->setValue('department_name_uppercase', strtoupper($value));
-            $templateProcessor->setValue('current_year', date("Y"));
-
         // Inject variabel
-            $templateProcessor->cloneRowAndSetValues('commitee_position_name', $commitee_participant);
+        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+        // tables
+            $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
             $templateProcessor->cloneRowAndSetValues('speaker_name', $speaker_participant);
+            $templateProcessor->cloneRowAndSetValues('moderator_name', $moderator_participant);
             $templateProcessor->cloneRowAndSetValues('participant_name', $participant_participant);
+
+            // dd($get_draft_cost);
+
+            $templateProcessor->cloneRowAndSetValues('rd_start_date', $get_rundowns);
+            $templateProcessor->cloneRowAndSetValues('dc_code', $get_draft_cost['data']);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
 
 
         // set qr code ttd
@@ -163,54 +204,89 @@ class TemplateProcessorService
         // return response()->download($converted_to_pdf);
         return true;
     }
-    public static function generateWord($application=null)
+    public static function generateReportActivity($application, $templatePath, $directory_temp, $file_type)
     {
+        $write_output = public_path($directory_temp);
         $get_commitees = self::filterParticipantByType('commitee',$application->participants);
         $get_speakers = self::filterParticipantByType('speaker',$application->participants);
+        $get_moderator = self::filterParticipantByType('moderator',$application->participants);
         $get_participant = self::filterParticipantByType('participant',$application->participants);
         // dd($get_commitees);
             $commitee_participant = self::generateTableParticipant('commitee', $get_commitees);
             $speaker_participant = self::generateTableParticipant('speaker', $get_speakers);
+            $moderator_participant = self::generateTableParticipant('moderator', $get_moderator);
             $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
+            $get_rundowns = self::generateTableRundown($application->schedules);
 
-        $meta = [
-            'status'   => 'Disetujui',
-            'pada'   => ViewHelper::humanReadableDate($application->currentUserApproval->updated_at),
-            'oleh'     => $application->currentUserApproval->user->position->name,
-            'nama'     => $application->currentUserApproval->user->name,
-            'dokumen'  => route('applications.create.draft',['application_id'=>$application->id]),
-        ];
-            $qrPath = self::generateQrCode($meta);
+            $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
 
-            $templatePath = public_path('referensi/dummy_inject_word.docx');
-            $directory_temp = 'temp/docx/generated_output.docx';
-            $write_output = public_path($directory_temp);
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
             foreach ($application->getAttributes() as $key => $value) {
                 if ($key == 'funding_source') {
                     $value = $value==1? 'BLU':'BOPTN';
                 }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
                 $templateProcessor->setValue($key, $value);
             }
 
+
+            $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
                 $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
 
             }
 
-            // Inject variabel
-            $templateProcessor->cloneRowAndSetValues('commitee_', $commitee_participant);
+        // Inject variabel
+        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+        // tables
+            $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
             $templateProcessor->cloneRowAndSetValues('speaker_name', $speaker_participant);
+            $templateProcessor->cloneRowAndSetValues('moderator_name', $moderator_participant);
             $templateProcessor->cloneRowAndSetValues('participant_name', $participant_participant);
+
+            // dd($get_draft_cost);
+
+            $templateProcessor->cloneRowAndSetValues('rd_start_date', $get_rundowns);
+            $templateProcessor->cloneRowAndSetValues('dc_code', $get_draft_cost['data']);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('qr_code', [
+        $templateProcessor->setImageValue('signed_barcode', [
             'path'   => $qrPath,
-            'width'  => 150,
-            'height' => 150,
+            'width'  => 100,
+            'height' => 100,
             'ratio'  => true,
         ]);
             // end set qr code ttd
@@ -218,12 +294,28 @@ class TemplateProcessorService
         $templateProcessor->saveAs($write_output);
 
         // return response()->download($converted_to_pdf);
-
-
-
-            return false;
+        return true;
     }
 
+
+    public static function getRundownTimeRanges($rundowns){
+        $range_time_date = [];
+        foreach ($rundowns as $key => $value) {
+            $range_time_date[$value->date][] = ViewHelper::formatDateToHumanReadable($value->start_date,'H:i').' - '.ViewHelper::formatDateToHumanReadable($value->end_date,'H:i');
+        }
+
+        $join_string = '';
+        foreach ($range_time_date as $key => $value) {
+            list($s_start,$e_start)= explode('-',$value[0]);
+            list($s_end,$e_end)= explode('-',end($value));
+            $join_string.=$s_start.'-'.$e_end;
+
+            if ($range_time_date > 1 && $key != array_key_last($range_time_date)) {
+                $join_string.=', ';
+            }
+        }
+        return $join_string;
+    }
     public static function downloadDocxGenerated(){
 
 
@@ -241,6 +333,7 @@ class TemplateProcessorService
 
     public static function generateTableParticipant($participantType,$data){
         $rows = [];
+        $number = 1;
         foreach ($data as $index => $row) {
             $jabatan = ($participantType != 'commitee') ? $row['institution'] : '';
 
@@ -255,14 +348,75 @@ class TemplateProcessorService
             }
 
             $rows[] = [
-                $participantType.'_no'      => $index + 1,
+                $participantType.'_no'      => $number,
                 $participantType .'_name'    => $row['name'],
                 $participantType .'_institution' => $jabatan,
                 $participantType .'_position'   => $peran,
             ];
+            $number++;
         }
         // dd($rows);
         return $rows;
+    }
+    public static function generateTableRundown($rundowns){
+        $rows = [];
+        $number = 1;
+        foreach ($rundowns as $index => $row) {
+            $rows[] = [
+                'rd_no'      => $number,
+                'rd_start_date'    => ViewHelper::humanReadableDate($row->date),
+                'rd_start_end_time' => ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i'),
+                'rd_name'   => $row->name,
+                'rd_speaker_list'   => self::generateSpeakerList($row->moderator_text,$row->speaker_text),
+            ];
+            $number++;
+        }
+        return $rows;
+    }
+    public static function generateTableDraftCost($draft_costs){
+        $rows = [];
+        $number = 1;
+        $total_all = 0;
+        foreach ($draft_costs as $index => $row) {
+            $rows['data'][] = [
+                'dc_code'      => $row->code,
+                'dc_item'    => $row->item,
+                'dc_sub_item'    => $row->sub_item,
+                'dc_unit'   => $row->unit,
+                'dc_cost_per_unit' => ViewHelper::currencyFormat($row->cost_per_unit),
+                'dc_volume'   => $row->volume,
+                'dc_total'   => ViewHelper::currencyFormat($row->total)
+            ];
+            $total_all+=$row->total;
+            $number++;
+        }
+        $rows['total_all']=ViewHelper::currencyFormat($total_all);
+        return $rows;
+    }
+
+
+    public static function generateSpeakerList($moderator_text, $speaker_text)
+    {
+
+        $moderators = $moderator_text? explode(';',$moderator_text):[];
+        $speakers = $speaker_text? explode(';',$speaker_text):[];
+
+        $join_string = '';
+        if (count($speakers) > 0) {
+            $join_string .= 'Narasumber :';
+            foreach ($speakers as $key => $value) {
+                $join_string .=$value;
+            }
+        }
+
+        $join_string .='-------------------';
+        if (count($moderators) >0) {
+            $join_string.='Moderator :';
+            foreach ($moderators as $key => $value) {
+                $join_string.=$value;
+            }
+        }
+        return $join_string;
     }
     public static function filterParticipantByType($type,$data)
     {

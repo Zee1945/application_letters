@@ -85,8 +85,9 @@ class ReportCreate extends AbstractComponent
         $this->draft_costs = $draft_costs;
     }
 
-    public function store()
+    public function store($is_submit=false)
     {
+        dd($is_submit);
         $generals = [
             'introduction' => $this->introduction,
             'activity_description' => $this->activity_description,
@@ -100,7 +101,7 @@ class ReportCreate extends AbstractComponent
 
         // dd($generals);
 
-        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info);
+        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info,$is_submit);
         if ($report['status']) {
             $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
         }

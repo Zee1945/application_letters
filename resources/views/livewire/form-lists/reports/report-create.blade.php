@@ -130,8 +130,9 @@
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
                                             @if (viewHelper::actionPermissionButton('submit-report',$this->application))
-                                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store">Submit LPJ</button>
+                                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
+
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
                                                         class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -239,9 +240,9 @@
                         <button class="btn btn-primary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
-                            @if (viewHelper::actionPermissionButton('submit',$this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-success px-4" wire:click="saveDraft('1','true')">Submit</button>
+                            @if (viewHelper::actionPermissionButton('submit-report',$this->application))
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button>
                             @endif
                         </div>
                     </div>

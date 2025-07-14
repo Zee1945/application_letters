@@ -52,7 +52,10 @@ class ApplicationsImport implements ToCollection
             'sub_item' => null,
             'volume' => null,
             'unit' => null,
+            'unit_cost_realization' => null,
+            'volume_realization' => null,
             'cost_per_unit' => null,
+            'realization' => null,
             'total' => null,
             'application_id' => $this->application_id,
             'department_id' => AuthService::currentAccess()['department_id']
@@ -182,6 +185,9 @@ class ApplicationsImport implements ToCollection
                 $this->finest_draft_cost_data[$this->index_draft_cost]['volume'] = $value[29] ?? null;
                 $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[30] ?? null;
                 $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[31] ?? null;
+                $this->finest_draft_cost_data[$this->index_draft_cost]['volume_realization'] = $value[29] ?? null;
+                $this->finest_draft_cost_data[$this->index_draft_cost]['unit_cost_realization'] = $value[31] ?? null;
+                $this->finest_draft_cost_data[$this->index_draft_cost]['realization'] = $total;
                 $this->finest_draft_cost_data[$this->index_draft_cost]['total'] = $total;
                 // $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';
                 $this->index_draft_cost++;

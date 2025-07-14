@@ -301,12 +301,14 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data,$realization=[],$speakers_info=[])
+    public static function storeReport($data,$realization=[],$speakers_info=[],$is_submit=false)
     {
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
             $reports = $app->report->update($data);
+
+
 
             // store file ke minio dan tambah ke table files
             foreach ($speakers_info as $key => $spk) {
@@ -358,7 +360,10 @@ class ApplicationService
             // if (!$reports) {
             //         return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
             //     }
-            self::updateFlowApprovalStatus('submit-report', $data['application_id']);
+
+            if ($is_submit) {
+                self::updateFlowApprovalStatus('submit-report', $data['application_id']);
+            }
             DB::commit();
             return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
         } catch (\Throwable $th) {
