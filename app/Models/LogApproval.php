@@ -38,9 +38,10 @@ class LogApproval extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function scopeGetSigner($query,$role_id,$department_id,$app_id){
+    public function scopeGetSigner($query,$role_id,$department_id,$trans_type,$app_id){
         $role = Role::find($role_id);
         $user = User::where('department_id',$department_id)->role($role->name)->first();
-        return $query->where('user_id',$user->id)->where('application_id',$app_id)->where('department_id',$department_id);
+
+        return $query->where('user_id',$user->id)->where('application_id',$app_id)->where('trans_type',$trans_type)->where('department_id',$department_id);
     }
 }

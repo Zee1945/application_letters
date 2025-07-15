@@ -35,14 +35,22 @@
                         <div class="d-flex flex-column w-50">
                             <span class="fw-bold">Vol:</span>
                             <span class="d-flex align-items-baseline">
+                                @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                {{$this->realizations[$index]['children'][$index_child]['volume_realization']}}
+                                @else
                                 <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.volume_realization' value="{{$child['volume_realization']}}"> <span> {{$child['unit']}}</span>
-                             </span>
+                                @endif
+                            </span>
                         </div>
                         <div class="d-flex flex-column w-50 ms-auto">
                             <span class="fw-bold">Harga Satuan :</span>
                             <span class="d-flex align-items-baseline">
-                                <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization' value="{{$child['unit_cost_realization']}}">
-                             </span>
+                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                    {{viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['unit_cost_realization'])}}
+                                @else
+                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization' value="{{$child['unit_cost_realization']}}">
+                                @endif
+                            </span>
                         </div>
 
                         </div>

@@ -87,7 +87,6 @@ class ReportCreate extends AbstractComponent
 
     public function store($is_submit=false)
     {
-        dd($is_submit);
         $generals = [
             'introduction' => $this->introduction,
             'activity_description' => $this->activity_description,
@@ -170,7 +169,7 @@ class ReportCreate extends AbstractComponent
 
     public function debug()
     {
-        TemplateProcessorService::generateWord($this->application);
+        TemplateProcessorService::generateDocumentToPDF($this->application,'laporan_kegiatan');
     }
     public function nextStep()
     {

@@ -23,20 +23,20 @@ class DepartmentSeeder extends Seeder
             ],
             [
                 'id'=>2,
-                'name' => 'Sains dan Teknologi',
+                'name' => 'Fakultas Sains dan Teknologi',
                 'code' => 'SAINTEK',
                 'limit_submission' => 2,
 
             ],
             [
                 'id'=>3,
-                'name' => 'Sosial dan Humaniora',
+                'name' => 'Fakultas Sosial dan Humaniora',
                 'code' => 'SOSHUM',
                 'limit_submission' => 2,
             ],
             [
                 'id'=>4,
-                'name' => 'Lembaga Penelitian dan Pengabdian Masyarakat',
+                'name' => 'Fakultas Lembaga Penelitian dan Pengabdian Masyarakat',
                 'code' => 'LP2M',
                 'limit_submission' => 2,
             ]

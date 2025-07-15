@@ -18,6 +18,7 @@ class ApplicationLetterNumber extends Model
         'department_id',
         'letter_number',
         'letter_name',
+        'is_with_date',
         'letter_label',
         'type_field',
         'created_by',

@@ -24,6 +24,7 @@ class ApplicationCreateDraft extends AbstractComponent
     public $notes = null;
     // step 1
     public $activity_output;
+    public $activity_outcome;
     public $performance_indicator;
     public $activity_volume;
     public $general_description;
@@ -66,7 +67,7 @@ class ApplicationCreateDraft extends AbstractComponent
        $this->application_id = $application_id;
 
 
-        $keysToKeep = ['id', 'letter_label', 'letter_name', 'type_field', 'letter_number'];
+        $keysToKeep = ['id', 'letter_label', 'letter_name', 'letter_date', 'is_with_date', 'type_field', 'letter_number'];
         $this->letter_numbers = array_map(function ($item) use ($keysToKeep) {
             return array_intersect_key($item, array_flip($keysToKeep));
         }, $this->application->letterNumbers->toArray());
@@ -175,7 +176,9 @@ class ApplicationCreateDraft extends AbstractComponent
 
         try {
             // GenerateApplicationFileJob::dispatch($this->application);
-            TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
+            // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
+            // TemplateProcessorService::generateDocumentToPDF($this->application,'draft_tor');
+            TemplateProcessorService::generateDocumentToPDF($this->application,'sk');
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);
