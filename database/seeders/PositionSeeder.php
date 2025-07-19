@@ -28,6 +28,7 @@ class PositionSeeder extends Seeder
                 $role = $pos['role'];
                 unset($pos['role']);
                 $loaded_pos = Position::create(['name' => $pos['name']]);
+                $loaded_pos->assignRole($role);
             }
         }
     }

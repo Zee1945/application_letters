@@ -36,10 +36,8 @@ class ApplicationService
             DB::beginTransaction();
             // Validate the data if necessary
                 $get_verificators = User::approvers()->whereIn('id', $data['verificators'])->get();
-                $get_finance = User::approvers()
-                                ->where('department_id', AuthService::currentAccess()['department_id'])
-                                ->role('finance')->first();
-
+                $get_finance = User::approvers()->rolePosition('finance')->first();
+                // dd($get_finance);
                 $application = Application::create([
                     'activity_name'        => $data['activity_name'],
                     'funding_source'       => (int)$data['funding_source'],
@@ -58,9 +56,9 @@ class ApplicationService
                 // Create ApplicationUserApproval records for each verifier
                 foreach ($get_verificators as $key => $verifier) {
 
-                        if ($verifier->hasRole('finance')) {
+                        if ($verifier->position->hasRole('finance')) {
                             $sequence = 1;
-                        }else if($verifier->hasRole('dekan')){
+                        }else if($verifier->position->hasRole('dekan')){
                             $sequence = 2;
                         }
                     $application->userApprovals()->create([
@@ -262,6 +260,7 @@ class ApplicationService
     }
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
     {
+        // dd($rundowns, $participants);
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
@@ -290,6 +289,8 @@ class ApplicationService
                 }
 
                 foreach ($rundowns as $key => $value) {
+                    $value['department_id']= $app->department_id;
+                    $value['application_id']= $app->id;
                     $rundown = ApplicationSchedule::updateOrCreate($value);
                 }
                 foreach ($draft_costs as $key => $value) {

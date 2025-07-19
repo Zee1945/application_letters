@@ -9,6 +9,7 @@ use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
@@ -59,22 +60,26 @@ class ApplicationCreateDraft extends AbstractComponent
     public function mount($application_id = null)
     {
        $this->application = Application::find($application_id);
-
        $this->step = $this->application->draft_step_saved;
        $this->participants = $this->application->participants->toArray();
        $this->rundowns = $this->application->schedules->toArray();
+    //    dd($this->application->schedules);
        $this->draft_costs = $this->application->draftCostBudgets->toArray();
+    //    dd($this->draft_costs);
        $this->application_id = $application_id;
+
+        if (count($this->participants) > 0) $this->dispatch('transfer-participant-to-rundown', [...$this->participants]);
+        // if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+
 
 
         $keysToKeep = ['id', 'letter_label', 'letter_name', 'letter_date', 'is_with_date', 'type_field', 'letter_number'];
         $this->letter_numbers = array_map(function ($item) use ($keysToKeep) {
             return array_intersect_key($item, array_flip($keysToKeep));
         }, $this->application->letterNumbers->toArray());
+        // if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
 
-
-
-       $this->permissionApplication($application_id);
+        $this->permissionApplication($application_id);
 
 
         //  $this->dispatch('transfer-rundowns', [...$this->rundowns]);
@@ -82,7 +87,6 @@ class ApplicationCreateDraft extends AbstractComponent
     }
     public function render()
     {
-        if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
         if (count($this->draft_costs) > 0) $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
         if ($this->application->detail) {
             $this->loadData();
@@ -92,6 +96,7 @@ class ApplicationCreateDraft extends AbstractComponent
     }
 
     public function saveDraft($last_saved,$is_submit=false){
+        // dd($this->rundowns);
         $this->step = $last_saved;
 
       $generals = [
@@ -133,6 +138,15 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->open_modal_confirm =null;
         $this->notes='';
         $this->dispatch('close-modal');
+    }
+
+    #[On('transfer-rundowns')]
+    public function receiveRundowns($rundowns)
+    {
+        $this->rundowns = $rundowns;
+
+        Log::info('Ini data yang ditransfer dari komponen table-rundown => ',$this->rundowns);
+        // dd($this->rundowns);
     }
 
     public function submitModalConfirm(){
@@ -222,11 +236,13 @@ class ApplicationCreateDraft extends AbstractComponent
                 Excel::import($importer, $this->excel_participant,'local', \Maatwebsite\Excel\Excel::XLSX);
                 $rows = $importer; // Ambil hasil olahan
                 $this->participants = $rows->finest_participant_data;
-                $this->rundowns = $rows->finest_rundown_data;
+                // $this->rundowns = $rows->finest_rundown_data;
                 $this->draft_costs = $rows->finest_draft_cost_data;
 
-                $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+                // $this->dispatch('transfer-rundowns', [...$this->rundowns]);
                 $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
+                 if (count($this->participants) > 0) $this->dispatch('transfer-participant-to-rundown', [...$this->participants]);
+
                 break;
             default:
                 # code...

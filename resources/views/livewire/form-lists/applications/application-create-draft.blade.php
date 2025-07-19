@@ -287,7 +287,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                    <livewire:forms.table-rundown/>
+                    <livewire:forms.table-rundown :rundowns="$this->rundowns"/>
                     {{-- <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" /> --}}
                 </div>
                 <div class="col-12">
@@ -424,6 +424,9 @@
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.hide();
        });
+       Livewire.on('rundownUpdated', () => {
+            console.log('Rundown data has been updated');
+        });
     });
 </script>
 </div>

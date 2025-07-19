@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'Ketua Pelaksana Saintek',
-                'email' => 'ketupel@gmail.com',
+                'email' => 'ketupelsaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
                 'role' => 'user',
@@ -82,6 +82,14 @@ class UserSeeder extends Seeder
                 'role' => 'user',
                 'position' => 'Mahasiswa'
             ],
+            [
+                'name' => 'Ketua Pelaksana TI',
+                'email' => 'ketupelti@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => 5,
+                'role' => 'user',
+                'position' => 'Dosen'
+            ],
             ];
 
         foreach ($users as $user) {
@@ -92,7 +100,7 @@ class UserSeeder extends Seeder
                 unset($user['role']);
                 $user['position_id'] = $pos->id;
                 $loaded_user = User::create($user);
-                $loaded_user->assignRole($role);
+                // $loaded_user->assignRole($role);
             }
         }
 

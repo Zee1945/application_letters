@@ -24,7 +24,13 @@ class Department extends Model
         'limit_submission',
         'current_limit_submission',
         'parent_id',
+        'approval_by',
         'updated_by',
         'deleted_by',
     ];
+
+
+    public function parent(){
+        return $this->belongsTo(Department::class,'parent_id');
+    }
 }
