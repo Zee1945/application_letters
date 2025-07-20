@@ -3,7 +3,7 @@
         <thead>
             <tr>
                 <th>Sub Uraian</th>
-                <th> Total</th>
+                <th> Rencana</th>
                 <th> Realisasi</th>
                 <th> Bukti Bayar</th>
             </tr>
@@ -34,15 +34,23 @@
                        <div class="d-flex justify-content-betweenc w-100">
                         <div class="d-flex flex-column w-50">
                             <span class="fw-bold">Vol:</span>
-                            <span>
-                                {{$child['volume']}} {{$child['unit']}}
-                             </span>
+                            <span class="d-flex align-items-baseline">
+                                @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                {{$this->realizations[$index]['children'][$index_child]['volume_realization']}}
+                                @else
+                                <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.volume_realization' value="{{$child['volume_realization']}}"> <span> {{$child['unit']}}</span>
+                                @endif
+                            </span>
                         </div>
                         <div class="d-flex flex-column w-50 ms-auto">
                             <span class="fw-bold">Harga Satuan :</span>
-                            <span>
-                                {{$child['cost_per_unit']?viewHelper::currencyFormat($child['cost_per_unit']):''}}
-                             </span>
+                            <span class="d-flex align-items-baseline">
+                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                    {{viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['unit_cost_realization'])}}
+                                @else
+                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization' value="{{$child['unit_cost_realization']}}">
+                                @endif
+                            </span>
                         </div>
 
                         </div>
@@ -51,10 +59,10 @@
                     <td>{{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            <span>{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
+                            <span class="d-flex text-nowrap">{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
                         @else
-                        <div class="d-flex">
-                           <span class="align-items-baseline"> Rp.</span> <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
+                        <div class="d-flex align-items-baseline">
+                           <span> Rp.</span> <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
                             aria-label="Biaya Realisasi">
                         </div>
 

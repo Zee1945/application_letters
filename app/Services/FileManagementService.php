@@ -70,7 +70,8 @@ class FileManagementService
              return ['status'=>true,'message'=>'success store new data','data'=>$res];
             }
         }
-     }
+        return ['status' => false, 'message' => 'failed to store new file data, metadata is empty', 'data' => []];
+    }
      public static function storeFileApplication($content,$application,$trans_type,$file_code=null){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);

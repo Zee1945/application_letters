@@ -21,7 +21,9 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
         $user = auth()->user()->except('password', 'remember_token');
-        $role = auth()->user()->getRoleNames()->first() ?? 'user';
+        $position = auth()->user()->position;
+        // $role = auth()->user()->position()->getRoleNames()->first() ?? 'user';
+        $role = $position->getRoleNames()->first() ?? 'user';
         $department = auth()->user()->department()->first()->name ?? '';
         Session::put('user', [...auth()->user()->except('password', 'remember_token'),'role'=> $role,'department'=>$department]);
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);

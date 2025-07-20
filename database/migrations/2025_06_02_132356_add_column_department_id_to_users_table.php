@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-
             $table->unsignedBigInteger('department_id')->nullable()->after('updated_at'); // Dibuat oleh (ID user)
             $table->unsignedBigInteger('position_id')->nullable()->after('department_id'); // Catatan penghapusan (jika ada)
             $table->text('delete_note')->nullable()->after('position_id'); // Catatan penghapusan (jika ada)

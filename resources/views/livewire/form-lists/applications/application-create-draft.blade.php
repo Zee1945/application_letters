@@ -113,12 +113,17 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Hasil (Outcome)</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome" wire:model="activity_output"
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
                                                 wire:model="activity_outcome"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Indikator kinerja kegiatan</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement" wire:model="performance_indicator"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="Outcome" class="form-label fw-bold">Keluaran (Output)</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome" wire:model="activity_output"
+                                                ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
@@ -282,7 +287,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                    <livewire:forms.table-rundown/>
+                    <livewire:forms.table-rundown :rundowns="$this->rundowns"/>
                     {{-- <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" /> --}}
                 </div>
                 <div class="col-12">
@@ -327,11 +332,15 @@
 
             <div class="row g-3">
                 <div class="col-12">
-
                    @forelse ($this->letter_numbers as $key => $item)
                    <div class="mb-3">
                     <label for="{{$item['letter_name']}}" class="form-label fw-bold">{{$item['letter_label']}}</label>
-                    <input type="{{$item['type_field']}}" wire:model="letter_numbers.{{$key}}.letter_number" class="form-control" name="{{$item['letter_name']}}"  id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+                    <div class="d-flex justify-content-between">
+                        <input type="{{$item['type_field']}}" wire:model="letter_numbers.{{$key}}.letter_number" class="form-control w-50 me-2" name="{{$item['letter_name']}}"  id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+                        @if ($item['is_with_date'])
+                        <input type="date" wire:model="letter_numbers.{{$key}}.letter_date" class="form-control w-50 ms-2" name="{{$item['letter_name']}}_date"  id="{{$item['letter_name']}}_date" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+                        @endif
+                    </div>
                   </div>
                     @empty
                    @endforelse
@@ -415,6 +424,9 @@
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.hide();
        });
+       Livewire.on('rundownUpdated', () => {
+            console.log('Rundown data has been updated');
+        });
     });
 </script>
 </div>

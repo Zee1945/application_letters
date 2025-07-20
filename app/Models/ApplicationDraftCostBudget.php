@@ -21,6 +21,8 @@ class ApplicationDraftCostBudget extends Model
         'volume',
         'unit',
         'cost_per_unit',
+        'volume_realization',
+        'unit_cost_realization',
         'realization',
         'total',
         'created_by',

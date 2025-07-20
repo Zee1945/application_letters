@@ -129,7 +129,7 @@ public static function getCurrentUserProcess($app,$is_report=false){
     }
 
 
-    public static function humanReadableDate($date_time)
+public static function humanReadableDate($date_time)
 {
 
     // Cek jika $date_time null atau kosong

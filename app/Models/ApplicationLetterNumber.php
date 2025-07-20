@@ -19,6 +19,7 @@ class ApplicationLetterNumber extends Model
         'letter_number',
         'letter_name',
         'letter_date',
+        'is_with_date',
         'letter_label',
         'type_field',
         'created_by',

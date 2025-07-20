@@ -143,8 +143,48 @@
 
 
                                 </div>
-
+{{--
                                 <div id="test-l-2" role="tabpanel" class="{{$this->step == '2'? '':'bs-stepper-pane'}}"
+                                    aria-labelledby="stepper1trigger2">
+
+                                    <div class="d-flex justify-content-between">
+                                        <div class="">
+                                            <h5 class="mb-1">Notulensi</h5>
+                                            <p class="mb-4">Isi Notulensi Kegiatan</p>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row g-3">
+                                            <div class="col-12">
+                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
+                                                    <h6>Isi Notulensi Kegiatan</h6>
+                                                </label>
+                                                <div class="">
+                                                    tesssssssssss
+                                                    {{-- <livewire:forms.table-speaker-informations :participants="$this->application->participants"/> --}}
+                                                </div>
+                                            </div>
+
+
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
+                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                        <div class="d-flex">
+                            @if (viewHelper::actionPermissionButton('submit',$this->application))
+                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            @endif
+                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
+                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div><!---end row-->
+
+        </div> --}}
+                                <div id="test-l-3" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger2">
 
                                     <div class="d-flex justify-content-between">
@@ -161,7 +201,7 @@
                                                     <h6>Isi Informasi Narasumber</h6>
                                                 </label>
                                                 <div class="">
-                                                    <livewire:forms.table-speaker-informations :application="$this->application" :participants="$this->application->participants"/>
+                                                    <livewire:forms.table-speaker-informations :participants="$this->application->participants"/>
                                                 </div>
                                             </div>
 
@@ -186,7 +226,7 @@
 
 
 
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger3">
+        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
             <h5 class="mb-1">Realisasi Anggaran</h5>
             <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 

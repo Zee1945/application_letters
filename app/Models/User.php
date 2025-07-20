@@ -15,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable,HasRoles;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -55,7 +55,7 @@ class User extends Authenticatable
     }
 
 
-    public function scopeApprovers($query)
+    public function scopeTes($query)
     {
         $userAuth = Auth::user();
         if ($userAuth) {
@@ -68,7 +68,6 @@ class User extends Authenticatable
         }
         return $query;
     }
-
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -76,5 +75,36 @@ class User extends Authenticatable
     public function position()
     {
         return $this->belongsTo(Position::class);
+    }
+
+
+    public function scopeApprovers($query)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $check_is_admin = $user->position->hasRole('super_admin');
+            if ($check_is_admin) {
+                return $query;
+            } else {
+                $data = $query->whereHas('department',function($dq)use($user){
+                    if ($user->department->approval_by == 'self') {
+                        return $dq->where('id', $user->department->id);
+                    }else if($user->department->approval_by == 'parent'){
+                        return $dq->where('id', $user->department->parent->id);
+                    }
+                })->whereHas('position', function ($sub_query) {
+                    return $sub_query->role(['dekan', 'finance']);
+                });
+                // dd($data);
+                return $data;
+            }
+        }
+        return $query;
+    }
+
+    public function scopeRolePosition($query, $role){
+        return $query->whereHas('position',function($q) use($role){
+            $q->role($role);
+        });
     }
 }

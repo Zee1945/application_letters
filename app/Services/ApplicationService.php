@@ -36,10 +36,8 @@ class ApplicationService
             DB::beginTransaction();
             // Validate the data if necessary
                 $get_verificators = User::approvers()->whereIn('id', $data['verificators'])->get();
-                $get_finance = User::approvers()
-                                ->where('department_id', AuthService::currentAccess()['department_id'])
-                                ->role('finance')->first();
-
+                $get_finance = User::approvers()->rolePosition('finance')->first();
+                // dd($get_finance);
                 $application = Application::create([
                     'activity_name'        => $data['activity_name'],
                     'funding_source'       => (int)$data['funding_source'],
@@ -58,9 +56,9 @@ class ApplicationService
                 // Create ApplicationUserApproval records for each verifier
                 foreach ($get_verificators as $key => $verifier) {
 
-                        if ($verifier->hasRole('finance')) {
+                        if ($verifier->position->hasRole('finance')) {
                             $sequence = 1;
-                        }else if($verifier->hasRole('dekan')){
+                        }else if($verifier->position->hasRole('dekan')){
                             $sequence = 2;
                         }
                     $application->userApprovals()->create([
@@ -98,16 +96,19 @@ class ApplicationService
 
     public static function storeLogApproval($action, $application_id,$note='')
     {
+        $split_action = explode('-',$action);
         $log = LogApproval::create([
             'notes'=>$note,
             'location_city'=>'Yogyakarta',
-            'action'=>$action,
+            'action'=>$split_action[0],
             'trans_type'=>strpos($action, 'report')?2:1,
             'application_id'=> $application_id,
             'user_id'=> AuthService::currentAccess()['id'],
             'position_id'=> AuthService::currentAccess()['position_id'],
             'department_id'=> AuthService::currentAccess()['department_id']
         ]);
+
+        // dd($log);
 
         if (!$log) {
            return ['status'=>false,'message'=>'gagal menambahkan riwayat approval !'];
@@ -126,12 +127,14 @@ class ApplicationService
                         $app->approval_status = 6;
                         $app->save();
                         self::storeLogApproval('approve', $application_id, '');
+                        TemplateProcessorService::generateDocumentToPDF($app, 'draft_tor');
                     }
                     break;
             case 'submit-report':
                     if ($app->created_by == $current_user_id && $app->report->approval_status < 6) {
                         $app->report->approval_status = 6 ;
                         $app->report->save();
+                        self::storeLogApproval($action, $application_id, '');
                     }
                     break;
             case 'approve':
@@ -172,7 +175,8 @@ class ApplicationService
                             $department = Department::find($app->department_id);
                             $department->current_limit_submission = $department->current_limit_submission-1;
                             $department->save();
-
+                            self::storeLogApproval($action, $application_id, '');
+                            TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan');
                             // self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
@@ -256,14 +260,12 @@ class ApplicationService
     }
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
     {
+        // dd($rundowns, $participants);
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
 
                 $app->draft_step_saved = $data['draft_step_saved'];
-            if ($is_submit) {
-               self::updateFlowApprovalStatus('submit', $data['application_id']);
-            }
             $app->save();
 
             unset($data['draft_step_saved']);
@@ -287,11 +289,19 @@ class ApplicationService
                 }
 
                 foreach ($rundowns as $key => $value) {
+                    $value['department_id']= $app->department_id;
+                    $value['application_id']= $app->id;
                     $rundown = ApplicationSchedule::updateOrCreate($value);
                 }
                 foreach ($draft_costs as $key => $value) {
+                    $value['volume_realization'] = $value['volume'];
+                    $value['unit_cost_realization'] = $value['cost_per_unit'];
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
                 }
+
+            if ($is_submit) {
+                self::updateFlowApprovalStatus('submit', $data['application_id']);
+            }
             DB::commit();
             return['status'=>true,'message'=>'data pengajuan berhasil ditambahkan'];
         } catch (\Throwable $th) {
@@ -301,34 +311,38 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data,$realization=[],$speakers_info=[])
+    public static function storeReport($data,$realization=[],$speakers_info=[],$is_submit=false)
     {
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
             $reports = $app->report->update($data);
 
+
+
             // store file ke minio dan tambah ke table files
+            $temp=[];
             foreach ($speakers_info as $key => $spk) {
-                    // "participant_id" => 1
-                    // "cv_file_id" => "temp/report/speaker-information/1/application.pdf-1-cv_file_id.pdf"
-                    // "idcard_file_id" => "temp/report/speaker-information/1/tandaterima_disposisi_168_1742660389.pdf-1-idcard_file_id.pdf"
-                    // "npwp_file_id" => "temp/report/speaker-information/1/dummy.pdf-1-npwp_file_id.pdf"
+
                     $columns = ['cv_file_id','idcard_file_id','npwp_file_id'];
                     foreach ($columns as $col) {
                         if ($spk[$col]) {
                             $new_dir = str_replace('temp/report/', '', $spk[$col]);
                             $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
                             $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
-                            $participant= ApplicationParticipant::find($spk['participant_id']);
+
+                            //  $temp[$spk['participant_id']][] = [$col=>$files,''];
+
+                        $participant= ApplicationParticipant::find($spk['participant_id']);
                             $participant->$col = $files['data']->id;
+
                             $participant->save();
-
-
+                            $temp[]=$participant;
                         }
                     }
 
             }
+            // dd($reports,$temp,$realization);
             // store file id ke tabel draft_cost_application
             foreach ($realization as $key => $value) {
                 if ($value['file_id']) {
@@ -338,6 +352,8 @@ class ApplicationService
                     $files = FileManagementService::storeFiles($get_file_storage,$app,'report', $value['file_id']);
                     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
                     $draf_cost->realization = $value['realization'];
+                    $draf_cost->volume_realization = $value['volume_realization'];
+                    $draf_cost->unit_cost_realization = $value['unit_cost_realization'];
                     $draf_cost->save();
                     $draf_cost->files()->attach($files['data']->id);
                 }
@@ -358,7 +374,10 @@ class ApplicationService
             // if (!$reports) {
             //         return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
             //     }
-            self::updateFlowApprovalStatus('submit-report', $data['application_id']);
+
+            if ($is_submit) {
+                self::updateFlowApprovalStatus('submit-report', $data['application_id']);
+            }
             DB::commit();
             return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
         } catch (\Throwable $th) {
@@ -375,7 +394,8 @@ class ApplicationService
             'letter_name'=>'mak',
             'letter_label'=>'MAK',
             'type_field'=>'text',
-            'letter_number'=>null,
+                'is_with_date' => 0,
+                'letter_number'=>null,
         ],
             [
             'letter_name'=>'nomor_sk',
@@ -383,40 +403,35 @@ class ApplicationService
                 'type_field' => 'text',
 
                 'letter_number'=>null,
+                'is_with_date'=>1,
         ],
-            [
-            'letter_name'=>'tanggal_sk',
-            'letter_label'=>'Tanggal SK',
-                'type_field' => 'date',
 
-                'letter_number'=>null,
-        ],
             [
             'letter_name'=>'tanggal_berlaku_sk',
             'letter_label'=>'Tanggal Berlaku SK',
                 'type_field' => 'date',
-
+                'is_with_date' => 0,
                 'letter_number'=>null,
         ],
             [
             'letter_name'=>'nomor_surat_permohonan_speaker',
             'letter_label'=>'Nomor Surat Permohonan Narasumber/Moderator',
                 'type_field' => 'text',
-
+                'is_with_date' => 1,
                 'letter_number'=>null,
         ],
             [
             'letter_name'=>'nomor_surat_tugas',
             'letter_label'=>'Nomor Surat Tugas',
                 'type_field' => 'text',
-
+                'is_with_date' => 1,
                 'letter_number'=>null,
         ],
             [
             'letter_name'=>'nomor_surat_undangan_peserta',
                 'letter_label'=>'Nomor Surat Undangan Peserta',
                 'type_field' => 'text',
-
+                'is_with_date' => 1,
                 'letter_number'=>null,
         ],
     ];
@@ -460,12 +475,13 @@ class ApplicationService
             }
         }
 
-
         return true;
     }
     public static function updateLetterNumber($letterNumbers,$app){
         try {
             DB::beginTransaction();
+
+            // dd($letterNumbers);
             foreach ($letterNumbers as $key => $value) {
                 $field = $app->letterNumbers()->find($value['id'])->update($value);
             }
@@ -475,7 +491,8 @@ class ApplicationService
             $department = Department::find($app->department_id);
             $department->current_limit_submission = $department->current_limit_submission+1;
             $department->save();
-            TemplateProcessorService::generateWord($app);
+            TemplateProcessorService::generateDocumentToPDF($app, 'tor');
+            TemplateProcessorService::generateDocumentToPDF($app, 'sk');
             DB::commit();
             return true;
         } catch (\Throwable $th) {

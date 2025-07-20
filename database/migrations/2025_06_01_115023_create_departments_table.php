@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('current_limit_submission')->default(0); // Slug untuk URL
             $table->unsignedBigInteger('parent_id')->nullable(); // Slug untuk URL
             $table->string('code')->nullable(); // Slug untuk URL
+            $table->string('approval_by')->nullable(); // Slug untuk URL
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)
             $table->unsignedBigInteger('created_by')->nullable(); // Dibuat oleh (ID user)
             $table->unsignedBigInteger('updated_by')->nullable(); // Diubah oleh (ID user)
