@@ -96,6 +96,6 @@
             @endforelse
         </tbody>
     </table>
-    <livewire:utils.modal-preview/>
+    {{-- <livewire:utils.modal-preview :modalId="'modalPreviewRealization'" :key="'realization-modal'"/> --}}
 
 </div>

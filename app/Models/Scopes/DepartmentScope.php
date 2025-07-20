@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class DepartmentScope implements Scope
@@ -15,26 +16,36 @@ class DepartmentScope implements Scope
      */
     public static $table_name;
     public static $table_columns;
-    public function apply(Builder $builder, Model $model): void
-    {
-        // Jangan gunakan Auth::user() di scope User!
-        if ($model->getTable() !== 'users') {
-            $user = Auth::user();
-            // if ($user && $this->hasColumn($model, 'department_id')) {
-            //     $builder->where($model->getTable() . '.department_id', $user->department_id);
-            // }
-            $departmentId = $user->department_id ?? null;
-            if ($user && $departmentId) {
-                if ($model->getTable() == 'departments') {
-                    $builder->where('id', $departmentId);
-                } else {
-                    if ($this->hasColumn($model, 'department_id')) {
-                        $builder->where($model->getTable() . '.department_id', $departmentId);
-                    }
-                }
+public function apply(Builder $builder, Model $model): void
+{
+    if ($model->getTable() !== 'users') {
+        $user = Auth::user();
+        
+        if (!$user || !$user->department_id) {
+            return;
+        }
+
+        $userRoles = $user->position->getRoleNames()->toArray();
+        $isFinanceOrDekan = array_intersect(['finance', 'dekan','kabag'], $userRoles);
+        
+        if ($this->hasColumn($model, 'department_id')) {
+            $tableName = $model->getTable();
+            
+            if ($isFinanceOrDekan) {
+                // Finance/Dekan bisa lihat department sendiri + child departments
+                $childDepartmentIds = \App\Models\Department::where('parent_id', $user->department_id)
+                                                          ->pluck('id')
+                                                          ->toArray();
+                $allDepartmentIds = array_merge([$user->department_id], $childDepartmentIds);
+                
+                $builder->whereIn($tableName . '.department_id', $allDepartmentIds);
+            } else {
+                // User biasa hanya department sendiri
+                $builder->where($tableName . '.department_id', $user->department_id);
             }
         }
     }
+}
 
     public function hasColumn($model, $column_name)
     {

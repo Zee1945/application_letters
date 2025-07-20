@@ -102,7 +102,7 @@ class TemplateProcessorService
     {
         $file_type = FileType::whereCode($file_type)->first();
         $log_approval = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
-
+        // dd($log_approval);
         $meta = [
             'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->updated_at),
             'Jabatan'     => $log_approval->position->name,

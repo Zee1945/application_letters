@@ -70,5 +70,4 @@
             @endforeach
         </tbody>
     </table>
-    <livewire:utils.modal-preview/>
 </div>

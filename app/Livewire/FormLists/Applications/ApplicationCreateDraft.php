@@ -69,8 +69,9 @@ class ApplicationCreateDraft extends AbstractComponent
        $this->application_id = $application_id;
 
         if (count($this->participants) > 0) $this->dispatch('transfer-participant-to-rundown', [...$this->participants]);
-        // if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
+        // if (count($this->draft_costs) > 0) $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
 
+        // if (count($this->rundowns) > 0) $this->dispatch('transfer-rundowns', [...$this->rundowns]);
 
 
         $keysToKeep = ['id', 'letter_label', 'letter_name', 'letter_date', 'is_with_date', 'type_field', 'letter_number'];
@@ -91,6 +92,8 @@ class ApplicationCreateDraft extends AbstractComponent
         if ($this->application->detail) {
             $this->loadData();
         }
+        // if (count($this->participants) > 0) $this->dispatch('transfer-participant-to-rundown', [...$this->participants]);
+
 
         return view('livewire.form-lists.applications.application-create-draft')->extends('layouts.main');
     }

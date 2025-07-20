@@ -102,9 +102,28 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeRolePosition($query, $role){
-        return $query->whereHas('position',function($q) use($role){
-            $q->role($role);
-        });
+public function scopeRolePosition($query, $role, $department_id = null)
+{
+    if ($department_id) {
+        $department = Department::find($department_id);
+        // dd($role);
+        if ($department && $role !='user') {
+            $query = $query->whereHas('department', function($q) use($department) {
+                if ($department->approval_by == 'self') {
+                    return $q->where('id', $department->id);
+                } else if ($department->approval_by == 'parent') {
+                    return $q->where('id', $department->parent_id);
+                } else if ($department->approval_by == 'central') {
+                    return $q->where('id', 1);
+                }
+            });
+        }else{
+            $query = $query->where('department_id', $department->id);
+        }
     }
+    
+    return $query->whereHas('position', function($q) use($role) {
+        $q->role($role);
+    });
+}
 }

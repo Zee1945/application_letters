@@ -115,7 +115,7 @@ public static function getCurrentUserProcess($app,$is_report=false){
             return $app->currentUserApproval->user_text;
         } elseif ($status_number > 10 && $status_number < 21) {
             if ($status_number == 11 && !$is_report) {
-                $get_kabag = User::where('department_id',$app->department_id)->role('kabag')->first();
+                $get_kabag = User::rolePosition('kabag',$app->department_id)->first();
 
                 return $get_kabag->name;
             } else {
@@ -241,8 +241,9 @@ public static function humanReadableDate($date_time)
                 }
                 return false;
             case 'submit-letter-number':
+                // dd(User::rolePosition('kabag',$app->department_id)->first());
                 if ($app->approval_status == 11 &&
-                    User::where('department_id',$app->department_id)->role('kabag')->first()->id == AuthService::currentAccess()['id']) {
+                    User::rolePosition('kabag',$app->department_id)->first()->id == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;

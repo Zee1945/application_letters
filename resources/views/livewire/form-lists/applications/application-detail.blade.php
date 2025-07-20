@@ -47,6 +47,10 @@
                         <div class="col-sm-3"><span class="fw-bold">Pemroses Saat Ini</span></div>
                         <div class="col-sm-9"><span>{!! viewHelper::getCurrentUserProcess($app) !!}</span></div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><span class="fw-bold">Departemen</span></div>
+                        <div class="col-sm-9"><span>{{$app->department->name }}</span></div>
+                    </div>
 
                     <!-- File Information Table -->
                     <div class="table-responsive mt-3">

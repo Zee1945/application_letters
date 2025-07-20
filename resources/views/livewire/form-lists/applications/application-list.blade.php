@@ -33,6 +33,7 @@
                             <th>Sumber Pendanaan</th>
                             <th>Status Pengajuan</th>
                             <th>Pemroses Saat ini</th>
+                            <th>Departemen</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -46,9 +47,10 @@
                             <td>{{ $application->funding_source == 1? 'BLU':'BOPTN'}}</td>
                             <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
                             <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
+                            <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">
-                                    <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class="fa-regular fa-eye"></i></a>
+                                    <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class='bx bx-info-circle'></i> </a>
                                     <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
                                     <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
                                 </div>

@@ -11,13 +11,19 @@ class TableDraftCost extends Component
     public $draft_costs = [];
     public $current_code = '';
     public $sample =[];
+    public function mount($draftCosts=[])
+    {
+        if (count($draftCosts) > 0) {
+            $this->receiveDraftCost($draftCosts);
+        }
+    }
     public function render()
     {
         return view('livewire.forms.table-draft-cost');
     }
 
     #[On('transfer-draft-costs')]
-    public function receiveRundowns($draft_costs)
+    public function receiveDraftCost($draft_costs)
     {
         $this->sample = $draft_costs;
         // $this->draft_costs = $draft_costs;

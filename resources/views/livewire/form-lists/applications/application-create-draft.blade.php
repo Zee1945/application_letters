@@ -1,4 +1,18 @@
 <div>
+    <!-- Enhanced Loading States -->
+<div wire:loading.class="opacity-50" wire:target="nextStep,prevStep">
+    <!-- Your form content -->
+</div>
+
+<!-- Loading Overlay -->
+{{-- <div wire:loading wire:target="saveDraft,submitModalConfirm" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div class="bg-white p-4 rounded shadow">
+        <div class="d-flex align-items-center">
+            <div class="spinner-border text-primary me-3" role="status"></div>
+            <span>Menyimpan data...</span>
+        </div>
+    </div>
+</div> --}}
     <!--breadcrumb-->
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
         <div class="breadcrumb-title pe-3">Form Pengajuan</div>
@@ -6,24 +20,61 @@
     <!--end breadcrumb-->
     <div class="row">
         <div class="col-12 mx-auto">
-            <div class="text-center">
-                <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
-                <div class="">
-                    @if ($application->approval_status == 12)
-                        <button class="btn btn-sm btn-primary" wire:click="downloadDocx">Download Document</button>
-                    @endif
-                    <button class="btn btn-sm btn-danger" wire:click="debug">Debug</button>
-                    @if (viewHelper::actionPermissionButton('approval_process',$this->application))
-                        <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject')">Reject</button>
-                        <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise')">Revisi</button>
-                        <button class="btn btn-sm btn-success" wire:click="openModalConfirm('approve')">Approve</button>
-                    @endif
-
+             <div class="card shadow-sm mb-4=1">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8 col-sm-12">
+                        <div class="d-flex align-items-center">
+                            <div class="activity-icon me-3">
+                                <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <div class="">
+                                    <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
+                                </div>
+                                <div class="d-flex align-items-center text-muted">
+                                    {{-- <span class="badge bg-{{ $this->application->approval_status == 12 ? 'success' : 'warning' }} me-2"> --}}
+                                        {{-- {{ viewHelper::getApprovalStatusText($this->application->approval_status) }} --}}
+                                        {!! viewHelper::statusSubmissionHTML($application->approval_status) !!}
+                                    {{-- </span> --}}
+                                    <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($application) !!}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12 text-end">
+                        <div class="btn-group-vertical d-md-none d-block mb-2"></div>
+                        <div class="btn-group" role="group">
+                            {{-- @if ($application->approval_status == 12)
+                                <button class="btn btn-outline-primary btn-sm" wire:click="downloadDocx">
+                                    <i class="fa-solid fa-download me-1"></i>Download Document
+                                </button>
+                            @endif --}}
+                            <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
+                                <i class='bx bx-info-circle'></i> Detail
+                            </a>
+                            {{-- <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
+                                <i class="fa-solid fa-bug me-1"></i>Debug
+                            </button> --}}
+                        </div>
+                        
+                        @if (viewHelper::actionPermissionButton('approval_process',$this->application))
+                            <div class="btn-group mt-2 w-100" role="group">
+                                <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject')">
+                                    <i class="fa-solid fa-times me-1"></i>Reject
+                                </button>
+                                <button class="btn btn-warning btn-sm" wire:click="openModalConfirm('revise')">
+                                    <i class="fa-solid fa-edit me-1"></i>Revisi
+                                </button>
+                                <button class="btn btn-success btn-sm" wire:click="openModalConfirm('approve')">
+                                    <i class="fa-solid fa-check me-1"></i>Approve
+                                </button>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-                {{-- <img src="{{asset('assets/images/logo-img.png')}}" alt="ga ada gambar"> --}}
-
-                <hr />
-            </div>
+            <hr />
+            
             <div id="stepper2" class="bs-stepper">
                 <div class="card">
                     <div class="card-header overflow-auto">
@@ -185,6 +236,20 @@
                                             @if (viewHelper::actionPermissionButton('submit',$this->application))
                                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
+                                            <!-- Step 1 - Tombol Save Draft sudah benar -->
+{{-- @if (viewHelper::actionPermissionButton('submit',$this->application))
+    <button class="btn btn-primary px-4 border-none bg-warning me-2" 
+            wire:click="saveDraft('1')"
+            wire:loading.attr="disabled"
+            wire:target="saveDraft">
+        <span wire:loading.remove wire:target="saveDraft">
+            <i class="fa-solid fa-bookmark"></i> Save Draft
+        </span>
+        <span wire:loading wire:target="saveDraft">
+            <i class="spinner-border spinner-border-sm me-2"></i> Saving...
+        </span>
+    </button>
+@endif --}}
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
                                                         class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -287,7 +352,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                    <livewire:forms.table-rundown :rundowns="$this->rundowns"/>
+                    <livewire:forms.table-rundown :rundowns="$this->rundowns" :participants="$this->participants"/>
                     {{-- <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" /> --}}
                 </div>
                 <div class="col-12">
@@ -308,7 +373,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                   <livewire:forms.table-draft-cost/>
+                   <livewire:forms.table-draft-cost :draftCosts="$this->draft_costs"/>
                 </div>
 
                 <div class="col-12">

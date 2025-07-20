@@ -1,5 +1,5 @@
 {{-- Modal Preview --}}
-<div class="modal fade" id="modalPreview" tabindex="-1" aria-labelledby="modalPreviewLabel" aria-hidden="true">
+    <div class="modal fade" id="{{ $modal_id }}" tabindex="-1" aria-labelledby="{{ $modal_id }}Label" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content bg-transparent">
             <div class="modal-header">
@@ -9,8 +9,14 @@
             </div>
             <div class="modal-body p-0">
                 <div class="row">
+                    <div class="card">
+                        <div class="card-body">
+
+                            tessss
+                        </div>
+                    </div>
                     <div class="d-flex flex-column align-items-center">
-                        {{count($this->files_preview)}}
+                        {{-- {{count($this->files_preview)}} --}}
                         @if (count($this->files_preview) > 0)
                             @foreach ($this->files_preview as $file)
                                 @if ($file['mimetype'] == 'pdf' || $file['mimetype'] == 'application/pdf')
@@ -36,15 +42,30 @@
 
 
 
-  <script type="module">
+<script type="module">
     document.addEventListener('livewire:init', () => {
+        const modalId = '{{ $modal_id }}';
+        let modalInstance = null;
+        
         Livewire.on('open-modal-preview-js', (event) => {
-           const modal = bootstrap.Modal.getOrCreateInstance('#modalPreview');
-           modal.show();
-       });
+            if (event.modalId === modalId) {
+                // Hapus backdrop yang ada sebelumnya
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                
+                modalInstance = bootstrap.Modal.getOrCreateInstance('#' + modalId);
+                modalInstance.show();
+                console.log(modalInstance);
+                
+            }
+        });
+        
         Livewire.on('close-modal-preview-js', (event) => {
-           const modal = bootstrap.Modal.getOrCreateInstance('#modalPreview');
-           modal.hide();
-       });
+            if (event.modalId === modalId && modalInstance) {
+                modalInstance.hide();
+                
+            }
+        });
     });
 </script>

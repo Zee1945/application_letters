@@ -23,14 +23,18 @@ class TableRundown extends Component
         ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
     ];
 
-    public function mount($rundowns)
+    public function mount($rundowns,$participants=[])
     {
         $this->rundown = count($rundowns) >0? $this->denormalizeData($rundowns) : $this->rundown;
+        // dd($this->rundown);
+       if (count($participants)>0) {
+            $this->receiveParticipant($participants);
+       }
+        
     }
     public function render()
     {
-        // $normalizeData = $this->normalizeData($this->rundown);
-        // $this->dispatch('transfer-rundowns',[...$normalizeData]);
+    
         return view('livewire.forms.table-rundown');
     }
     public function filterUserByType($participant_type_name)
@@ -121,39 +125,11 @@ class TableRundown extends Component
         $this->dispatch('transfer-rundowns',[...$normalizeData]);
 
     }
-
-    public function syncRundown($name, $value)
-    {
-        // Parse nama dari $name untuk mendapatkan index dan field
-        $parts = explode('.', $name);
-        $index = $parts[1];
-        $field = $parts[2];
-
-        // Perbarui data di dalam $rundown
-        if ($field =='speaker_text' || $field == 'moderator_text') {
-            // Jika value sudah ada dalam array, maka hapus
-            if (in_array($value, $this->rundown[$index][$field])) {
-                // Hapus value dari array
-                $this->rundown[$index][$field] = array_diff($this->rundown[$index][$field], [$value]);
-            } else {
-                // Jika tidak ada, tambahkan value ke array
-                $this->rundown[$index][$field][] = $value;
-            }
-        }else {
-            $this->rundown[$index][$field] = $value;
-        }
-
-        // Normalisasi data setelah perubahan
+    public function syncRundown(){
+        // dd($this->normalizeData($this->rundown));
         $normalizeData = $this->normalizeData($this->rundown);
-
-        // Dispatch event untuk mengirimkan data yang sudah diperbarui
-        $this->dispatch('transfer-rundowns', [...$normalizeData]);
-
-        // Optional: Jika Anda ingin menambahkan event khusus setelah update
-        // $this->dispatch('rundownUpdated');
+        $this->dispatch('transfer-rundowns',[...$normalizeData]);
     }
-
-
 
 
     public function removeRow($index)
@@ -161,6 +137,8 @@ class TableRundown extends Component
         if (count($this->rundown) > 1) {
             array_splice($this->rundown, $index, 1);
         }
+            $normalizeData = $this->normalizeData($this->rundown);
+            $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
     }
 
     public function addSpeaker($index)
@@ -211,5 +189,45 @@ class TableRundown extends Component
         }
     }
 
+    public function toggleSpeaker($rowIndex, $speakerText)
+    {
+        if (!isset($this->rundown[$rowIndex]['speaker_text'])) {
+            $this->rundown[$rowIndex]['speaker_text'] = [];
+        }
+        
+        $currentSpeakers = $this->rundown[$rowIndex]['speaker_text'];
+        
+        if (in_array($speakerText, $currentSpeakers)) {
+            $this->rundown[$rowIndex]['speaker_text'] = array_values(
+                array_diff($currentSpeakers, [$speakerText])
+            );
+        } else {
+            $this->rundown[$rowIndex]['speaker_text'][] = $speakerText;
+        }
+        
+        // Dispatch update
+        $normalizeData = $this->normalizeData($this->rundown);
+        $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
+    }
 
+    public function toggleModerator($rowIndex, $moderatorText)
+    {
+        if (!isset($this->rundown[$rowIndex]['moderator_text'])) {
+            $this->rundown[$rowIndex]['moderator_text'] = [];
+        }
+        
+        $currentModerators = $this->rundown[$rowIndex]['moderator_text'];
+        
+        if (in_array($moderatorText, $currentModerators)) {
+            $this->rundown[$rowIndex]['moderator_text'] = array_values(
+                array_diff($currentModerators, [$moderatorText])
+            );
+        } else {
+            $this->rundown[$rowIndex]['moderator_text'][] = $moderatorText;
+        }
+        
+        // Dispatch update
+        $normalizeData = $this->normalizeData($this->rundown);
+        $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
+    }
 }

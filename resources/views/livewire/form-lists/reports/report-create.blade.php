@@ -262,6 +262,8 @@
     </div>
   </div>
 </div>
+<livewire:utils.modal-preview/>
+
 
 
 
