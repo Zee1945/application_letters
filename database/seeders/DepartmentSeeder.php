@@ -55,6 +55,14 @@ class DepartmentSeeder extends Seeder
                 'approval_by' => 'parent',
                 'parent_id' => 2
             ],
+            [
+                'id' => 6,
+                'name' => 'Jurusan Teknik Kimia',
+                'code' => 'TEKIM',
+                'limit_submission' => 2,
+                'approval_by' => 'parent',
+                'parent_id' => 2
+            ],
         ];
         foreach ($departemts as $department) {
             if (!Department::where('id', $department['id'])->exists()) {

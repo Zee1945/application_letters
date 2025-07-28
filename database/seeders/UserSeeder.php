@@ -58,8 +58,8 @@ class UserSeeder extends Seeder
                 'department_id' => 2,
             ],
             [
-                'name' => 'Ibu Kabag Keuangan Saintek',
-                'email' => 'keuangansaintek@gmail.com',
+                'name' => 'Ibu Bendahara Saintek',
+                'email' => 'bendaharasaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
                 'role' => 'finance',

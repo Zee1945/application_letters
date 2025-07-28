@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
             Schema::table('application_files', function (Blueprint $table) {
-                $table->unique(['file_type_id', 'application_id', 'department_id'], 'unique_application_file');
+                $table->unique(['file_type_id', 'application_id', 'department_id','participant_id'], 'unique_application_file');
             });
     }
 

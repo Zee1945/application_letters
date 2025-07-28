@@ -78,7 +78,7 @@ class ApplicationsImport implements ToCollection
     {
         $this->collectParticipantData($rows);
         $this->collectDraftCostData($rows);
-        $this->collectRundownData($rows);
+        // $this->collectRundownData($rows);
 
         return ['participants'=>$this->finest_participant_data,'draft_cost'=>$this->finest_draft_cost_data,'rundown'=>$this->finest_rundown_data];
     }
@@ -90,7 +90,7 @@ class ApplicationsImport implements ToCollection
     }
 
     public function collectDraftCostData($rows){
-        $this->selectrowColumn($rows, 2, 26, 32, 'draft_costs');
+            $this->selectrowColumn($rows, 2, 17, 23, 'draft_costs');
     }
     public function collectRundownData($rows){
         $this->selectrowColumn($rows, 2, 17, 22, 'rundowns');
@@ -172,31 +172,26 @@ class ApplicationsImport implements ToCollection
         }
     }
 
-    private function classifyDraftCosts($data){
-        foreach ($data as $key => $value) {
-            if (!empty($value[26]) && !empty($value[27])) {
-
-                $total =  !empty($value[29]) && !empty($value[31]) && is_numeric($value[29]) && is_numeric($value[31])  ? $value[29]*$value[31]  : null;
-
-                $this->finest_draft_cost_data[$this->index_draft_cost] = $this->default_draft_cost_fields;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['code'] = $value[26] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['item'] = $value[27] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['sub_item'] = $value[28] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['volume'] = $value[29] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[30] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[31] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['volume_realization'] = $value[29] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['unit_cost_realization'] = $value[31] ?? null;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['realization'] = $total;
-                $this->finest_draft_cost_data[$this->index_draft_cost]['total'] = $total;
-                // $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';
-                $this->index_draft_cost++;
-            }
-
-
-
+private function classifyDraftCosts($data){
+    foreach ($data as $key => $value) {
+        if (!empty($value[17]) && !empty($value[18])) {
+            $total =  !empty($value[20]) && !empty($value[22]) && is_numeric($value[20]) && is_numeric($value[22])  ? $value[20]*$value[22]  : null;
+            $this->finest_draft_cost_data[$this->index_draft_cost] = $this->default_draft_cost_fields;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['code'] = $value[17] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['item'] = $value[18] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['sub_item'] = $value[19] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['volume'] = $value[20] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[21] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[22] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['volume_realization'] = $value[20] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['unit_cost_realization'] = $value[22] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['realization'] = $total;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['total'] = $total;
+            // $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';
+            $this->index_draft_cost++;
         }
     }
+}
 
     private function classifyRundowns($data){
         foreach ($data as $key => $value) {

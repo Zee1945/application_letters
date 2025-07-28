@@ -19,6 +19,8 @@ class ApplicationFile extends Model
         'status_ready',
         'application_id',
         'department_id',
+        'display_name',
+        'participant_id'
     ];
 
     public function application()
@@ -36,6 +38,10 @@ class ApplicationFile extends Model
     public function fileType()
     {
         return $this->belongsTo(FileType::class, 'file_type_id');
+    }
+    public function participant()
+    {
+        return $this->belongsTo(ApplicationParticipant::class);
     }
 
     public function scopeWithFileCodeAndParent($query, $file_code)

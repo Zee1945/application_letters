@@ -53,9 +53,9 @@
                             <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                 <i class='bx bx-info-circle'></i> Detail
                             </a>
-                            {{-- <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
+                            <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                 <i class="fa-solid fa-bug me-1"></i>Debug
-                            </button> --}}
+                            </button>
                         </div>
                         
                         @if (viewHelper::actionPermissionButton('approval_process',$this->application))
@@ -94,14 +94,24 @@
                                 <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                     <div class="bs-stepper-circle">2</div>
                                     <div class="">
-                                        <h5 class="mb-0 steper-title">Peran</h5>
-                                        <p class="mb-0 steper-sub-title">Peran dalam kegiatan</p>
+                                        <h5 class="mb-0 steper-title">{{count($this->participants)>0?'Peran':'Peran dan RAB'}}</h5>
+                                        <p class="mb-0 steper-sub-title">{{count($this->participants)>0?'Peran dalam kegiatan':'Peran dalam kegiatan dan RAB'}}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-3">
-                                <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
+                                <div class="step-trigger {{$this->step == 3? 'active':''}} {{count($this->participants)==0 ? 'disabled' : ''}}" 
+                                     role="tab" 
+                                     @if(count($this->participants) > 0) 
+                                        wire:click="directStep('3')" 
+                                     @else
+                                        style="cursor: not-allowed; opacity: 0.5;"
+                                        data-bs-toggle="tooltip" 
+                                        title="Lengkapi peserta terlebih dahulu"
+                                     @endif
+                                     id="stepper1trigger3" 
+                                     aria-controls="test-l-3">
                                     <div class="bs-stepper-circle">3</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Rundown</h5>
@@ -111,7 +121,17 @@
                             </div>
                             <div class="bs-stepper-line"></div>
                             <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 4? 'active':''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger4" aria-controls="test-l-4">
+                                <div class="step-trigger {{$this->step == 4? 'active':''}} {{count($this->participants)==0 ? 'disabled' : ''}}" 
+                                     role="tab" 
+                                     @if(count($this->participants) > 0) 
+                                        wire:click="directStep('4')" 
+                                     @else
+                                        style="cursor: not-allowed; opacity: 0.5;"
+                                        data-bs-toggle="tooltip" 
+                                        title="Lengkapi rundown acara terlebih dahulu"
+                                     @endif
+                                     id="stepper1trigger4" 
+                                     aria-controls="test-l-4">
                                     <div class="bs-stepper-circle">4</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">RAB</h5>
@@ -120,8 +140,18 @@
                                 </div>
                             </div>
                             <div class="bs-stepper-line"></div>
-                            <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 5? 'active':''}}" role="tab" wire:click="directStep('5')" id="stepper1trigger4" aria-controls="test-l-4">
+                            <div class="step" data-target="#test-l-5">
+                                <div class="step-trigger {{$this->step == 5? 'active':''}} {{count($this->draft_costs)==0 ? 'disabled' : ''}}" 
+                                     role="tab" 
+                                     @if(count($this->draft_costs) > 0 && $this->application->approval_status > 10) 
+                                        wire:click="directStep('5')" 
+                                     @else
+                                        style="cursor: not-allowed; opacity: 0.5;"
+                                        data-bs-toggle="tooltip" 
+                                        title="Lengkapi rancangan anggaran biaya terlebih dahulu"
+                                     @endif
+                                     id="stepper1trigger5" 
+                                     aria-controls="test-l-5">
                                     <div class="bs-stepper-circle">5</div>
                                     <div class="">
                                         <h5 class="mb-0 steper-title">Nomor Surat</h5>
@@ -272,7 +302,8 @@
                                         </div>
                                         <div class="action-button">
                                             @if (count($this->participants)>0)
-                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Peserta</button>
+                                            <button class="btn btn-outline-success border border-1 btn-sm border-success" wire:click='exportPreviousData' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-file-excel me-2"></i> Download Data Saat Ini</button>
+                                            <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Data Template</button>
 
                                             @endif
                                         </div>
@@ -391,7 +422,7 @@
             </div><!---end row-->
 
         </div>
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '5'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+        <div id="test-l-5" role="tabpanel" class="{{$this->step == '5'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger5">
             <h5 class="mb-1">Nomor Surat</h5>
             <p class="mb-4">Form isian nomor surat</p>
 

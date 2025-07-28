@@ -7,6 +7,7 @@ use App\Models\CommiteePosition;
 use App\Models\FileType;
 use App\Models\LogApproval;
 use App\Models\ParticipantType;
+use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -37,10 +38,14 @@ class TemplateProcessorService
     public static $application = null;
 
     public static function generateApplicationDocument($application){
-        $file_type = FileType::where('trans_type',1)->get();
+        // $file_type = FileType::where('trans_type',1)->get();
+        $application_files = $application->applicationFiles()->whereHas('fileType',function($q){
+            return $q->where('trans_type',1);
+        })->get();
+        foreach ($application_files as $key => $app_file) {
+            $code = $app_file->fileType->code;
+            $res = self::generateDocumentToPDF($application,$code,$app_file);
 
-        foreach ($file_type as $key => $type) {
-            $res = self::generateDocumentToPDF($application,$type->code);
             if (!$res['status']) {
                 dd($res['message']);
             }
@@ -49,10 +54,10 @@ class TemplateProcessorService
         return ['status'=>true,'message'=>'Berhasil generate dokumen pengajuan baru'];
     }
 
-    public static function generateDocumentToPDF($application=null,$file_type='')
+    public static function generateDocumentToPDF($application=null,$file_type='',$app_file)
     {
 
-
+        
         $templatePath = public_path('templates/'.$file_type.'.docx');
         $directory_temp = 'temp/templates/'.$file_type.'.docx';
         $write_output = public_path($directory_temp);
@@ -73,6 +78,24 @@ class TemplateProcessorService
                 break;
             case 'laporan_kegiatan':
                 self::generateReport($application, $templatePath, $directory_temp, $file_type);
+                break;
+            case 'jadwal_kegiatan':
+                self::generateRundown($application, $templatePath, $directory_temp, $file_type);
+                break;
+            case 'surat_tugas_moderator':
+                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
+                break; 
+            case 'surat_tugas_narasumber':
+                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
+                break;
+            case 'surat_undangan_peserta':
+                self::generateSuratUndangan($application, $templatePath, $directory_temp, $file_type);
+                break;
+            case 'surat_permohonan_narasumber':
+                self::generateSuratPermohonan($application, $templatePath, $directory_temp, $file_type,$app_file);
+                break;
+            case 'surat_permohonan_moderator':
+                self::generateSuratPermohonan($application, $templatePath, $directory_temp, $file_type,$app_file);
                 break;
             default:
                 # code...
@@ -208,6 +231,428 @@ class TemplateProcessorService
         // return response()->download($converted_to_pdf);
         return true;
     }
+    public static function generateSuratUndangan($application, $templatePath, $directory_temp, $file_type)
+    {
+        $write_output = public_path($directory_temp);
+        $get_commitees = self::filterParticipantByType('commitee',$application->participants);
+        $get_participant = self::filterParticipantByType('participant',$application->participants);
+        // dd($get_commitees);
+            $commitee_participant = self::generateTableParticipant('commitee', $get_commitees);
+            $participant_participant = self::generateTableParticipant('participant', $get_participant);
+
+            $get_rundowns = self::generateTableRundown($application->schedules);
+
+            $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+            $temp_detail = [];
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+                        if ($key == 'activity_dates') {
+                // Pisahkan tanggal berdasarkan koma
+                $dates = explode(',', $value);
+
+                // Variabel untuk menyimpan hasil parsing
+                $formatted_dates = [];
+                $days = [];
+                 Carbon::setLocale('id');
+                foreach ($dates as $date) {
+                    // Format tanggal menjadi "20 Mei 2025"
+                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+
+                    // Ambil hari dari tanggal
+                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                }
+
+                // Gabungkan hasil menjadi string
+                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                $templateProcessor->setValue($key.'_days', implode(',', $days));
+            }
+
+            }
+        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
+
+
+        // Inject variabel
+        $templateProcessor->setValue('nomor_surat_undangan', ucfirst($get_nomor_surat->letter_number));
+        $templateProcessor->setValue('nomor_surat_undangan_formatted_date', ucfirst(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+        // tables
+            $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
+            $templateProcessor->cloneRowAndSetValues('participant_name', $participant_participant);
+
+            // dd($get_draft_cost);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 100,
+            'height' => 100,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
+    public static function generateSuratPermohonan($application, $templatePath, $directory_temp, $file_type,$app_file)
+    {
+        $write_output = public_path($directory_temp);
+        $get_commitees = self::filterParticipantByType('commitee',$application->participants);
+        $get_participant = self::filterParticipantByType('participant',$application->participants);
+        // dd($get_commitees);
+            $commitee_participant = self::generateTableParticipant('commitee', $get_commitees);
+            $participant_participant = self::generateTableParticipant('participant', $get_participant);
+
+            $get_rundowns = self::generateTableRundown($application->schedules);
+
+            $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+            $temp_detail = [];
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+                        if ($key == 'activity_dates') {
+                // Pisahkan tanggal berdasarkan koma
+                $dates = explode(',', $value);
+
+                // Variabel untuk menyimpan hasil parsing
+                $formatted_dates = [];
+                $days = [];
+                 Carbon::setLocale('id');
+                foreach ($dates as $date) {
+                    // Format tanggal menjadi "20 Mei 2025"
+                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+
+                    // Ambil hari dari tanggal
+                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                }
+
+                // Gabungkan hasil menjadi string
+                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                $templateProcessor->setValue($key.'_days', implode(',', $days));
+            }
+
+            }
+        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_permohonan')->first();
+        $get_recipient = $application->participants()->where('id',$app_file->participant_id)->first();
+        // Inject variabel
+        $templateProcessor->setValue('recipient_name', ucfirst($get_recipient->name));
+        $templateProcessor->setValue('recipient_institution', ucfirst($get_recipient->institution));
+        $templateProcessor->setValue('nomor_surat_permohonan', ucfirst($get_nomor_surat->letter_number));
+        $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucfirst(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+        // tables
+
+
+            // dd($get_draft_cost);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 100,
+            'height' => 100,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
+    public static function generateSuratTugas($application, $templatePath, $directory_temp, $file_type,$participant_type)
+    {
+        $write_output = public_path($directory_temp);
+        $get_speakers = self::filterParticipantByType($participant_type,$application->participants);
+        // $get_moderator = self::filterParticipantByType('moderator',$application->participants);
+        // dd($get_commitees);
+            $speaker_participant = self::generateTableParticipant($participant_type, $get_speakers);
+            // $moderator_participant = self::generateTableParticipant('moderator', $get_moderator);
+
+            // $get_rundowns = self::generateTableRundown($application->schedules);
+
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            // $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                // $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+            $temp_detail = [];
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+                     if ($key == 'activity_dates') {
+                // Pisahkan tanggal berdasarkan koma
+                $dates = explode(',', $value);
+
+                // Variabel untuk menyimpan hasil parsing
+                $formatted_dates = [];
+                $days = [];
+                 Carbon::setLocale('id');
+                foreach ($dates as $date) {
+                    // Format tanggal menjadi "20 Mei 2025"
+                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+
+                    // Ambil hari dari tanggal
+                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                }
+
+                // Gabungkan hasil menjadi string
+                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                $templateProcessor->setValue($key.'_days', implode(',', $days));
+            }
+
+            }
+        $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
+        
+        // Inject variabel
+        $templateProcessor->setValue('nomor_surat_tugas', ucfirst($get_nomor_surat_tugas->letter_number));
+        $templateProcessor->setValue('participant_type', ucfirst($participant_type == 'speaker'?'narasumber':'moderator'));
+        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+        // tables
+
+$mapped_data = array_map(function($item) use($participant_type){
+    $new_name = $item[$participant_type.'_no'].'. '.$item[$participant_type.'_name'];
+    $item[$participant_type.'_name'] = $new_name;
+    $item['nip'] = '   NIP. '.$item[$participant_type.'_no'];
+    $item['echelon'] = '   Echelon. '.$item[$participant_type.'_no'];
+    $item['rank'] = '   Rank. '.$item[$participant_type.'_no'];
+    unset($item[$participant_type.'_no']);
+    unset($item[$participant_type.'_institution']);
+    unset($item[$participant_type.'_position']);
+    return $item;
+
+},$speaker_participant);
+// dd($mapped_data);
+
+
+$new_data = [];
+foreach ($mapped_data as $key => $value) {
+    # code...
+    $get_values = array_values($value);
+    // dd($get_values);
+    $new_data=[...$new_data,...$get_values];
+}
+// dd($new_data);
+
+$templateProcessor->cloneRow('speaker_data', count($new_data));
+// $templateProcessor->cloneRow('nip', $totalRows);
+// $templateProcessor->cloneRow('echelon', $totalRows);
+// $templateProcessor->cloneRow('rank', $totalRows);
+
+
+// Variabel untuk melacak baris saat ini
+
+// Isi data untuk setiap pembicara
+foreach ($new_data as $index => $item) {
+    $current_row= $index+1;
+    if ($current_row ==1 || $current_row % 5 == 0) {
+        $templateProcessor->setValue('speaker_data#' . ($index+1), $item);
+    }else{
+        $templateProcessor->setValue('speaker_data#' . ($index+1), '.'.$item);
+    }
+}
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 75,
+            'height' => 75,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
+    public static function generateRundown($application, $templatePath, $directory_temp, $file_type)
+    {
+        $write_output = public_path($directory_temp);
+        // dd($get_commitees);
+
+            $get_rundowns = self::generateTableRundown($application->schedules);
+
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+            $temp_detail = [];
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+
+            }
+
+        // Inject variabel
+        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+
+
+            // dd($get_draft_cost);
+
+            $templateProcessor->cloneRowAndSetValues('rd_start_date', $get_rundowns);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 100,
+            'height' => 100,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
+
     public static function generateSK($application, $templatePath, $directory_temp, $file_type)
     {
         $write_output = public_path($directory_temp);

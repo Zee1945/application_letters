@@ -1,4 +1,5 @@
 <div>
+    {{-- @dump($draft_costs) --}}
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -29,12 +30,16 @@
             @endphp
             @forelse ($draft_costs as $index => $row)
                 <tr>
-                    <td rowspan="{{$row['children_total']+1}}"><span class="fw-bold">{{$row['code']}}</span></td>
-                    <td rowspan="{{$row['children_total']+1}}"><span class="fw-bold">{{$row['item']}}</span></td>
+                    <td rowspan="{{ $row['children_total'] > 0 ? $row['children_total'] + 1 : 1 }}">
+                        <span class="fw-bold">{{ $row['code'] }}</span>
+                    </td>
+                    <td rowspan="{{ $row['children_total'] > 0 ? $row['children_total'] + 1 : 1 }}">
+                        <span class="fw-bold">{{ $row['item'] }}</span>
+                    </td>
                 </tr>
                 @forelse ($row['children'] as $child)
                 @php
-                    $all_total+=$child['total'];
+                    $all_total+=$child['total']??0;
                 @endphp
                 <tr>
                     <td>{{$child['sub_item']}}</td>
@@ -50,6 +55,10 @@
 
             @empty
             @endforelse
+                <tr>
+                    <td colspan="6" class="fw-bold">Total</td>
+                    <td>{{viewHelper::currencyFormat($all_total)}}</td>
+                </tr>
         </tbody>
     </table>
     {{-- <div class="row">

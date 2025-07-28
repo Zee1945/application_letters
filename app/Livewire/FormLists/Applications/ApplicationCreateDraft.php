@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FormLists\Applications;
 
+use App\Exports\ApplicationsExport;
 use App\Imports\ApplicationsImport;
 use App\Jobs\GenerateApplicationFileJob;
 use App\Livewire\AbstractComponent;
@@ -195,7 +196,8 @@ class ApplicationCreateDraft extends AbstractComponent
             // GenerateApplicationFileJob::dispatch($this->application);
             // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
             // TemplateProcessorService::generateDocumentToPDF($this->application,'draft_tor');
-            TemplateProcessorService::generateDocumentToPDF($this->application,'sk');
+            TemplateProcessorService::generateApplicationDocument($this->application);
+            // TemplateProcessorService::generateApplicationDocument($app);
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan
             dd($e);
@@ -251,6 +253,10 @@ class ApplicationCreateDraft extends AbstractComponent
                 # code...
                 break;
         }
+    }
+
+    public function exportPreviousData(){
+            return Excel::download(new ApplicationsExport($this->participants,$this->draft_costs), $this->application->activity_name.' (Data Peran dan RAB).xlsx');
     }
 
     public function clearAllParticipant(){

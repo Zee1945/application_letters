@@ -72,13 +72,15 @@ class ApplicationService
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
                     ]);
                 }
-            $get_file_types = FileType::all();
-                // dd($application->applicationFiles,$get_file_types);
+            $get_file_types = FileType::whereNotIn('code',['surat_permohonan_moderator','surat_permohonan_narasumber','surat_permohonan'])->get();
             foreach ($get_file_types as $ft) {
-                $application->applicationFiles()->create([
-                    'file_type_id'    => $ft->id,
+                $app_file = [
+                    'display_name'=> $ft->name,
+                    'seq'=> $ft->seq,
+                    'file_type_id'=> $ft->id,
                     'department_id' => $application->department_id,
-                ]);
+                ];
+                $application->applicationFiles()->create($app_file);
             }
             DB::commit();
             return $application;
@@ -151,6 +153,8 @@ class ApplicationService
                             $app->save();
                             self::storeLogApproval($action,$application_id,'');
                             self::storeListLetterNumber($app);
+                            self::storeSuratPermohonanFiles($app);
+                      
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->current_user_approval)->first();
                             $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
@@ -257,6 +261,32 @@ class ApplicationService
             dd($th);
             return ['status' => false, 'message' => 'Failed update flow'];
         }
+    }
+
+
+    public static function storeSuratPermohonanFiles($app)
+    {
+        $surat_permohonan = FileType::whereIn('code',['surat_permohonan_narasumber','surat_permohonan_moderator'])->get();
+        $data = [];
+        foreach ($surat_permohonan as $ft) {
+                    $par_type = explode('_',$ft->code)[2];
+                    $get_speaker = $app->participants()->whereHas('participantType',function($q) use ($par_type){
+                        return $q->where('name',ucfirst($par_type));
+                    })->get();
+                    // dd($get_speaker);
+                    foreach ($get_speaker as $key => $value) {
+                        $app_file = [
+                            'display_name'=> $ft->name.' - '.$value->name,
+                            'participant_id'=> $value->id,
+                            'file_type_id'    => $ft->id,
+                            'department_id' => $app->department_id,
+                        ];
+                        // $data[]= $app_file;
+                        $app->applicationFiles()->create($app_file);
+                    }
+                } 
+                // dd($data);
+        return true; 
     }
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
     {
@@ -414,7 +444,7 @@ class ApplicationService
                 'letter_number'=>null,
         ],
             [
-            'letter_name'=>'nomor_surat_permohonan_speaker',
+            'letter_name'=>'nomor_surat_permohonan',
             'letter_label'=>'Nomor Surat Permohonan Narasumber/Moderator',
                 'type_field' => 'text',
                 'is_with_date' => 1,
@@ -491,8 +521,8 @@ class ApplicationService
             $department = Department::find($app->department_id);
             $department->current_limit_submission = $department->current_limit_submission+1;
             $department->save();
-            TemplateProcessorService::generateDocumentToPDF($app, 'tor');
-            TemplateProcessorService::generateDocumentToPDF($app, 'sk');
+            TemplateProcessorService::generateApplicationDocument($app);
+            // TemplateProcessorService::generateDocumentToPDF($app, 'sk');
             DB::commit();
             return true;
         } catch (\Throwable $th) {

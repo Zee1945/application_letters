@@ -60,10 +60,10 @@ class TableDraftCost extends Component
         $distinctData = array_map(function($code_item) use ($raw_data){
             list($code, $item) = explode('|', $code_item);
             $new_item = ['key' => $item,'code'=>$code,'item'=>$item, 'is_parent' => true, 'children_total' => 0, 'children' => []];
-            $new_item['children']= array_filter($raw_data,function($child) use($code,$item,&$new_item){
+            $new_item['children'] = array_filter($raw_data, function ($child) use ($code, $item, &$new_item) {
                 if ($child['code'] == $code && $child['item'] == $item && !empty($child['sub_item'])) {
                     $new_item['children_total']++;
-                    return $child;
+                    return true; // Pastikan elemen dimasukkan ke dalam array
                 }
             });
             return $new_item;

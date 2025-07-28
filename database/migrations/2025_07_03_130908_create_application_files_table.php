@@ -15,11 +15,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('file_type_id')->nullable();
             $table->unsignedBigInteger('file_id')->nullable();
+            $table->string('display_name',300)->nullable();
+            $table->unsignedBigInteger('participant_id')->nullable(); 
             $table->unsignedBigInteger('status_ready')->default(0);
             $table->unsignedBigInteger('application_id')->nullable(); // Email peserta
             $table->unsignedBigInteger('department_id')->nullable(); // ID departemen
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('participant_id')->references('id')->on('application_participants')->nullOnDelete();
             $table->foreign('file_type_id')->references('id')->on('file_types')->nullOnDelete();
             $table->foreign('application_id')->references('id')->on('applications')->nullOnDelete();
             $table->foreign('department_id')->references('id')->on('departments')->nullOnDelete();
