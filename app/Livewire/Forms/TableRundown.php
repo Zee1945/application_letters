@@ -13,6 +13,8 @@ class TableRundown extends Component
     public $get_speakers = [];
     public $participants = [];
 
+    public $handleDisable='';
+
     public $options = ['opt_moderators' => [], 'opt_speakers' => []];
 
     // Default 4 rows
@@ -23,8 +25,9 @@ class TableRundown extends Component
         ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
     ];
 
-    public function mount($rundowns,$participants=[])
+    public function mount($rundowns,$participants=[],$handleDisable="")
     {
+        $this->handleDisable = $handleDisable;
         $this->rundown = count($rundowns) >0? $this->denormalizeData($rundowns) : $this->rundown;
         // dd($this->rundown);
        if (count($participants)>0) {

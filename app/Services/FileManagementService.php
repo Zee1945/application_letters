@@ -72,10 +72,10 @@ class FileManagementService
         }
         return ['status' => false, 'message' => 'failed to store new file data, metadata is empty', 'data' => []];
     }
-     public static function storeFileApplication($content,$application,$trans_type,$file_code=null){
+     public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
-        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code ));
+        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code,$app_file));
         $target_dir = $get_path . '/' . $filename.'.'.$ext;
         if ($content) {
             $res = Storage::disk('minio')->put($target_dir, $content);
@@ -107,8 +107,11 @@ class FileManagementService
                         return ['status' => false, 'message' => 'Gagal Simpan File','data'=>null];
                     }
                     $update_file_type = $application->applicationFiles()
-                        ->withFileCodeAndParent($file_code)
-                        ->first();
+                        ->withFileCodeAndParent($file_code);
+                    if ($app_file->participant_id) {
+                        $update_file_type= $update_file_type->where('participant_id',$app_file->participant_id);
+                    }    
+                    $update_file_type = $update_file_type->first();
                     $update_file_type->file_id = $res->id;
                     $update_file_type->status_ready = 3;
                     $update_file_type->save();
@@ -129,14 +132,14 @@ class FileManagementService
         }
      }
 
-     public static function generateFilename($filename, $application, $fileCode='',$mimeType = 'pdf'){
+     public static function generateFilename($filename, $application, $fileCode='',$app_file=null,$mimeType = 'pdf'){
          $file_type_name = $application->applicationFiles()->withFileCodeAndParent($fileCode)->first()->fileType->name;
         $carbon = Carbon::now();
         $filename = explode('.',$filename)[0];
         $date = $carbon->format('Ymd');
         $time = $carbon->format('His');
         $timestamp = $carbon->timestamp;
-        $new_filename = $file_type_name.'-'.$filename.'-'.$application->id.'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
+        $new_filename = $file_type_name.'-'.$filename.'-'.$application->id.'-'.($app_file->participant_id?'part-id-'.$app_file->participant_id:null).'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
         return $new_filename;
      }
 

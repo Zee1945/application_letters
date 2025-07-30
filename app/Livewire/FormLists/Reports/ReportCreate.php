@@ -169,7 +169,8 @@ class ReportCreate extends AbstractComponent
 
     public function debug()
     {
-        TemplateProcessorService::generateDocumentToPDF($this->application,'laporan_kegiatan');
+        $app_file = $this->application->applicationFiles()->findCode('laporan_kegiatan')->first();
+        TemplateProcessorService::generateDocumentToPDF($this->application,'laporan_kegiatan',$app_file);
     }
     public function nextStep()
     {

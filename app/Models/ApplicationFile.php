@@ -54,4 +54,12 @@ class ApplicationFile extends Model
                 });
         });
     }
+    public function scopeFindCode($query, $file_code)
+    {
+        return $query->whereHas('fileType', function ($query) use ($file_code) {
+            $query->where('code',$file_code);
+        });
+
+        
+    }
 }

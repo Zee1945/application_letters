@@ -302,7 +302,7 @@
                                         </div>
                                         <div class="action-button">
                                             @if (count($this->participants)>0)
-                                            <button class="btn btn-outline-success border border-1 btn-sm border-success" wire:click='exportPreviousData' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-file-excel me-2"></i> Download Data Saat Ini</button>
+                                            <button class="btn btn-outline-success border border-1 btn-sm border-success" wire:click='exportPreviousData'><i class="fa-solid fa-file-excel me-2"></i> Download Data Saat Ini</button>
                                             <button class="btn btn-outline-secondary border border-1 btn-sm border-secondary" wire:click='clearAllParticipant' {!! viewHelper::handleFieldDisabled($this->application) !!}><i class="fa-solid fa-repeat me-2"></i> Reset Data Template</button>
 
                                             @endif
@@ -383,7 +383,7 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                    <livewire:forms.table-rundown :rundowns="$this->rundowns" :participants="$this->participants"/>
+                    <livewire:forms.table-rundown :rundowns="$this->rundowns" :participants="$this->participants" :handleDisable="viewHelper::handleFieldDisabled($this->application,true)"/>
                     {{-- <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" /> --}}
                 </div>
                 <div class="col-12">

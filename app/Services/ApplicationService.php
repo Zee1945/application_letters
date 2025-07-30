@@ -129,7 +129,8 @@ class ApplicationService
                         $app->approval_status = 6;
                         $app->save();
                         self::storeLogApproval('approve', $application_id, '');
-                        TemplateProcessorService::generateDocumentToPDF($app, 'draft_tor');
+                        $app_file = $app->applicationFiles()->findCode('draft_tor')->first();
+                        TemplateProcessorService::generateDocumentToPDF($app, 'draft_tor',$app);
                     }
                     break;
             case 'submit-report':
@@ -180,7 +181,9 @@ class ApplicationService
                             $department->current_limit_submission = $department->current_limit_submission-1;
                             $department->save();
                             self::storeLogApproval($action, $application_id, '');
-                            TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan');
+
+                            $app_file = $app->applicationFiles()->findCode('laporan_kegiatan')->first();
+                            TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan',$app_file);
                             // self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();

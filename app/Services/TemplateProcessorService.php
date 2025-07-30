@@ -36,12 +36,14 @@ class TemplateProcessorService
      * @return void
      */
     public static $application = null;
+    public static $dump = [];
 
     public static function generateApplicationDocument($application){
         // $file_type = FileType::where('trans_type',1)->get();
         $application_files = $application->applicationFiles()->whereHas('fileType',function($q){
             return $q->where('trans_type',1);
         })->get();
+        // dd($application_files);
         foreach ($application_files as $key => $app_file) {
             $code = $app_file->fileType->code;
             $res = self::generateDocumentToPDF($application,$code,$app_file);
@@ -50,6 +52,7 @@ class TemplateProcessorService
                 dd($res['message']);
             }
         }
+        // dd(self::$dump);
 
         return ['status'=>true,'message'=>'Berhasil generate dokumen pengajuan baru'];
     }
@@ -59,7 +62,7 @@ class TemplateProcessorService
 
         
         $templatePath = public_path('templates/'.$file_type.'.docx');
-        $directory_temp = 'temp/templates/'.$file_type.'.docx';
+        $directory_temp = 'temp/templates/'.$file_type.($app_file->participant_id?'-'.$app_file->participant_id:null).'.docx';
         $write_output = public_path($directory_temp);
 
 
@@ -101,7 +104,7 @@ class TemplateProcessorService
                 # code...
                 break;
         }
-
+        self::$dump[]=$directory_temp;
         Storage::disk('minio')->put($directory_temp, file_get_contents($write_output));
         $temp_fileurl = Storage::disk('minio')->temporaryUrl($directory_temp, now()->addHours(1), [
             'ResponseContentType' => 'application/octet-stream',
@@ -110,7 +113,7 @@ class TemplateProcessorService
         ]);
         $content = FileManagementService::convertToPdf($temp_fileurl);
         if ($content) {
-            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type);
+            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type,$app_file);
             if ($store_document['status']) {
                 unlink($write_output);
                 Storage::disk('minio')->delete($directory_temp);
@@ -582,7 +585,6 @@ foreach ($new_data as $index => $item) {
 
             $get_rundowns = self::generateTableRundown($application->schedules);
 
-
             $metadata_signer = self::getSignerMetadata($application,$file_type);
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
@@ -914,7 +916,10 @@ foreach ($new_data as $index => $item) {
                 'rd_start_date'    => ViewHelper::humanReadableDate($row->date),
                 'rd_start_end_time' => ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i'),
                 'rd_name'   => $row->name,
-                'rd_speaker_list'   => self::generateSpeakerList($row->moderator_text,$row->speaker_text),
+                'rd_moderator_label'=> (!empty($row->moderator_text) ? 'Moderator' : ''),
+                'rd_speaker_label'=> (!empty($row->speaker_text) ? 'Narasumber' : ''),
+                'rd_speaker_list'   => self::speakerListToUnorderedString($row->speaker_text),
+                'rd_moderator_list'   => self::speakerListToUnorderedString($row->moderator_text),
             ];
             $number++;
         }
@@ -962,28 +967,26 @@ foreach ($new_data as $index => $item) {
     }
 
 
-    public static function generateSpeakerList($moderator_text, $speaker_text)
+    public static function generateSpeakerList($speaker_text)
     {
-
-        $moderators = $moderator_text? explode(';',$moderator_text):[];
         $speakers = $speaker_text? explode(';',$speaker_text):[];
+        return $speakers;
+    }
 
-        $join_string = '';
-        if (count($speakers) > 0) {
-            $join_string .= 'Narasumber :';
-            foreach ($speakers as $key => $value) {
-                $join_string .=$value;
+    public static function speakerListToUnorderedString($speaker_text)
+    {
+    $speakers = self::generateSpeakerList($speaker_text);
+        if (empty($speakers)) return '';
+        
+        $result = '<ol>';
+        foreach ($speakers as $speaker) {
+            if (trim($speaker) !== '') {
+                $result .= '<li style="margin-bottom:5px;">' . trim($speaker) . '</li>';
             }
         }
-
-        $join_string .='-------------------';
-        if (count($moderators) >0) {
-            $join_string.='Moderator :';
-            foreach ($moderators as $key => $value) {
-                $join_string.=$value;
-            }
-        }
-        return $join_string;
+        $result .= '</ol>';
+        // dd($result);
+        return $result;
     }
     public static function filterParticipantByType($type,$data)
     {

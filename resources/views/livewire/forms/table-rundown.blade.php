@@ -14,20 +14,20 @@
                     <!-- Tanggal/Waktu -->
                     <td style="width: 200px">
                         <input type="date" class="form-control"
-                               wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.date">
+                               wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.date" {!! $this->handleDisable !!}>
                         <div class="d-flex mt-3">
                             <input type="time" class="form-control"
-                                   wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.start_date">
+                                   wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.start_date" {!! $this->handleDisable !!}>
                             <h5 class="mx-2">-</h5>
                             <input type="time" class="form-control"
-                                   wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.end_date">
+                                   wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.end_date" {!! $this->handleDisable !!}>
                         </div>
                     </td>
 
                     <!-- Nama Acara -->
                     <td>
                         <textarea class="form-control"
-                                  wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.name"></textarea>
+                                  wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.name" {!! $this->handleDisable !!}></textarea>
                     </td>
 
                 <td>
@@ -39,7 +39,7 @@
                                            id="speaker_{{ $index }}_{{ $key }}"
                                            class="form-check-input"
                                            wire:click="toggleSpeaker({{ $index }}, '{{ $speaker['text'] }}')"
-                                           {{ in_array($speaker['text'], $row['speaker_text'] ?? []) ? 'checked' : '' }}>
+                                           {{ in_array($speaker['text'], $row['speaker_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
                                     <label for="speaker_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
                                         {{ $speaker['text'] }}
                                     </label>
@@ -55,7 +55,7 @@
                                            id="moderator_{{ $index }}_{{ $key }}"
                                            class="form-check-input"
                                            wire:click="toggleModerator({{ $index }}, '{{ $moderator['text'] }}')"
-                                           {{ in_array($moderator['text'], $row['moderator_text'] ?? []) ? 'checked' : '' }}>
+                                           {{ in_array($moderator['text'], $row['moderator_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
                                     <label for="moderator_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
                                         {{ $moderator['text'] }}
                                     </label>

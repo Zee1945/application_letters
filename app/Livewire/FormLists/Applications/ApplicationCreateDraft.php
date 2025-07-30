@@ -7,6 +7,7 @@ use App\Imports\ApplicationsImport;
 use App\Jobs\GenerateApplicationFileJob;
 use App\Livewire\AbstractComponent;
 use App\Models\Application;
+use App\Models\ApplicationFile;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
@@ -195,8 +196,9 @@ class ApplicationCreateDraft extends AbstractComponent
         try {
             // GenerateApplicationFileJob::dispatch($this->application);
             // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
-            // TemplateProcessorService::generateDocumentToPDF($this->application,'draft_tor');
-            TemplateProcessorService::generateApplicationDocument($this->application);
+            $app_file = $this->application->applicationFiles()->findCode('jadwal_kegiatan')->first();
+            TemplateProcessorService::generateDocumentToPDF($this->application,'jadwal_kegiatan',$app_file);
+            // TemplateProcessorService::generateApplicationDocument($this->application);
             // TemplateProcessorService::generateApplicationDocument($app);
         } catch (\Exception $e) {
             // Tangkap pesan kesalahan dan tampilkan

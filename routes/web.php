@@ -1,10 +1,15 @@
 <?php
 
+use App\Http\Controllers\Master\PositionsController;
+use App\Http\Controllers\Master\UsersController;
 use App\Http\Controllers\Trans\ApplicationController;
 use App\Livewire\FormLists\Applications\ApplicationCreate;
 use App\Livewire\FormLists\Applications\ApplicationCreateDraft;
 use App\Livewire\FormLists\Applications\ApplicationDetail;
 use App\Livewire\FormLists\Applications\ApplicationList;
+use App\Livewire\FormLists\Master\PosiitionList;
+use App\Livewire\FormLists\Master\PositionList;
+use App\Livewire\FormLists\Master\UserList;
 use App\Livewire\FormLists\Reports\ReportCreate;
 use App\Livewire\FormLists\Reports\ReportList;
 use App\Services\AuthService;
@@ -39,14 +44,18 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 ->name('report.index');
             Route::get('create/{application_id}', ReportCreate::class)
                 ->name('reports.create');
-            // Route::get('create/{application_id}/draft', ApplicationCreateDraft::class)
-            //     ->name('applications.create.draft');
-
         });
 
+        Route::group(['prefix' => 'master'], function () {
+            // Livewire Master 
+            Route::get('users', UserList::class)->name('users.index');
+            Route::get('positions', PositionList::class)->name('positions.index');
+            
+            Route::resource('users', UsersController::class)->except(['index']);
+            Route::resource('positions', PositionsController::class)->except(['index']);
 
-
-            Route::get('logout', function () {
+        });
+        Route::get('logout', function () {
             return AuthService::logout();
         })->name('logout');
 });
