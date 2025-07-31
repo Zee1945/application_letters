@@ -401,6 +401,7 @@ class TemplateProcessorService
         $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_permohonan')->first();
         $get_recipient = $application->participants()->where('id',$app_file->participant_id)->first();
         // Inject variabel
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
         $templateProcessor->setValue('recipient_name', ucfirst($get_recipient->name));
         $templateProcessor->setValue('recipient_institution', ucfirst($get_recipient->institution));
         $templateProcessor->setValue('nomor_surat_permohonan', ucfirst($get_nomor_surat->letter_number));
@@ -978,13 +979,19 @@ foreach ($new_data as $index => $item) {
     $speakers = self::generateSpeakerList($speaker_text);
         if (empty($speakers)) return '';
         
-        $result = '<ol>';
+        $result = '';
         foreach ($speakers as $speaker) {
             if (trim($speaker) !== '') {
-                $result .= '<li style="margin-bottom:5px;">' . trim($speaker) . '</li>';
+                $result .= '- '.trim($speaker).'<w:br/><w:br/>';
             }
         }
-        $result .= '</ol>';
+        // $result = '<ol>';
+        // foreach ($speakers as $speaker) {
+        //     if (trim($speaker) !== '') {
+        //         $result .= '<li style="margin-bottom:5px;">' . trim($speaker) . '</li>';
+        //     }
+        // }
+        // $result .= '</ol>';
         // dd($result);
         return $result;
     }

@@ -163,7 +163,7 @@ class ReportCreate extends AbstractComponent
         $tes = ApplicationService::updateFlowApprovalStatus($action, $this->application_id, $note);
         if ($tes['status']) {
             $this->dispatch('closeModalConfirm');
-            $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
+            $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
         }
     }
 

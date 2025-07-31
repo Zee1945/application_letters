@@ -36,7 +36,8 @@ class ApplicationService
             DB::beginTransaction();
             // Validate the data if necessary
                 $get_verificators = User::approvers()->whereIn('id', $data['verificators'])->get();
-                $get_finance = User::approvers()->rolePosition('finance')->first();
+                $get_finance = User::approvers()->rolePosition('finance',AuthService::currentAccess()['department_id'])->first();
+                $get_dekan = User::approvers()->rolePosition('dekan',AuthService::currentAccess()['department_id'])->first();
                 // dd($get_finance);
                 $application = Application::create([
                     'activity_name'        => $data['activity_name'],
@@ -49,7 +50,7 @@ class ApplicationService
                 ]);
 
                 $application->report()->create([
-                    'current_user_approval'=> $get_finance->id,
+                    'current_user_approval'=> $get_dekan->id,
                     'approval_status'=> 0,
                     'department_id'=> AuthService::currentAccess()['department_id'],
                 ]);

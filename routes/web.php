@@ -16,6 +16,7 @@ use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/','dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+// Route::redirect('/', '/app')->middleware(['auth', 'verified']);
 
 
 Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
@@ -59,6 +60,7 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
             return AuthService::logout();
         })->name('logout');
 });
+
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])

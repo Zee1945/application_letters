@@ -9,12 +9,6 @@
             </div>
             <div class="modal-body p-0">
                 <div class="row">
-                    <div class="card">
-                        <div class="card-body">
-
-                            tessss
-                        </div>
-                    </div>
                     <div class="d-flex flex-column align-items-center">
                         {{-- {{count($this->files_preview)}} --}}
                         @if (count($this->files_preview) > 0)
