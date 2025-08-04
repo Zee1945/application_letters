@@ -525,9 +525,9 @@ class TemplateProcessorService
 $mapped_data = array_map(function($item) use($participant_type){
     $new_name = $item[$participant_type.'_no'].'. '.$item[$participant_type.'_name'];
     $item[$participant_type.'_name'] = $new_name;
-    $item['nip'] = '   NIP. '.$item[$participant_type.'_no'];
-    $item['echelon'] = '   Echelon. '.$item[$participant_type.'_no'];
-    $item['rank'] = '   Rank. '.$item[$participant_type.'_no'];
+    $item['nip'] = '   NIP. '.$item[$participant_type.'_nip'];
+    $item['rank'] = $item[$participant_type.'_rank'];
+    $item['functional_position'] = $item[$participant_type.'_functional_position'];
     unset($item[$participant_type.'_no']);
     unset($item[$participant_type.'_institution']);
     unset($item[$participant_type.'_position']);
@@ -901,6 +901,9 @@ foreach ($new_data as $index => $item) {
                 $participantType.'_no'      => $number,
                 $participantType .'_name'    => $row['name'],
                 $participantType .'_institution' => $jabatan,
+                $participantType .'_nip' => $row['nip'],
+                $participantType .'_rank' => $row['rank'],
+                $participantType .'_functional_position' => $row['functional_position'],
                 $participantType .'_position'   => $peran,
             ];
             $number++;

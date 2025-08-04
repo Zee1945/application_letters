@@ -221,7 +221,7 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->step = $step;
     }
     public function downloadTemplateExcel(){
-        $savePath = public_path('referensi/template upload data.xlsx');
+        $savePath = public_path('referensi/template upload Peserta dan RAB.xlsx');
         return response()->download($savePath);
     }
 

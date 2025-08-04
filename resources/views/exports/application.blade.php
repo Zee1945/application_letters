@@ -23,32 +23,41 @@
 <table>
     <thead>
         <tr>
-            <th colspan="4" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Narasumber dan Moderator</th>
+            <th colspan="7" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Narasumber dan Moderator</th>
             <th></th>
             <th></th>
-            <th colspan="3" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Panitia</th>
+            <th colspan="7" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Panitia</th>
             <th></th>
             <th></th>
-            <th colspan="3" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Peserta</th>
+            <th colspan="6" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Peserta</th>
             <th></th>
             <th></th>
             <th colspan="8" style="font-weight: bold; text-align: center; font-size: 15rem;"><h5>Susun Rencana Anggaran Biaya</h5></th>
         </tr>
         <tr>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama Narasumber</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Institusi Narasumber</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">NIP</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Pangkat (Golongan)</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan Fungsional</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan-Lembaga</th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Peran</th>
             <th></th>
             <th></th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Posisi Panitia</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama Panitia</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Peran Kepanitiaan</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">NIP</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Pangkat (Golongan)</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan Fungsional</th>
             <th></th>
             <th></th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama Peserta</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Institusi Peserta</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Nama</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">NIP</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Pangkat (Golongan)</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan Fungsional</th>
+            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan-Lembaga</th>
             <th></th>
             <th></th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
@@ -76,6 +85,9 @@
                 {{-- Narasumber dan Moderator --}}
                 <td style="border: 3px solid black;">{{ $i + 1 }}</td>
                 <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['name'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['nip'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['rank'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['functional_position'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['institution'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $speaker_moderator[$i]['participant_type_name'] ?? '' }}</td>
                 <td></td>
@@ -85,12 +97,18 @@
                 <td style="border: 3px solid black;">{{ $i + 1 }}</td>
                 <td style="border: 3px solid black;">{{ $commitee[$i]['commitee_position'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $commitee[$i]['name'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $commitee[$i]['nip'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $commitee[$i]['rank'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $commitee[$i]['functional_position'] ?? '' }}</td>
                 <td></td>
                 <td></td>
 
                 {{-- Peserta --}}
                 <td style="border: 3px solid black;">{{ $i + 1 }}</td>
                 <td style="border: 3px solid black;">{{ $participants[$i]['name'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $participants[$i]['nip'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $participants[$i]['rank'] ?? '' }}</td>
+                <td style="border: 3px solid black;">{{ $participants[$i]['functional_position'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $participants[$i]['institution'] ?? '' }}</td>
                 <td></td>
                 <td></td>

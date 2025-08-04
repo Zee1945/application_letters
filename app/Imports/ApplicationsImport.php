@@ -40,6 +40,9 @@ class ApplicationsImport implements ToCollection
         $this->default_participant_fields = [
             'name' => null,
             'institution' => null,
+            'nip' => null,
+            'rank' => null,
+            'functional_position' => null,
             'commitee_position_id' => null,
             'participant_type_id' => null,
             'application_id' => $this->application_id,
@@ -84,13 +87,13 @@ class ApplicationsImport implements ToCollection
     }
 
     public function collectParticipantData($rows){
-        $this->selectrowColumn($rows, 2, 1, 3, 'speakers');
-        $this->selectrowColumn($rows, 2, 7, 8, 'commitees');
-        $this->selectrowColumn($rows, 2, 12, 13, 'participants');
+        $this->selectrowColumn($rows, 2, 1, 6, 'speakers');
+        $this->selectrowColumn($rows, 2, 10, 14, 'commitees');
+        $this->selectrowColumn($rows, 2, 18, 22, 'participants');
     }
 
     public function collectDraftCostData($rows){
-            $this->selectrowColumn($rows, 2, 17, 23, 'draft_costs');
+            $this->selectrowColumn($rows, 2, 26, 32, 'draft_costs');
     }
     public function collectRundownData($rows){
         $this->selectrowColumn($rows, 2, 17, 22, 'rundowns');
@@ -137,11 +140,14 @@ class ApplicationsImport implements ToCollection
 
     private function classifySpeakers($data){
         foreach ($data as $key => $value) {
-            if (!empty($value[1]) && !empty($value[3]) ) {
+            if (!empty($value[1]) && !empty($value[6]) ) {
                 $this->finest_participant_data[$this->index_participant] = $this->default_participant_fields;
                 $this->finest_participant_data[$this->index_participant]['name'] = $value[1] ?? null;
-                $this->finest_participant_data[$this->index_participant]['institution'] = $value[2] ?? null;
-                $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName(strtolower($value[3]))->first()?->id;
+                $this->finest_participant_data[$this->index_participant]['nip'] = $value[2] ?? null;
+                $this->finest_participant_data[$this->index_participant]['rank'] = $value[3] ?? null;
+                $this->finest_participant_data[$this->index_participant]['functional_position'] = $value[4] ?? null;
+                $this->finest_participant_data[$this->index_participant]['institution'] = $value[5] ?? null;
+                $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName(strtolower($value[6]))->first()?->id;
                 // $this->finest_participant_data[$this->index_participant]['type'] = 'Speakers';
                 $this->index_participant++;
             }
@@ -149,10 +155,13 @@ class ApplicationsImport implements ToCollection
     }
     private function classifyParticipants($data){
         foreach ($data as $key => $value) {
-            if (!empty($value[12])) {
+            if (!empty($value[18])) {
             $this->finest_participant_data[$this->index_participant] = $this->default_participant_fields;
-            $this->finest_participant_data[$this->index_participant]['name'] = $value[12] ?? null;
-            $this->finest_participant_data[$this->index_participant]['institution'] = $value[13] ?? null;
+            $this->finest_participant_data[$this->index_participant]['name'] = $value[18] ?? null;
+            $this->finest_participant_data[$this->index_participant]['nip'] = $value[19] ?? null;
+            $this->finest_participant_data[$this->index_participant]['rank'] = $value[20] ?? null;
+            $this->finest_participant_data[$this->index_participant]['functional_position'] = $value[21] ?? null;
+            $this->finest_participant_data[$this->index_participant]['institution'] = $value[22] ?? null;
             $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('peserta')->first()?->id;
             // $this->finest_participant_data[$this->index_participant]['type'] = 'Participants';
             $this->index_participant++;
@@ -161,10 +170,13 @@ class ApplicationsImport implements ToCollection
     }
     private function classifyCommitees($data){
         foreach ($data as $key => $value) {
-            if (!empty($value[8])) {
+            if (!empty($value[10]) && !empty($value[11])) {
                 $this->finest_participant_data[$this->index_participant] = $this->default_participant_fields;
-                $this->finest_participant_data[$this->index_participant]['name'] = $value[8] ?? null;
-                $this->finest_participant_data[$this->index_participant]['commitee_position_id'] = CommiteePosition::whereName(strtolower($value[7]))->first()?->id;
+                $this->finest_participant_data[$this->index_participant]['commitee_position_id'] = CommiteePosition::whereName(strtolower($value[10]))->first()?->id;
+                $this->finest_participant_data[$this->index_participant]['name'] = $value[11] ?? null;
+                $this->finest_participant_data[$this->index_participant]['nip'] = $value[12] ?? null;
+                $this->finest_participant_data[$this->index_participant]['rank'] = $value[13] ?? null;
+                $this->finest_participant_data[$this->index_participant]['functional_position'] = $value[14] ?? null;
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('panitia')->first()?->id;
                 $this->index_participant++;
             }
@@ -174,17 +186,17 @@ class ApplicationsImport implements ToCollection
 
 private function classifyDraftCosts($data){
     foreach ($data as $key => $value) {
-        if (!empty($value[17]) && !empty($value[18])) {
-            $total =  !empty($value[20]) && !empty($value[22]) && is_numeric($value[20]) && is_numeric($value[22])  ? $value[20]*$value[22]  : null;
+        if (!empty($value[26]) && !empty($value[27])) {
+            $total =  !empty($value[29]) && !empty($value[31]) && is_numeric($value[29]) && is_numeric($value[31])  ? $value[29]*$value[31]  : null;
             $this->finest_draft_cost_data[$this->index_draft_cost] = $this->default_draft_cost_fields;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['code'] = $value[17] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['item'] = $value[18] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['sub_item'] = $value[19] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['volume'] = $value[20] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[21] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[22] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['volume_realization'] = $value[20] ?? null;
-            $this->finest_draft_cost_data[$this->index_draft_cost]['unit_cost_realization'] = $value[22] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['code'] = $value[26] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['item'] = $value[27] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['sub_item'] = $value[28] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['volume'] = $value[29] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['unit'] = $value[30] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['cost_per_unit'] = $value[31] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['volume_realization'] = $value[29] ?? null;
+            $this->finest_draft_cost_data[$this->index_draft_cost]['unit_cost_realization'] = $value[31] ?? null;
             $this->finest_draft_cost_data[$this->index_draft_cost]['realization'] = $total;
             $this->finest_draft_cost_data[$this->index_draft_cost]['total'] = $total;
             // $this->finest_draft_cost_data[$this->index_draft_cost]['type'] = 'darft_cost';

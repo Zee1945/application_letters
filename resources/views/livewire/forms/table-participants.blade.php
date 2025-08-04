@@ -4,6 +4,9 @@
             <tr>
                 <th>No</th>
                 <th>Nama</th>
+                <th>Nip</th>
+                <th>Pangkat (Golongan)</th>
+                <th>Jabatan Fungsional</th>
                 @if ($participantType != 'commitee')
                     <th>Jabatan - Lembaga</th>
                 @endif
@@ -17,6 +20,9 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{$row['name']}}</td>
+                    <td>{{$row['nip']}}</td>
+                    <td>{{$row['rank']}}</td>
+                    <td>{{$row['functional_position']}}</td>
 
                     @if ($participantType != 'commitee')
                         <td>{{$row['institution']}}</td>

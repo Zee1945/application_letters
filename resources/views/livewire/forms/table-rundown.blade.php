@@ -62,6 +62,21 @@
                                 </div>
                             @endforeach
                         </div>
+                        {{-- @dump(isset($row['moderator_text'], $row['speaker_text']))
+                        @if (
+                            isset($row['moderator_text'], $row['speaker_text']) &&
+                            is_array($row['moderator_text']) && is_array($row['speaker_text']) &&
+                            count($row['moderator_text']) === 0 && count($row['speaker_text']) === 0
+                        )
+                        <div class="mt-2">
+                            <strong>Input Kustom:</strong>
+                                <div class="d-flex align-items-center mb-2">
+                                    <textarea  class="form-control"></textarea>
+
+                                </div>
+                        </div>
+                        @endif --}}
+
                         
                         <!-- Debug info untuk melihat array -->
                         {{-- <div class="mt-2">
