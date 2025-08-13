@@ -82,6 +82,8 @@ class ReportCreate extends AbstractComponent
     #[On('transfer-realization')]
     public function receiveRealization($draft_costs)
     {
+
+        // dd('sett',$draft_costs);
         $this->draft_costs = $draft_costs;
     }
 

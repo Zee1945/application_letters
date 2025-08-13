@@ -32,6 +32,7 @@ class RoleAndPermissionSeeder extends Seeder
         'kabag',
         'finance',
         'dekan',
+        'monitor',
         'user',
      ];
     public function run(): void

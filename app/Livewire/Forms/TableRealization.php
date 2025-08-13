@@ -22,30 +22,44 @@ class TableRealization extends Component
     {
         $this->application = $application;
         $this->draft_costs = $draftCost;
-        $this->realizations = $this->getDistinctDataByCodeAndItem($draftCost);
-        $this->realizations = array_map(function ($item) {
-            if (count($item['children']) > 0) {
-                foreach ($item['children'] as $key => &$value) {
-                    $value['file_id'] = null;
-                }
-            }
-            return $item;
-        }, $this->realizations);
+        $this->realizations = count($draftCost) > 0 ? $this->denormalizeData($draftCost) : [];
     }
     public function render()
     {
-        $normalize_realization = $this->normalizeRealization($this->realizations);
-        $this->dispatch('transfer-realization',[...$normalize_realization]);
+
         return view('livewire.forms.table-realization');
     }
 
-    // Fungsi untuk handle multiple file upload ke MinIO
-    public function debug($draft_id)
-    {
-       $draft_cost_budget = ApplicationDraftCostBudget::find($draft_id);
-       $files = $draft_cost_budget->files()->get();
-       return $files;
+    public function denormalizeData($draftCosts)
+{
+    $data = $this->getDistinctDataByCodeAndItem($draftCosts);
+    
+    foreach ($data as &$item) {
+        foreach ($item['children'] as &$child) {
+            // Set default values untuk realization form
+            $child['volume_realization'] = $child['volume_realization'];
+            $child['unit_cost_realization'] = $child['unit_cost_realization'];
+            $child['realization'] = $child['realization'];
+            $child['file_id'] = null;
+        }
+    }
+    
+    return $data;
+}
 
+    // Fungsi untuk handle multiple file upload ke MinIO
+    public function debug($draft_id=null)
+    {
+    //    $draft_cost_budget = ApplicationDraftCostBudget::find($draft_id);
+    //    $files = $draft_cost_budget->files()->get();
+    //    return $files;
+        $normalize_realization = $this->normalizeRealization($this->realizations);
+        $this->dispatch('transfer-realization',[...$normalize_realization]);
+    }
+
+    public function syncRealization(){
+        $normalize_realization = $this->normalizeRealization($this->realizations);
+        $this->dispatch('transfer-realization',[...$normalize_realization]);
     }
     public function normalizeRealization($realizations)
     {
@@ -55,6 +69,9 @@ class TableRealization extends Component
                 if (count($value['children']) > 0) {
                     foreach ($value['children'] as $key_child => $child) {
                        if ($item['id'] == $child['id']) {
+                            $item['volume_realization'] = (int)$child['volume_realization'];
+                            $item['unit_cost_realization'] = (int)$child['unit_cost_realization'];
+                            $item['realization'] = (int)$child['realization'];
                            $path = 'temp/report/realization/' . $child['id'];
 
                             if (Storage::disk('minio')->exists($path)) {

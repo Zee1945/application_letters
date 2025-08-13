@@ -7,6 +7,7 @@ use App\Livewire\FormLists\Applications\ApplicationCreate;
 use App\Livewire\FormLists\Applications\ApplicationCreateDraft;
 use App\Livewire\FormLists\Applications\ApplicationDetail;
 use App\Livewire\FormLists\Applications\ApplicationList;
+use App\Livewire\FormLists\Dashboard;
 use App\Livewire\FormLists\Master\PosiitionList;
 use App\Livewire\FormLists\Master\PositionList;
 use App\Livewire\FormLists\Master\UserList;
@@ -15,7 +16,7 @@ use App\Livewire\FormLists\Reports\ReportList;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/','dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/',Dashboard::class)->middleware(['auth', 'verified'])->name('dashboard');
 // Route::redirect('/', '/app')->middleware(['auth', 'verified']);
 
 

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\AuthService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -60,5 +62,20 @@ class ApplicationReport extends Model
     public function currentUserApproval()
     {
         return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
+    }
+    public function scopeNeedMyProcess(Builder $query)
+    {
+        $user = AuthService::currentAccess();
+        return $query->where(function($q) use ($user) {
+            $q->where(function($sub) use ($user) {
+                $sub->where('current_user_approval', $user['id'])
+                    ->where('approval_status', '<', 11)->whereNot('approval_status',0);
+            })
+            ->orWhere(function($sub) use ($user) {
+                $sub->where('approval_status', 0)->whereHas('application',function($q) use($user){
+                    $q->where('created_by',$user['id'])->where('approval_status',12);
+                });   
+            });
+        });
     }
 }

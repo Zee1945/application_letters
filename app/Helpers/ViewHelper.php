@@ -260,6 +260,10 @@ public static function humanReadableDate($date_time)
         return false;
     }
 
+    public static function getCurrentAccess(){
+        return AuthService::currentAccess();
+    }
+
 
 
 

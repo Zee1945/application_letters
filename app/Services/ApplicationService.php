@@ -53,6 +53,8 @@ class ApplicationService
                     'current_user_approval'=> $get_dekan->id,
                     'approval_status'=> 0,
                     'department_id'=> AuthService::currentAccess()['department_id'],
+                    'created_by'=> AuthService::currentAccess()['id'],
+
                 ]);
                 // Create ApplicationUserApproval records for each verifier
                 foreach ($get_verificators as $key => $verifier) {
@@ -73,7 +75,8 @@ class ApplicationService
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
                     ]);
                 }
-            $get_file_types = FileType::whereNotIn('code',['surat_permohonan_moderator','surat_permohonan_narasumber','surat_permohonan'])->get();
+            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber'];
+            $get_file_types = FileType::whereNotIn('code',$exclude)->get();
             foreach ($get_file_types as $ft) {
                 $app_file = [
                     'display_name'=> $ft->name,
@@ -379,18 +382,20 @@ class ApplicationService
             // dd($reports,$temp,$realization);
             // store file id ke tabel draft_cost_application
             foreach ($realization as $key => $value) {
-                if ($value['file_id']) {
-                    $new_dir = str_replace('temp/report/', '', $value['file_id']);
-                    $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
-
-                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report', $value['file_id']);
                     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
+
                     $draf_cost->realization = $value['realization'];
                     $draf_cost->volume_realization = $value['volume_realization'];
                     $draf_cost->unit_cost_realization = $value['unit_cost_realization'];
                     $draf_cost->save();
+
+                  if (isset($value['file_id']) && !empty($value['file_id'])) {
+                    $new_dir = str_replace('temp/report/', '', $value['file_id']);
+                    $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
+                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report', $value['file_id']);
                     $draf_cost->files()->attach($files['data']->id);
-                }
+                 }
+
             }
 
 

@@ -15,6 +15,8 @@ abstract class AbstractComponent extends Component
     #[Url(except: '')]
     public $step = 2;
 
+    public $process_document_status = 0;
+
     public $application = null;
 public function permissionApplication($application_id)
     {

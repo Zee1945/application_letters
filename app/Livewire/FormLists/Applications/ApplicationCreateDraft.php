@@ -43,6 +43,7 @@ class ApplicationCreateDraft extends AbstractComponent
     public $sameDay =true;
 
 
+
     // Step 2
     public $participants= [];
     public $rundowns= [];
@@ -168,13 +169,34 @@ class ApplicationCreateDraft extends AbstractComponent
             $this->$key = $value;
         }
     }
+#[On('update-letter-number')]
     public function updateLetterNumber(){
-       $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
-       if ($res) {
-            $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
-        }
+            
+            // $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
+            $res = true;
+            if ($res) {
+                $this->dispatch('close-modal-loading-generate-doc');
+                $this->process_document_status = 'success';
+                $this->dispatch('open-modal-loading-generate-doc');
+                // $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
+            }else{
+                $this->process_document_status = 'failed';
+            }
     }
 
+    public function openModalLoadingGenerateDoc(){
+
+        $this->process_document_status = 'processing';
+        $this->dispatch('open-modal-loading-generate-doc');
+        // $this->dispatch('open-modal-loading-generate-doc');
+
+    }
+    public function closeModalLoadingGenerateDoc(){
+        $this->process_document_status = 'nothing';
+        // $this->dispatch('open-modal-loading-generate-doc');
+        $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
+
+    }
 
     public function downloadDocx()
     {
@@ -194,10 +216,11 @@ class ApplicationCreateDraft extends AbstractComponent
     public function debug(){
 
         try {
+            // $this->updateLetterNumber();
             // GenerateApplicationFileJob::dispatch($this->application);
             // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
-            $app_file = $this->application->applicationFiles()->findCode('jadwal_kegiatan')->first();
-            TemplateProcessorService::generateDocumentToPDF($this->application,'jadwal_kegiatan',$app_file);
+            $app_file = $this->application->applicationFiles()->findCode('daftar_kehadiran_narasumber')->first();
+            TemplateProcessorService::generateDocumentToPDF($this->application,'daftar_kehadiran_narasumber',$app_file);
             // TemplateProcessorService::generateApplicationDocument($this->application);
             // TemplateProcessorService::generateApplicationDocument($app);
         } catch (\Exception $e) {

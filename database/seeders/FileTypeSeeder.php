@@ -29,6 +29,12 @@ class FileTypeSeeder extends Seeder
             ['name' => 'Surat Permohonan Moderator', 'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Surat Tugas Narasumber', 'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Surat Tugas Moderator', 'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Surat Tugas Panitia', 'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Surat Tugas Peserta', 'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Daftar Kehadiran Narasumber', 'trans_type' => 1, 'signed_role_id' => $user_id],
+            ['name' => 'Daftar Kehadiran Moderator', 'trans_type' => 1, 'signed_role_id' => $user_id],
+            ['name' => 'Daftar Kehadiran Panitia', 'trans_type' => 1, 'signed_role_id' => $user_id],
+            ['name' => 'Daftar Kehadiran Peserta', 'trans_type' => 1, 'signed_role_id' => $user_id],
         ];
 
         // $parent_ids = [];

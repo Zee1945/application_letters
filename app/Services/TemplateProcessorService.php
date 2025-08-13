@@ -91,6 +91,12 @@ class TemplateProcessorService
             case 'surat_tugas_narasumber':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
                 break;
+            case 'surat_tugas_panitia':
+                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'commitee');
+                break;
+            case 'surat_tugas_peserta':
+                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'participant');
+                break;
             case 'surat_undangan_peserta':
                 self::generateSuratUndangan($application, $templatePath, $directory_temp, $file_type);
                 break;
@@ -99,6 +105,18 @@ class TemplateProcessorService
                 break;
             case 'surat_permohonan_moderator':
                 self::generateSuratPermohonan($application, $templatePath, $directory_temp, $file_type,$app_file);
+                break;
+            case 'daftar_kehadiran_panitia':
+                self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'commitee');
+                break;
+            case 'daftar_kehadiran_peserta':
+                self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'participant');
+                break;
+            case 'daftar_kehadiran_moderator':
+                self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'moderator');
+                break;
+            case 'daftar_kehadiran_narasumber':
+                self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'speaker');
                 break;
             default:
                 # code...
@@ -340,16 +358,95 @@ class TemplateProcessorService
         // return response()->download($converted_to_pdf);
         return true;
     }
+    public static function generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,$participant_type)
+    {
+        $write_output = public_path($directory_temp);
+        $get_participant = self::filterParticipantByType($participant_type,$application->participants);
+        // dd($get_commitees);
+            $table_participants = self::generateTableParticipant($participant_type, $get_participant);
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+            $temp_detail = [];
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+                $temp_detail[$key]=$value;
+            if ($key == 'activity_dates') {
+                // Pisahkan tanggal berdasarkan koma
+                $dates = explode(',', $value);
+
+                // Variabel untuk menyimpan hasil parsing
+                $formatted_dates = [];
+                $days = [];
+                 Carbon::setLocale('id');
+                foreach ($dates as $date) {
+                    // Format tanggal menjadi "20 Mei 2025"
+                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+
+                    // Ambil hari dari tanggal
+                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                }
+
+                // Gabungkan hasil menjadi string
+                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                $templateProcessor->setValue($key.'_days', implode(',', $days));
+            }
+
+            }
+        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
+
+
+        // Inject variabel
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        // tables
+            $templateProcessor->cloneRowAndSetValues($participant_type.'_name', $table_participants);
+
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 100,
+            'height' => 100,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
     public static function generateSuratPermohonan($application, $templatePath, $directory_temp, $file_type,$app_file)
     {
         $write_output = public_path($directory_temp);
-        $get_commitees = self::filterParticipantByType('commitee',$application->participants);
-        $get_participant = self::filterParticipantByType('participant',$application->participants);
         // dd($get_commitees);
-            $commitee_participant = self::generateTableParticipant('commitee', $get_commitees);
-            $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
-            $get_rundowns = self::generateTableRundown($application->schedules);
 
             $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
 

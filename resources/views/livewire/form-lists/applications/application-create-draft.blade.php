@@ -56,6 +56,8 @@
                             <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                 <i class="fa-solid fa-bug me-1"></i>Debug
                             </button>
+
+
                         </div>
                         
                         @if (viewHelper::actionPermissionButton('approval_process',$this->application))
@@ -449,7 +451,7 @@
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-letter-number',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('5')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-success px-4" wire:click="updateLetterNumber()">Submit</button>
+                                <button class="btn btn-success px-4" wire:click="openModalLoadingGenerateDoc">Submit</button>
                             @endif
                         </div>
                     </div>
@@ -464,6 +466,43 @@
 </div>
 </div>
 </div>
+</div>
+{{-- Modal generate document loading  --}}
+<div class="modal fade" id="modalLoadingGenerateDocument" tabindex="-1" aria-labelledby="modalLoadingGenerateDocumentLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" style="min-width: 25rem;">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-body py-5 px-4">
+        <div class="d-flex flex-column align-items-center gap-4">
+          @if ($this->process_document_status == 'processing')
+            <img src="{{ asset('assets/images/rubic-cube-loading.gif') }}" alt="Loading..." style="width: 6rem; height: 6rem;">
+            <div class="fw-bold fs-5 text-center">
+              Memproses dokumen, mohon ditunggu
+              <span class="dot-animated"></span>
+            </div>
+          @elseif($this->process_document_status == 'success')
+            <div class="d-flex justify-content-center align-items-center" style="height: 4rem;">
+              <i class="fa-solid fa-circle-check text-success" style="font-size: 5rem;"></i>
+            </div>
+            <div class="fw-bold fs-5 text-center mb-2">Dokumen berhasil Di Proses</div>
+          @elseif($this->process_document_status == 'failed')
+            <div class="d-flex justify-content-center align-items-center" style="height: 4rem;">
+              <i class="fa-solid fa-circle-xmark text-danger" style="font-size: 5rem;"></i>
+            </div>
+            <div class="fw-bold fs-5 text-center mb-2">Gagal Memproses Dokumen !</div>
+          @else
+            <div class="fw-bold fs-5 text-center mb-2">Tidak ada proses</div>
+          @endif
+
+          @if (in_array($this->process_document_status, ['success','failed']))
+            <div class="d-flex justify-content-center gap-2 w-100 mt-2">
+              <button class="btn btn-hover btn-outline-secondary flex-fill border-2" wire:click="closeModalLoadingGenerateDoc">Tutup</button>
+              <a href="{{ route('applications.detail', ['application_id' => $this->application_id]) }}" class="btn btn-hover btn-primary flex-fill">Lihat Detail</a>
+            </div>
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
@@ -510,6 +549,7 @@
   </div>
 </div>
 
+
 <script type="module">
     document.addEventListener('livewire:init', () => {
         Livewire.on('open-modal', (event) => {
@@ -519,6 +559,15 @@
         Livewire.on('close-modal', (event) => {
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.hide();
+       });
+        Livewire.on('open-modal-loading-generate-doc', (event) => {
+           const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');
+           modals.show();
+           @this.dispatch('update-letter-number');
+       });
+        Livewire.on('close-modal-loading-generate-doc', (event) => {
+           const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');
+           modals.hide();
        });
        Livewire.on('rundownUpdated', () => {
             console.log('Rundown data has been updated');

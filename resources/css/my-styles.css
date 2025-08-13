@@ -84,5 +84,32 @@
     border-radius: 0.2rem; /* Menyesuaikan radius tombol */
 }
 
+.dot-animated {
+    display: inline-block;
+    width: 1.5em;
+    text-align: left;
+}
+.dot-animated::after {
+    content: '';
+    animation: dots 1.2s steps(3, end) infinite;
+}
+@keyframes dots {
+    0%   { content: ''; }
+    33%  { content: '.'; }
+    66%  { content: '..'; }
+    100% { content: '...'; }
+}
+
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+.text-white-75 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
 
 

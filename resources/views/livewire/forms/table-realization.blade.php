@@ -38,7 +38,7 @@
                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                                 {{$this->realizations[$index]['children'][$index_child]['volume_realization']}}
                                 @else
-                                <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.volume_realization' value="{{$child['volume_realization']}}"> <span> {{$child['unit']}}</span>
+                                <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.volume_realization'> <span> {{$child['unit']}}</span>
                                 @endif
                             </span>
                         </div>
@@ -48,7 +48,7 @@
                                  @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                                     {{viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['unit_cost_realization'])}}
                                 @else
-                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:model='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization' value="{{$child['unit_cost_realization']}}">
+                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization'>
                                 @endif
                             </span>
                         </div>
@@ -62,7 +62,7 @@
                             <span class="d-flex text-nowrap">{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
                         @else
                         <div class="d-flex align-items-baseline">
-                           <span> Rp.</span> <input type="number" wire:model='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
+                           <span> Rp.</span> <input type="number" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
                             aria-label="Biaya Realisasi">
                         </div>
 
@@ -82,7 +82,7 @@
                         <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$child['id']}})">Lihat</button>
 
                         @else
-                            <input type="file" class="form-control w-100" wire:model='realizations.{{$index}}.children.{{$index_child}}.file_id'
+                            <input type="file" class="form-control w-100" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.file_id'
                             aria-label="Gambar Nota" accept=".jpg,.jpeg,.png,.pdf">
                         @endif
                     </td>
@@ -96,6 +96,8 @@
             @endforelse
         </tbody>
     </table>
+
+    <button class="btn btn-md btn-primary" wire:click="debug">Debuggg</button>
     {{-- <livewire:utils.modal-preview :modalId="'modalPreviewRealization'" :key="'realization-modal'"/> --}}
 
 </div>
