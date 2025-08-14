@@ -21,7 +21,7 @@
         <a href="{{route('applications.index')}}" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">Surat</div>
+            <div class="menu-title">Pengajuan Surat</div>
         </a>
 
     </li>
@@ -29,7 +29,7 @@
         <a href="{{route('report.index')}}" >
             <div class="parent-icon"><i class="bx bx-category"></i>
             </div>
-            <div class="menu-title">LPJ</div>
+            <div class="menu-title">Laporan Kegiatan</div>
         </a>
 
     </li>

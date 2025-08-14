@@ -184,27 +184,45 @@ class TemplateProcessorService
 
             $temp=[];
             foreach ($application->getAttributes() as $key => $value) {
-                if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BOPTN';
-                }
-                if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                }
-                $temp[$key] = $value;
+                switch ($key) {
+                    case 'activity_name':
+                        # code...
+                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                        $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                    case 'funding_source':
+                        $value = $value==1? 'BLU':'BOPTN';
+                        $templateProcessor->setValue($key, $value);
+                        break;
 
-                $templateProcessor->setValue($key, $value);
+                    default:
+                        $templateProcessor->setValue($key, $value);
+                        break;
+                }
             }
 
 
-            $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
-                $temp_detail[$key]=$value;
+                    switch ($key) {
+                        case 'activity_dates':
+                            # code...
+                            $split_dates = explode(',',$value);
+                            $human_readable_dates = array_map(function($date){
+                                $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                return ViewHelper::humanReadableDate($converted);
+                            },$split_dates);
+
+                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
 
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -314,8 +332,8 @@ class TemplateProcessorService
 
 
         // Inject variabel
-        $templateProcessor->setValue('nomor_surat_undangan', ucfirst($get_nomor_surat->letter_number));
-        $templateProcessor->setValue('nomor_surat_undangan_formatted_date', ucfirst(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
+        $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
+        $templateProcessor->setValue('nomor_surat_undangan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -415,7 +433,7 @@ class TemplateProcessorService
 
         // Inject variabel
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -499,10 +517,10 @@ class TemplateProcessorService
         $get_recipient = $application->participants()->where('id',$app_file->participant_id)->first();
         // Inject variabel
         $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
-        $templateProcessor->setValue('recipient_name', ucfirst($get_recipient->name));
-        $templateProcessor->setValue('recipient_institution', ucfirst($get_recipient->institution));
-        $templateProcessor->setValue('nomor_surat_permohonan', ucfirst($get_nomor_surat->letter_number));
-        $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucfirst(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
+        $templateProcessor->setValue('recipient_name', ucwords($get_recipient->name));
+        $templateProcessor->setValue('recipient_institution', ucwords($get_recipient->institution));
+        $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
+        $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -604,9 +622,9 @@ class TemplateProcessorService
         $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
         
         // Inject variabel
-        $templateProcessor->setValue('nomor_surat_tugas', ucfirst($get_nomor_surat_tugas->letter_number));
-        $templateProcessor->setValue('participant_type', ucfirst($participant_type == 'speaker'?'narasumber':'moderator'));
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
+        $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -710,7 +728,7 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -790,7 +808,7 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -893,7 +911,7 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucfirst($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -986,9 +1004,9 @@ foreach ($new_data as $index => $item) {
 
             if ($participantType != 'participant') {
                 if ($participantType == 'commitee') {
-                    $peran = ucfirst(self::findName('commitee', $row['commitee_position_id']));
+                    $peran = ucwords(self::findName('commitee', $row['commitee_position_id']));
                 } else {
-                    $peran = ucfirst(self::findName('participant', $row['participant_type_id']));
+                    $peran = ucwords(self::findName('participant', $row['participant_type_id']));
                 }
             } else {
                 $peran = '';

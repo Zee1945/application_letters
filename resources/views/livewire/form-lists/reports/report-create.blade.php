@@ -1,100 +1,108 @@
-<div>
-    <!--breadcrumb-->
-    <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Form LPJ</div>
-    </div>
-    <!--end breadcrumb-->
+{{-- filepath: c:\laragon\www\application_letters\resources\views\livewire\form-lists\reports\report-create.blade.php --}}
+<div class="container-fluid">
+    <!-- Header -->
     <div class="row">
         <div class="col-12 mx-auto">
-            <div class="text-center">
-                <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
-                <div class="">
-                    @if ($application->report->approval_status == 11)
-                        <button class="btn btn-sm btn-primary" wire:click="debug">Debug</button>
-                    @endif
-                    @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
-                        <button class="btn btn-sm btn-danger" wire:click="openModalConfirm('reject-report')">Reject</button>
-                        <button class="btn btn-sm btn-warning" wire:click="openModalConfirm('revise-report')">Revisi</button>
-                        <button class="btn btn-sm btn-success" wire:click="openModalConfirm('approve-report')">Approve</button>
-                    @endif
-
-                </div>
-                {{-- <img src="{{asset('assets/images/logo-img.png')}}" alt="ga ada gambar"> --}}
-
-                <hr />
-            </div>
-            <div id="stepper2" class="bs-stepper">
-                <div class="card">
-                    <div class="card-header overflow-auto">
-                        <div class="d-lg-flex flex-lg-row align-items-lg-center justify-content-lg-between"
-                            role="tablist">
-                            <div class="step d-block" data-target="#test-l-1">
-                                <div class="step-trigger {{$this->step == 1? 'active':''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
-                                    <div class="bs-stepper-circle">1</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">Umum</h5>
-                                        <p class="mb-0 steper-sub-title">Formulir umum</p>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8 col-sm-12">
+                            <div class="d-flex align-items-center">
+                                <div class="activity-icon me-3">
+                                    <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
+                                    <div class="d-flex align-items-center text-muted">
+                                        {!! viewHelper::statusReportHTML($this->application->report?->approval_status) !!}
+                                        <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application,true) !!}</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="bs-stepper-line"></div>
-                            {{-- <div class="step" data-target="#test-l-2">
-                                <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
-                                    <div class="bs-stepper-circle">2</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">Notulensi</h5>
-                                        <p class="mb-0 steper-sub-title">Form Notulensi</p>
-                                    </div>
-                                </div>
-                            </div> --}}
-                            <div class="bs-stepper-line"></div>
-                            <div class="step" data-target="#test-l-3">
-                                <div class="step-trigger {{$this->step == 2? 'active':''}} " role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
-                                    <div class="bs-stepper-circle">2</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
-                                        <p class="mb-0 steper-sub-title">Form Narasumber</p>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12 text-end">
+                            <div class="btn-group" role="group">
+                                @if ($application->report->approval_status == 11)
+                                    <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
+                                        <i class="fa-solid fa-bug me-1"></i>Debug
+                                    </button>
+                                @endif
+                                @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
+                                    <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
+                                        <i class="fa-solid fa-times me-1"></i>Reject
+                                    </button>
+                                    <button class="btn btn-warning btn-sm" wire:click="openModalConfirm('revise-report')">
+                                        <i class="fa-solid fa-edit me-1"></i>Revisi
+                                    </button>
+                                    <button class="btn btn-success btn-sm" wire:click="openModalConfirm('approve-report')">
+                                        <i class="fa-solid fa-check me-1"></i>Approve
+                                    </button>
+                                @endif
                             </div>
-                            <div class="bs-stepper-line"></div>
-                            <div class="step" data-target="#test-l-4">
-                                <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
-                                    <div class="bs-stepper-circle">3</div>
-                                    <div class="">
-                                        <h5 class="mb-0 steper-title">Realisasi</h5>
-                                        <p class="mb-0 steper-sub-title">Form Realisasi</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <!-- Alert for status -->
+                    <div class="row {{$application->report->approval_status == 2 || $application->report->approval_status > 20?'':'d-none'}}">
+                        <div class="alert {{$application->report->approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
+                            <div class="d-flex">
+                                <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
+                                    <i class="fa-solid {{$application->report->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                </div>
+                                <div class="description d-flex flex-column">
+                                    <h6 class="title"> {{$application->report->approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <span class="fw-bold">{{$application->report->currentUserApproval->user->name}}</span>
+                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->report->currentUserApproval->updated_at,'d-m-Y H:i:s') !!})</i></small>
+                                        </div>
+                                        <div class="notes">
+                                            "{{$application->report->note}}"
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row {{$application->approval_status == 2 || $application->approval_status > 20?'':'d-none'}}">
-                            <div class="alert {{$application->approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
-                                <div class="d-flex">
-                                    <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
-                                        <i class="fa-solid {{$application->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
-                                    </div>
-                                    <div class="description d-flex flex-column">
-                                        <h6 class="title"> {{$application->approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
-                                        <div class="d-flex flex-column">
-                                            <div class=>
-                                                <span class="fw-bold">{{$application->currentUserApproval->user->name}}</span>
-                                                 <small> <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at,'d-m-Y H:i:s') !!})</i></small>
-                                            </div>
-                                            <div class="notes">
-                                                "{{$application->note}}"
+                    <!-- Stepper -->
+                    <div id="stepper2" class="bs-stepper">
+                        <div class="card">
+                            <div class="card-header overflow-auto">
+                                <div class="d-lg-flex flex-lg-row align-items-lg-center justify-content-lg-between" role="tablist">
+                                    <div class="step d-block" data-target="#test-l-1">
+                                        <div class="step-trigger {{$this->step == 1? 'active':''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
+                                            <div class="bs-stepper-circle">1</div>
+                                            <div>
+                                                <h5 class="mb-0 steper-title">Umum</h5>
+                                                <p class="mb-0 steper-sub-title">Formulir umum</p>
                                             </div>
                                         </div>
                                     </div>
-
+                                    <div class="bs-stepper-line"></div>
+                                    <div class="step" data-target="#test-l-2">
+                                        <div class="step-trigger {{$this->step == 2? 'active':''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
+                                            <div class="bs-stepper-circle">2</div>
+                                            <div>
+                                                <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
+                                                <p class="mb-0 steper-sub-title">Form Narasumber</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bs-stepper-line"></div>
+                                    <div class="step" data-target="#test-l-3">
+                                        <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
+                                            <div class="bs-stepper-circle">3</div>
+                                            <div>
+                                                <h5 class="mb-0 steper-title">Realisasi</h5>
+                                                <p class="mb-0 steper-sub-title">Form Realisasi</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                              </div>
-                        </div>
-                        <div class="">
-                            {{-- <form onSubmit="return false"> --}}
-                                <div id="test-l-1" role="tabpanel" class="{{$this->step == '1'? '':'bs-stepper-pane'}}"
+                            </div>
+                            <div class="card-body">
+                                <!-- Step 1 -->
+                                                           <div id="test-l-1" role="tabpanel" class="{{$this->step == '1'? '':'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger1">
                                     <h5 class="mb-1">Formulir Umum</h5>
                                     <p class="mb-4">Formulir untuk Gambaran Umum Kesimpulan Acara</p>
@@ -210,59 +218,58 @@
             </div><!---end row-->
 
         </div>
-        </form>
-    </div>
-
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['icon_class']}} ms-2 text-{{ viewHelper::handleConfirmModal($this->open_modal_confirm)['color']}}"></i> {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['title']}}</h1>
-        <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        @if ($this->open_modal_confirm == 'approve-report')
-        <div class="">
-                <div class="row">
-                    <div class="d-flex flex-column align-items-center">
-                        <i class="fa-solid fa-circle-check fs-1 text-success"></i>
-                        <h4 class="text-center"> Apakah Anda yakin ingin menyetujui ?</h4>
+                            </div>
+                        </div>
                     </div>
+                    <!-- Modal dan script tetap, tidak perlu diubah -->
                 </div>
-                <div class="row">
-                    <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btn-secondary mx-1" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-success mx-1" wire:click="submitModalConfirm">Setujui</button>
-                    </div>
-                </div>
-        </div>
-          @else
-          <form>
-            <div class="mb-3">
-              <label for="message-text" class="col-form-label fw-bold">Beri Alasan {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['text_reaseon']}}</label>
-              <textarea class="form-control" wire:model="notes" id="message-text"></textarea>
-              {{-- <livewire:forms.tinymce-editor :editorId="'notes'"/> --}}
             </div>
-          </form>
-        @endif
+        </div>
+    </div>
+    <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['icon_class']}} ms-2 text-{{ viewHelper::handleConfirmModal($this->open_modal_confirm)['color']}}"></i> {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['title']}}</h1>
+                <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if ($this->open_modal_confirm == 'approve-report')
+                <div class="">
+                    <div class="row">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fa-solid fa-circle-check fs-1 text-success"></i>
+                            <h4 class="text-center"> Apakah Anda yakin ingin menyetujui ?</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="d-flex justify-content-center">
+                            <button type="button" class="btn btn-secondary mx-1" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-success mx-1" wire:click="submitModalConfirm">Setujui</button>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <form>
+                    <div class="mb-3">
+                        <label for="message-text" class="col-form-label fw-bold">Beri Alasan {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['text_reaseon']}}</label>
+                        <textarea class="form-control" wire:model="notes" id="message-text"></textarea>
+                        {{-- <livewire:forms.tinymce-editor :editorId="'notes'"/> --}}
+                    </div>
+                </form>
+                @endif
 
-      </div>
-      <div class="modal-footer">
-        @if ($this->open_modal_confirm != 'approve-report')
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Submit</button>
-        @endif
+            </div>
+            <div class="modal-footer">
+                @if ($this->open_modal_confirm != 'approve-report')
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Submit</button>
+                @endif
+            </div>
+        </div>
     </div>
-    </div>
-  </div>
 </div>
-<livewire:utils.modal-preview/>
+<livewire:utils.modal-preview />
 
 
 
@@ -270,19 +277,15 @@
 <script type="module">
     document.addEventListener('livewire:init', () => {
         Livewire.on('open-modal', (event) => {
-           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
-           modal.show();
-       });
+            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
+            modal.show();
+        });
         Livewire.on('close-modal', (event) => {
-           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
-           modal.hide();
-       });
+            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
+            modal.hide();
+        });
 
     });
 </script>
-</div>
-<!--end row-->
 
 </div>
-
-

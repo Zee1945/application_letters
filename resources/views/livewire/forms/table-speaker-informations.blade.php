@@ -26,7 +26,11 @@
 
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                         @if (!empty($this->rows[$new_index]['cv_file_id']))
                         <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['cv_file_id']}})">Lihat</button>
+                        @else
+                            <small> <i> File tidak diupload</i></small>
+                        @endif
                         @else
                         <input type="file"
                                wire:model="rows.{{ $new_index }}.cv_file_id"
@@ -38,7 +42,11 @@
 
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['idcard_file_id']}})">Lihat</button>
+                        @if (!empty($this->rows[$new_index]['idcard_file_id']))
+                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['idcard_file_id']}})">Lihat</button>
+                                @else
+                                    <small> <i> File tidak diupload</i></small>
+                                @endif
                         @else
                         <input type="file"
                                wire:model="rows.{{ $new_index }}.idcard_file_id"
@@ -52,8 +60,12 @@
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
 
-
+                                @if (!empty($this->rows[$new_index]['npwp_file_id']))
                                 <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['npwp_file_id']}})">Lihat</button>
+                                @else
+                                    <small> <i> File tidak diupload</i></small>
+                                @endif
+                              
 
                         @else
                             <input type="file"

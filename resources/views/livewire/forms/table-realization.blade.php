@@ -78,8 +78,11 @@
 
 
                             {{-- Atau download link --}}
-
+                        @if (!empty($child->files))
                         <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$child['id']}})">Lihat</button>
+                            @else
+                            <small><i>File tidak diupload</i></small>
+                        @endif
 
                         @else
                             <input type="file" class="form-control w-100" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.file_id'
