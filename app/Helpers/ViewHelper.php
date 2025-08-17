@@ -264,6 +264,16 @@ public static function humanReadableDate($date_time)
         return AuthService::currentAccess();
     }
 
+    public static function departmentToShow(Department $department){
+        if ($department->approval_by =='self') {
+            return $department;
+        }else if ($department->approval_by == 'parent') {
+            return $department->parent;
+        }else if ($department->approval_by == 'central') {
+            return Department::whereCode('code','REKTORAT')->first();
+        }
+    }
+
 
 
 

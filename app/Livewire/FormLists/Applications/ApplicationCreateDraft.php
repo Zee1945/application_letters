@@ -219,8 +219,11 @@ class ApplicationCreateDraft extends AbstractComponent
             // $this->updateLetterNumber();
             // GenerateApplicationFileJob::dispatch($this->application);
             // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
-            $app_file = $this->application->applicationFiles()->findCode('draft_tor')->first();
-            TemplateProcessorService::generateDocumentToPDF($this->application,'draft_tor',$app_file);
+            $code = 'surat_permohonan_narasumber';
+            $app_files = $this->application->applicationFiles()->findCode($code)->get();
+            foreach ($app_files as $key => $app_file) {
+                TemplateProcessorService::generateDocumentToPDF($this->application,$code,$app_file);
+            }
             // TemplateProcessorService::generateApplicationDocument($this->application);
             // TemplateProcessorService::generateApplicationDocument($app);
         } catch (\Exception $e) {

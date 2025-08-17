@@ -26,7 +26,8 @@ class ReportCreate extends AbstractComponent
     public $obstacles;
     public $conclusion;
     public $recommendations;
-    public $closing;
+    public $speaker_material;
+    public $background;
 
 
 
@@ -92,10 +93,11 @@ class ReportCreate extends AbstractComponent
         $generals = [
             'introduction' => $this->introduction,
             'activity_description' => $this->activity_description,
+            'background' => $this->background,
+            'speaker_material' => $this->speaker_material,
             'obstacles' => $this->obstacles,
             'conclusion' => $this->conclusion, // lom ada
             'recommendations' => $this->recommendations,
-            'closing' => $this->closing,
             'application_id' => $this->application_id,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];

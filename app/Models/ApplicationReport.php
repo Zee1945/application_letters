@@ -21,6 +21,8 @@ class ApplicationReport extends Model
         'activity_description',
         'obstacles',
         'conclusion',
+        'background',
+        'speaker_material',
         'recommendations',
         'current_user_approval',
         'approval_status',

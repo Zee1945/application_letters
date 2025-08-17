@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\ViewHelper;
+use App\Models\ApplicationParticipant;
 use App\Models\CommiteePosition;
 use App\Models\FileType;
 use App\Models\LogApproval;
@@ -388,48 +389,55 @@ class TemplateProcessorService
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
-            $temp=[];
-            foreach ($application->getAttributes() as $key => $value) {
-                if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BOPTN';
+     foreach ($application->getAttributes() as $key => $value) {
+                switch ($key) {
+                    case 'activity_name':
+                        # code...
+                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                        $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                    case 'funding_source':
+                        $value = $value==1? 'BLU':'BOPTN';
+                        $templateProcessor->setValue($key, $value);
+                        break;
+                    default:
+                        $templateProcessor->setValue($key, $value);
+                        break;
                 }
-                if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                }
-                $temp[$key] = $value;
-
-                $templateProcessor->setValue($key, $value);
             }
 
 
-            $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
-                $temp_detail[$key]=$value;
-            if ($key == 'activity_dates') {
-                // Pisahkan tanggal berdasarkan koma
-                $dates = explode(',', $value);
+                    switch ($key) {
+                        case 'activity_location':
+                            $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                        case 'activity_dates':
+                             // Pisahkan tanggal berdasarkan koma
+                                $dates = explode(',', $value);
 
-                // Variabel untuk menyimpan hasil parsing
-                $formatted_dates = [];
-                $days = [];
-                 Carbon::setLocale('id');
-                foreach ($dates as $date) {
-                    // Format tanggal menjadi "20 Mei 2025"
-                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+                                // Variabel untuk menyimpan hasil parsing
+                                $formatted_dates = [];
+                                $days = [];
+                                Carbon::setLocale('id');
+                                foreach ($dates as $date) {
+                                    // Format tanggal menjadi "20 Mei 2025"
+                                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
 
-                    // Ambil hari dari tanggal
-                    $days[] = Carbon::parse($date)->translatedFormat('l');
-                }
+                                    // Ambil hari dari tanggal
+                                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                                }
 
-                // Gabungkan hasil menjadi string
-                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                                // Gabungkan hasil menjadi string
+                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
+
             }
-
-            }
-        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
-
 
         // Inject variabel
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
@@ -473,50 +481,88 @@ class TemplateProcessorService
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
-            $temp=[];
-            foreach ($application->getAttributes() as $key => $value) {
-                if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BOPTN';
+                foreach ($application->getAttributes() as $key => $value) {
+                switch ($key) {
+                    case 'activity_name':
+                        # code...
+                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                        $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                    case 'funding_source':
+                        $value = $value==1? 'BLU':'BOPTN';
+                        $templateProcessor->setValue($key, $value);
+                        break;
+                    default:
+                        $templateProcessor->setValue($key, $value);
+                        break;
                 }
-                if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                }
-                $temp[$key] = $value;
-
-                $templateProcessor->setValue($key, $value);
             }
 
 
-            $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
-                $temp_detail[$key]=$value;
-                        if ($key == 'activity_dates') {
-                // Pisahkan tanggal berdasarkan koma
-                $dates = explode(',', $value);
+                    switch ($key) {
+                        case 'activity_location':
+                            $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                        case 'activity_dates':
+                             // Pisahkan tanggal berdasarkan koma
+                                $dates = explode(',', $value);
 
-                // Variabel untuk menyimpan hasil parsing
-                $formatted_dates = [];
-                $days = [];
-                 Carbon::setLocale('id');
-                foreach ($dates as $date) {
-                    // Format tanggal menjadi "20 Mei 2025"
-                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+                                // Variabel untuk menyimpan hasil parsing
+                                $formatted_dates = [];
+                                $days = [];
+                                Carbon::setLocale('id');
+                                foreach ($dates as $date) {
+                                    // Format tanggal menjadi "20 Mei 2025"
+                                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
 
-                    // Ambil hari dari tanggal
-                    $days[] = Carbon::parse($date)->translatedFormat('l');
-                }
+                                    // Ambil hari dari tanggal
+                                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                                }
 
-                // Gabungkan hasil menjadi string
-                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                                // Gabungkan hasil menjadi string
+                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
+
             }
 
-            }
+        // Get All schedule speaker/moderator
+        // End Get All schedule speaker/moderator
+
+
         $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_permohonan')->first();
         $get_recipient = $application->participants()->where('id',$app_file->participant_id)->first();
+        $participant_type_name = $get_recipient->participantType->name ?? '';
+        $get_session_schedule = collect();
+
+        if (!empty($get_recipient->name) && !empty($get_recipient->institution)) {
+            $field = $participant_type_name == 'Narasumber' ? 'speaker_text' : ($participant_type_name == 'Moderator' ? 'moderator_text' : null);
+            if ($field) {
+                $search = $get_recipient->name . '-' . $get_recipient->institution;
+                $get_session_schedule = $application->schedules()->where($field, 'LIKE', "%$search%")->get();
+            }
+        }
+
+        $array_date_session = [];
+        foreach ($get_session_schedule as $value) {
+            $array_date_session[$value->date][] = Carbon::parse($value->start_date)->format('H:i');
+            $array_date_session[$value->date][] = Carbon::parse($value->end_date)->format('H:i');
+        }
+
+        $converted_session = ['time' => '', 'date' => ''];
+        foreach ($array_date_session as $date => $times) {
+            $converted_session['time'] .= ($converted_session['time'] ? ', ' : '') . $times[0] . ' - ' . end($times);
+            $converted_session['date'] .= ($converted_session['date'] ? ', ' : '') . ViewHelper::humanReadableDate($date);
+        }
+
         // Inject variabel
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('session_lenght_hours', $converted_session['time']);
+        $templateProcessor->setValue('session_lenght_dates', $converted_session['date']);
         $templateProcessor->setValue('recipient_name', ucwords($get_recipient->name));
         $templateProcessor->setValue('recipient_institution', ucwords($get_recipient->institution));
         $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
@@ -622,6 +668,7 @@ class TemplateProcessorService
         $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
         
         // Inject variabel
+        $templateProcessor->setValue('nomor_surat_tugas_uppercase', strtoupper($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
         $templateProcessor->setValue('department_name', ucwords($application->department->name));
@@ -643,23 +690,25 @@ $mapped_data = array_map(function($item) use($participant_type){
     $item['nip'] = '   NIP. '.$item[$participant_type.'_nip'];
     $item['rank'] = $item[$participant_type.'_rank'];
     $item['functional_position'] = $item[$participant_type.'_functional_position'];
+    $item['space'] = '.';
     unset($item[$participant_type.'_no']);
     unset($item[$participant_type.'_institution']);
     unset($item[$participant_type.'_position']);
+    unset($item[$participant_type.'_nip']);
+    unset($item[$participant_type.'_rank']);
+    unset($item[$participant_type.'_functional_position']);
     return $item;
 
 },$speaker_participant);
-// dd($mapped_data);
 
 
 $new_data = [];
+// dd($mapped_data);
 foreach ($mapped_data as $key => $value) {
     # code...
     $get_values = array_values($value);
-    // dd($get_values);
-    $new_data=[...$new_data,...$get_values];
+    $new_data = [...$new_data, ...$get_values];
 }
-// dd($new_data);
 
 $templateProcessor->cloneRow('speaker_data', count($new_data));
 // $templateProcessor->cloneRow('nip', $totalRows);
@@ -791,25 +840,48 @@ foreach ($new_data as $index => $item) {
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
-            $temp=[];
             foreach ($application->getAttributes() as $key => $value) {
-                if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BOPTN';
+                switch ($key) {
+                    case 'activity_name':
+                        # code...
+                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                        $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                    case 'funding_source':
+                        $value = $value==1? 'BLU':'BOPTN';
+                        $templateProcessor->setValue($key, $value);
+                        break;
+                    default:
+                        $templateProcessor->setValue($key, $value);
+                        break;
                 }
-                if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                }
-                $templateProcessor->setValue($key, $value);
             }
 
 
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                    switch ($key) {
+                        case 'activity_dates':
+                            # code...
+                            $split_dates = explode(',',$value);
+                            $human_readable_dates = array_map(function($date){
+                                $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                return ViewHelper::humanReadableDate($converted);
+                            },$split_dates);
+
+                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
+
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+
+        $department_to_show = ViewHelper::departmentToShow($application->department);
+        $templateProcessor->setValue('department_name', ucwords($department_to_show->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($department_to_show->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -825,7 +897,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('nomor_mak', strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number));
         $templateProcessor->setValue('nomor_sk_uppercase', strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number));
         $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date)));
-        $templateProcessor->setValue('tanggal_berlaku_sk', strtoupper($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number));
+        $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number)));
 
 
 
@@ -886,28 +958,45 @@ foreach ($new_data as $index => $item) {
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
-            foreach ($application->getAttributes() as $key => $value) {
-                if ($key == 'funding_source') {
-                    $value = $value==1? 'BLU':'BOPTN';
-                }
-                if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                }
-                $templateProcessor->setValue($key, $value);
-            }
-            $temp=[];
-            foreach ($application->report->getAttributes() as $key => $value) {
-                $temp[$key]=$value;
-                $templateProcessor->setValue($key, $value);
-            }
+                        foreach ($application->getAttributes() as $key => $value) {
+                switch ($key) {
+                    case 'activity_name':
+                        # code...
+                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                        $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                    case 'funding_source':
+                        $value = $value==1? 'BLU':'BOPTN';
+                        $templateProcessor->setValue($key, $value);
+                        break;
 
-            // dd($temp);
-
+                    default:
+                        $templateProcessor->setValue($key, $value);
+                        break;
+                }
+            }
 
 
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                    switch ($key) {
+                        case 'activity_dates':
+                            # code...
+                            $split_dates = explode(',',$value);
+                            $human_readable_dates = array_map(function($date){
+                                $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                return ViewHelper::humanReadableDate($converted);
+                            },$split_dates);
 
+                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
+
+            }
+            foreach ($application->report->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
             }
 
         // Inject variabel
@@ -1034,7 +1123,7 @@ foreach ($new_data as $index => $item) {
                 'rd_no'      => $number,
                 'rd_start_date'    => ViewHelper::humanReadableDate($row->date),
                 'rd_start_end_time' => ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i'),
-                'rd_name'   => $row->name,
+                'rd_name'   => ucwords($row->name),
                 'rd_moderator_label'=> (!empty($row->moderator_text) ? 'Moderator' : ''),
                 'rd_speaker_label'=> (!empty($row->speaker_text) ? 'Narasumber' : ''),
                 'rd_speaker_list'   => self::speakerListToUnorderedString($row->speaker_text),
@@ -1100,7 +1189,9 @@ foreach ($new_data as $index => $item) {
         $result = '';
         foreach ($speakers as $speaker) {
             if (trim($speaker) !== '') {
-                $result .= '- '.trim($speaker).'<w:br/><w:br/>';
+                list($name,$institution) = explode('-',$speaker);
+                // $result .= '• '. trim($speaker).'<w:br/>';
+                $result .= '• '. trim($name).'<w:br/> ('.trim($institution).')<w:br/>';
             }
         }
         // $result = '<ol>';

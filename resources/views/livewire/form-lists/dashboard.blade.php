@@ -125,9 +125,9 @@
                 <div>
                     <h5 class="mb-1 fw-bold">
                         <i class="bx bx-task text-warning me-2"></i>
-                        Laporan Kegiatan Butuh Proses Saya
+                         Pengajuan/Laporan Kegiatan Butuh Proses Saya
                     </h5>
-                    <p class="text-muted mb-0 small">Daftar Laporan Kegiatan yang membutuhkan persetujuan Anda</p>
+                    <p class="text-muted mb-0 small">Daftar Pengajuan/Laporan Kegiatan yang butuh diproses oleh anda</p>
                 </div>
                 <span class="badge bg-warning text-dark px-3 py-2">
                     {{ count($need_process_apps ?? []) }} Dokumen

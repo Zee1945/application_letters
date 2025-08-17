@@ -114,6 +114,20 @@
                                                 wire:model="introduction"></textarea>
                                         </div>
                                         <div class="col-12">
+                                            <label for="Outcome" class="form-label fw-bold">Latar Belakang</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                                wire:model="background"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="Outcome" class="form-label fw-bold">Materi</label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                                wire:model="speaker_material"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
+                                        </div>
+                                        <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">
                                                 Kendala</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
@@ -126,14 +140,6 @@
                                             <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="closing" class="form-label fw-bold">Penutup</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="closing" wire:model="closing" ></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Pelaksanaan Kegiatan </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
                                         </div>
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
