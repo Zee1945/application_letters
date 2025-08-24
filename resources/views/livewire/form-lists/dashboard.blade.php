@@ -75,7 +75,7 @@
                             <i class="bx bx-loader-circle text-info" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-info">{{ $sedangDiproses ?? 8 }}</h3>
+                            <h3 class="mb-1 fw-bold text-info">{{ $sedangDiproses ?? 0 }}</h3>
                             <p class="mb-0 text-muted small">Sedang Diproses</p>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                             <i class="bx bx-x-circle text-danger" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-danger">{{ $ditolak ?? 7 }}</h3>
+                            <h3 class="mb-1 fw-bold text-danger">{{ $ditolak ?? 0 }}</h3>
                             <p class="mb-0 text-muted small">Ditolak</p>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                             <i class="bx bx-check-circle text-success" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-success">{{ $disetujui ?? 5 }}</h3>
+                            <h3 class="mb-1 fw-bold text-success">{{ $disetujui ?? 0 }}</h3>
                             <p class="mb-0 text-muted small">Disetujui</p>
                         </div>
                     </div>
