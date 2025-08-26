@@ -100,7 +100,7 @@
         </tbody>
     </table>
 
-    <button class="btn btn-md btn-primary" wire:click="debug">Debuggg</button>
+    {{-- <button class="btn btn-md btn-primary" wire:click="debug">Debuggg</button> --}}
     {{-- <livewire:utils.modal-preview :modalId="'modalPreviewRealization'" :key="'realization-modal'"/> --}}
 
 </div>

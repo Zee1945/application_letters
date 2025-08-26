@@ -593,7 +593,7 @@ class ApplicationService
     }
 
     public static function getListReport(){
-       $list = Application::where('approval_status',12)->get();
+       $list = Application::where('approval_status',12);
        return $list;
     }
     public static function hasDepartmentQuota(){

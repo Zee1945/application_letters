@@ -10,7 +10,7 @@ class ReportList extends Component
 {
     public function render()
     {
-        $reports= ApplicationService::getListReport();
+        $reports= ApplicationService::getListReport()->paginate(1);
         return view('livewire.form-lists.reports.report-list',compact('reports'))->extends('layouts.main');
     }
 }

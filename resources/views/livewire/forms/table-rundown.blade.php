@@ -100,9 +100,9 @@
     </table>
     
     <div class="row">
-        <div class="col-12">
+        {{-- <div class="col-12">
             <button type="button" wire:click="debug" class="btn btn-primary mt-3 w-100">Debug</button>
-        </div>
+        </div> --}}
         <div class="col-12">
             <button type="button" wire:click="addRow" class="btn btn-primary mt-3 w-100">Tambah Baris</button>
         </div>

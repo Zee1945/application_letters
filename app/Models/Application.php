@@ -99,6 +99,8 @@ class Application extends AbstractModel
                 return $query->where('approval_status',11);
             }
             return $query;
+        })->orWhere(function($query) use ($user){
+            $query->where('created_by',$user['id'])->where('approval_status',0);
         });
     }
     public function scopeRejected()

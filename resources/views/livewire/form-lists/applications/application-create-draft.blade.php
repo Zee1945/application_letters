@@ -53,9 +53,9 @@
                             <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                 <i class='bx bx-info-circle'></i> Detail
                             </a>
-                            <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
+                            {{-- <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                 <i class="fa-solid fa-bug me-1"></i>Debug
-                            </button>
+                            </button> --}}
 
 
                         </div>

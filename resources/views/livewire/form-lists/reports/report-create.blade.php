@@ -22,11 +22,14 @@
                         </div>
                         <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group" role="group">
-                                @if ($application->report->approval_status == 11)
+                                {{-- @if ($application->report->approval_status == 11)
                                     <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                         <i class="fa-solid fa-bug me-1"></i>Debug
                                     </button>
-                                @endif
+                                @endif --}}
+                                    <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
+                                        <i class='bx bx-info-circle'></i> Detail
+                                    </a>
                                 @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
                                     <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
                                         <i class="fa-solid fa-times me-1"></i>Reject
@@ -251,7 +254,16 @@
                     <div class="row">
                         <div class="d-flex justify-content-center">
                             <button type="button" class="btn btn-secondary mx-1" data-bs-dismiss="modal">Batal</button>
-                            <button type="button" class="btn btn-success mx-1" wire:click="submitModalConfirm">Setujui</button>
+                            {{-- <button type="button" class="btn btn-success mx-1" wire:click="submitModalConfirm">Setujui</button> --}}
+
+                            <button type="button"
+                                class="btn btn-success mx-1"
+                                wire:click="submitModalConfirm"
+                                wire:loading.attr="disabled"
+                                wire:target="submitModalConfirm">
+                                <span wire:loading wire:target="submitModalConfirm" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                Setujui
+                            </button>
                         </div>
                     </div>
                 </div>

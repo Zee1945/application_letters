@@ -35,7 +35,7 @@
     </li>
  
  
-    <li class="menu-label">
+    {{-- <li class="menu-label">
             Pengaturan 
 
     </li>
@@ -61,7 +61,7 @@
             </div>
             <div class="menu-title">Departemen</div>
         </a>
-    </li>
+    </li> --}}
     {{-- <li>
         <a href="javascript:;" class="has-arrow">
             <div class="parent-icon"><i class='bx bx-lock'></i>

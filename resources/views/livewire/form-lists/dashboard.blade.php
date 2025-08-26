@@ -174,17 +174,17 @@
                                         <div class="d-flex justify-content-center gap-2">
                                             <a href="{{ route('applications.detail', ['application_id' => $application->id]) }}" 
                                                class="btn btn-sm btn-outline-info" title="Detail">
-                                                <i class='bx bx-info-circle'></i>
+                                                <i class='bx bx-info-circle pe-0'></i>
                                             </a>
                                             @if ($application->trans_type == 1)
                                             <a href="{{ route('applications.create.draft', ['application_id' => $application->id]) }}" 
                                                class="btn btn-sm btn-outline-primary" title="Edit">
-                                                <i class='bx bxs-edit'></i>
+                                                <i class='bx bxs-edit pe-0'></i>
                                             </a>
                                             @else
                                             <a href="{{ route('reports.create', ['application_id' => $application->id]) }}" 
                                                class="btn btn-sm btn-outline-primary" title="Edit">
-                                                <i class='bx bxs-edit'></i>
+                                                <i class='bx bxs-edit pe-0'></i>
                                             </a>
                                             @endif
                                             
