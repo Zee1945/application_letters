@@ -172,8 +172,8 @@ class ApplicationCreateDraft extends AbstractComponent
 #[On('update-letter-number')]
     public function updateLetterNumber(){
             
-            // $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
-            $res = true;
+            $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
+            // $res = true;
             if ($res) {
                 $this->dispatch('close-modal-loading-generate-doc');
                 $this->process_document_status = 'success';
