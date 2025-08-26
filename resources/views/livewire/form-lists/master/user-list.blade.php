@@ -19,20 +19,13 @@
                     <input type="text" wire:model="search" class="form-control" placeholder="Cari nama users..." value="{{ $search }}">
                     
                     <!-- Department Filter -->
-                    <select wire:model="department" class="form-control">
+                    <select wire:model="department_selected" class="form-control">
                         <option value="">Pilih Departemen</option>
                         @foreach ($departments as $department)
                             <option value="{{ $department->id }}">{{ $department->name }}</option>
                         @endforeach
                     </select>
                     
-                    <!-- Position Filter -->
-                    <select wire:model="position" class="form-control">
-                        <option value="">Pilih Posisi</option>
-                        @foreach ($positions as $position)
-                            <option value="{{ $position->id }}">{{ $position->name }}</option>
-                        @endforeach
-                    </select>
                     
                     <button type="submit" class="btn btn-primary">Cari</button>
                 </form>

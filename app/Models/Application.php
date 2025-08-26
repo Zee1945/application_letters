@@ -89,7 +89,11 @@ class Application extends AbstractModel
     {
         $user = AuthService::currentAccess();
         return $query->where(function($query)use($user){
-            return $query->where('current_user_approval',$user['id'])->where('approval_status','<',12);
+            $q = $query->where('current_user_approval',$user['id'])->where('approval_status','<',12);
+            if ($user['role'] == 'finance') {
+                $q = $q->where('approval_status','>',0);
+            }
+            return $q;
         })->orWhere(function($query)use ($user){
             if ($user['role'] == 'kabag') {
                 return $query->where('approval_status',11);

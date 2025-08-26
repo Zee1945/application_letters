@@ -14,11 +14,11 @@
                         <div class="card-body p-4">
                             <form class="row g-3" wire:submit.prevent="store">
                                 <div class="col-md-12">
-                                    <label for="activity_name" class="form-label">Nama Kegiatan</label>
+                                    <label for="activity_name" class="form-label fw-bold">Nama Kegiatan</label>
                                     <input type="text" class="form-control" name="activity_name" id="activity_name" wire:model="activity_name" placeholder="Isi nama kegiatan...">
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="input7" class="form-label">Sumber Pendanaan</label>
+                                    <label for="input7" class="form-label fw-bold">Sumber Pendanaan</label>
                                     <select id="input7" class="form-select" wire:model="fund_source">
                                         <option selected>---Pilih sumber pendanaan---</option>
                                         <option value="1">BLU</option>
@@ -26,13 +26,16 @@
                                     </select>
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="verificator" class="form-label col-sm-4">Verifikator/Penandatangan</label>
+                                    <label for="verificator" class="form-label col-sm-4 fw-bold">Verifikator/Penandatangan</label>
                                     <div class="col-sm-8">
+                                        <ol>
                                         @foreach ($user_approvers as $key => $user)
-                                            <div class="">
+                                            <li class="">
                                                 {{$user->name}}
-                                            </div>
+                                            </li>
                                             @endforeach
+                                        </ol>
+
                                     </div>
 
                                 </div>

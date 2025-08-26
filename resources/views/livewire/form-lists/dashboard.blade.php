@@ -13,14 +13,12 @@
             </div>
             <div class="mb-2">
     <select class="form-select form-select-sm" style="min-width:200px; display:inline-block;"
-        wire:change="selected_department">
-        <option value="">Pilih Departemen</option>
+        wire:model="selected_department" wire:change="filterDepartment">
+        <option value="" disabled {{ empty($selected_department) ? 'selected' : '' }}>Pilih Departemen</option>
         @foreach($this->department_list as $dept)
-        <option value="{{ $dept['value'] }}">{{ $dept['label'] }}</option>
             <option value="{{ $dept['value'] }}" {!! $dept['is_selected']?'selected':'' !!}>{{ $dept['label'] }}</option>  
         @endforeach
     </select>
-    {{$selected_department}}
 </div>
         </div>
        
@@ -36,7 +34,7 @@
                         <div>
                             <h6 class="text-white-75 mb-2">Total Pengajuan Departemen</h6>
                             <div class="d-flex">
-                                <h2 class="mb-0 fw-bold">{{ $totalPengajuan ?? 100 }} </h2>
+                                <h2 class="mb-0 fw-bold">{{ $count['total_application'] ?? 0 }} </h2>
                                 <span class="ms-3 d-flex align-self-center">Dokumen</span>
                             </div>
                             
@@ -75,7 +73,7 @@
                             <i class="bx bx-loader-circle text-info" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-info">{{ $sedangDiproses ?? 0 }}</h3>
+                            <h3 class="mb-1 fw-bold text-info">{{ $count['ongoing'] }}</h3>
                             <p class="mb-0 text-muted small">Sedang Diproses</p>
                         </div>
                     </div>
@@ -92,7 +90,7 @@
                             <i class="bx bx-x-circle text-danger" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-danger">{{ $ditolak ?? 0 }}</h3>
+                            <h3 class="mb-1 fw-bold text-danger">{{ $count['rejected'] ?? 0 }}</h3>
                             <p class="mb-0 text-muted small">Ditolak</p>
                         </div>
                     </div>
@@ -109,7 +107,7 @@
                             <i class="bx bx-check-circle text-success" style="font-size: 1.5rem;"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1 fw-bold text-success">{{ $disetujui ?? 0 }}</h3>
+                            <h3 class="mb-1 fw-bold text-success">{{ $count['approved'] ?? 0 }}</h3>
                             <p class="mb-0 text-muted small">Disetujui</p>
                         </div>
                     </div>

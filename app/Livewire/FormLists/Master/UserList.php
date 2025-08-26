@@ -2,6 +2,8 @@
 
 namespace App\Livewire\FormLists\Master;
 
+use App\Models\Department;
+use App\Models\Position;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -11,6 +13,7 @@ class UserList extends Component
     use WithPagination;
 
     public $search = '';
+    public $department = 0;
 
     protected $updatesQueryString = ['search', 'page'];
 
@@ -22,7 +25,6 @@ class UserList extends Component
     public function render()
     {
        $departments = Department::all();
-        $positions = Position::all();
 
         // Query users based on filters
         $users = User::query()
@@ -32,12 +34,10 @@ class UserList extends Component
             ->when($this->department, function ($query) {
                 return $query->where('department_id', $this->department);
             })
-            ->when($this->position, function ($query) {
-                return $query->where('position_id', $this->position);
-            })
             ->paginate(10);
 
         return view('livewire.form-lists.master.user-list', [
+            'departments' => $departments,
             'users' => $users,
         ])->extends('layouts.main');
     }

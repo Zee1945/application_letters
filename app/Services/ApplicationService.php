@@ -29,6 +29,55 @@ class ApplicationService
 
 
 
+    public static function getList($department_id)
+    {
+        $apps = new Application();
+
+        if ($department_id !== 0) {
+            $apps = $apps->where('department_id',$department_id);
+        }else{
+            $list_department = MasterManagementService::getDepartmentList();
+            $list_department_ids = array_filter($list_department,function($item){
+                return $item['value'] !==0;
+            });
+
+            $list_department_ids =array_map(function($item){
+                return $item['value'];
+            },$list_department_ids);
+
+            $apps = $apps->whereIn('department_id',$list_department_ids);
+        }
+
+        return $apps;
+    }
+
+
+    public static function getDashboardInformation($department_id)
+    {
+        $data = [
+            'total_application'=>0,
+            'rejected'=>0,
+            'ongoing'=>0,
+            'need_my_process'=>0,
+            'approved'=>0,
+        ];
+       $data['total_application'] = self::getList($department_id)->get()->count();
+       $data['rejected'] = self::getList($department_id)->where('approval_status','>',20)->orWhereHas('report',function($q){
+            return $q->where('approval_status','>',20);
+        })->get()->count()??0;
+
+       $data['ongoing'] = self::getList($department_id)->where('approval_status','<',12)->orWhereHas('report',function($q){
+            return $q->where('approval_status','<',11);
+        })->get()->count()??0;
+
+
+       $data['approved'] = self::getList($department_id)->whereHas('report', function($q) {
+                $q->where('approval_status', '>', 10)
+                ->where('approval_status', '<', 20);
+            })->get()->count();
+        return $data;
+        
+    }
     public static function storeApplications($data)
     {
 

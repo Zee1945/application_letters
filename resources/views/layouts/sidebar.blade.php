@@ -33,6 +33,35 @@
         </a>
 
     </li>
+ 
+ 
+    <li class="menu-label">
+            Pengaturan 
+
+    </li>
+       <li>
+        <a href="{{route('users.index')}}" >
+            <div class="parent-icon"><i class="bx bx-category"></i>
+            </div>
+            <div class="menu-title">Pengguna</div>
+        </a>
+
+    </li>
+       <li>
+        <a href="{{route('positions.index')}}" >
+            <div class="parent-icon"><i class="bx bx-category"></i>
+            </div>
+            <div class="menu-title">Jabatan</div>
+        </a>
+
+    </li>
+       <li>
+        <a href="{{route('users.index')}}" >
+            <div class="parent-icon"><i class="bx bx-category"></i>
+            </div>
+            <div class="menu-title">Departemen</div>
+        </a>
+    </li>
     {{-- <li>
         <a href="javascript:;" class="has-arrow">
             <div class="parent-icon"><i class='bx bx-lock'></i>
