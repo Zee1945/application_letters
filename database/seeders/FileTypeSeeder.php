@@ -22,7 +22,7 @@ class FileTypeSeeder extends Seeder
             ['name' => 'TOR', 'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Draft TOR', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'SK', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-            ['name' => 'Surat Undangan Peserta & Panitia', 'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Surat Undangan Peserta dan Panitia', 'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Jadwal Kegiatan', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Laporan Kegiatan', 'trans_type' => 2, 'signed_role_id' => $user_id],
             ['name' => 'Surat Permohonan Narasumber', 'trans_type' => 1, 'signed_role_id' => $dean_id],
