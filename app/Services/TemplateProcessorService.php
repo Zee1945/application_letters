@@ -98,7 +98,7 @@ class TemplateProcessorService
             case 'surat_tugas_peserta':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'participant');
                 break;
-            case 'surat_undangan_peserta':
+            case 'surat_undangan_peserta_dan_panitia':
                 self::generateSuratUndangan($application, $templatePath, $directory_temp, $file_type);
                 break;
             case 'surat_permohonan_narasumber':
