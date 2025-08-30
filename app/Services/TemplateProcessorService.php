@@ -568,6 +568,7 @@ class TemplateProcessorService
         $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
         $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
