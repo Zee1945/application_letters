@@ -30,7 +30,10 @@
                                     <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                         <i class='bx bx-info-circle'></i> Detail
                                     </a>
-                                @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
+                         
+                            </div>
+                                   @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
+                                   <div class="btn-group mt-2 w-100" role="group">
                                     <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
                                         <i class="fa-solid fa-times me-1"></i>Reject
                                     </button>
@@ -40,8 +43,8 @@
                                     <button class="btn btn-success btn-sm" wire:click="openModalConfirm('approve-report')">
                                         <i class="fa-solid fa-check me-1"></i>Approve
                                     </button>
+                                   </div>
                                 @endif
-                            </div>
                         </div>
                     </div>
                     <hr />
