@@ -17,11 +17,12 @@ class PositionSeeder extends Seeder
             ['name'=>'Super Admin','role'=> 'super_admin'],
             ['name'=>'Dekan','role'=>'dekan'],
             ['name' => 'Kabag Umum','role'=>'kabag'],
-            ['name' => 'Staff Admin Aplikasi','role'=>'admin'],
             ['name' => 'Kabag Keuangan','role'=>'finance'],
             ['name' =>'Mahasiswa','role'=>'user'],
             ['name' => 'Dosen', 'role' => 'user'],
             ['name' => 'Staff umum', 'role' => 'user'],
+            ['name' => 'Admin Departemen', 'role' => 'admin'],
+            ['name' => 'Admin Super', 'role' => 'super_admin'],
         ];
         foreach ($activePositions as $pos) {
             if (!Position::where('name', $pos['name'])->exists()) {

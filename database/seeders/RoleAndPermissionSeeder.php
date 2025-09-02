@@ -15,8 +15,12 @@ class RoleAndPermissionSeeder extends Seeder
      */
 
      public $resources = [
-        'application-letter',
-        'approval',
+        'application',
+        'report',
+        'user',
+        'position',
+        'department',
+        'dashboard',
      ];
 
      public $permissions = [
@@ -48,6 +52,36 @@ class RoleAndPermissionSeeder extends Seeder
             }
         }
 
+        $executor_application = [
+                 'read_dashboard',
+                 'read_application','update_application',
+                 'read_report','update_report',
+        ];
+        $user = [
+                 'read_dashboard',
+                 'create_application','read_application','update_application','delete_application',
+                 'create_report','update_report',
+                 'read_report','delete_report',
+        ];
+        $monitor = [
+                'read_dashboard',
+                 'read_application',
+                 'read_report',
+                 'read_user',
+                 'read_position',
+                 'read_department',
+        ];
+
+        $admin_permission = [
+                             'read_dashboard',
+                             'create_application','read_application','update_application','delete_application',
+                             'create_report','update_report',
+                             'read_report','delete_report',
+                             'create_user','read_user','update_user','delete_user',
+                             'create_position','read_position','update_position','delete_position',
+                             'create_department','read_department','update_department','delete_department',
+                            ];
+        
         // Membuat role
         foreach ($this->roles as $key => $value) {
             if (!Role::where('name', $value)->exists()) {
@@ -57,19 +91,22 @@ class RoleAndPermissionSeeder extends Seeder
                         $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
                         break;
                     case 'admin':
-                        $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
+                        $role->givePermissionTo($admin_permission);
                         break;
                     case 'dekan':
-                        $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
+                        $role->givePermissionTo($executor_application);
                         break;
                     case 'kabag':
-                        $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
+                        $role->givePermissionTo($executor_application);
                         break;
                     case 'finance':
-                        $role->givePermissionTo(Permission::all()->pluck('name')->toArray());
+                        $role->givePermissionTo($executor_application);
                         break;
                     case 'user':
-                        $role->givePermissionTo(['read_application-letter', 'create_application-letter']);
+                        $role->givePermissionTo($user);
+                        break;
+                    case 'monitor':
+                        $role->givePermissionTo($monitor);
                         break;
                 }
             }

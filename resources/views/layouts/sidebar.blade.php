@@ -10,6 +10,7 @@
  </div>
 <!--navigation-->
 <ul class="metismenu" id="menu">
+    @if(ViewHelper::canDo('read_dashboard'))
     <li>
         <a href="{{route('dashboard')}}" class="">
             <div class="parent-icon"><i class='bx bx-home-alt'></i>
@@ -17,51 +18,76 @@
             <div class="menu-title">Dashboard</div>
         </a>
     </li>
+    @endif
+    @if(ViewHelper::canDo('read_application'))
+
     <li>
         <a href="{{route('applications.index')}}" >
-            <div class="parent-icon"><i class="bx bx-category"></i>
+            <div class="parent-icon">
+                <i class='bx bx-envelope'></i> 
             </div>
             <div class="menu-title">Pengajuan Surat</div>
         </a>
 
     </li>
+    @endif
+    @if(ViewHelper::canDo('read_report'))
+
     <li>
         <a href="{{route('report.index')}}" >
-            <div class="parent-icon"><i class="bx bx-category"></i>
+            <div class="parent-icon">
+                {{-- <i class='bx bx-envelope'></i>  --}}
+                <i class='bx bx-book'></i> 
+
             </div>
             <div class="menu-title">Laporan Kegiatan</div>
         </a>
 
     </li>
+    @endif
  
- 
-    {{-- <li class="menu-label">
+    @if (ViewHelper::canDo('read_user')||ViewHelper::canDo('read_position')||ViewHelper::canDo('read_department'))   
+    <li class="menu-label">
             Pengaturan 
-
     </li>
+    @endif
+
+    @if(ViewHelper::canDo('read_user'))
+
        <li>
         <a href="{{route('users.index')}}" >
-            <div class="parent-icon"><i class="bx bx-category"></i>
+            <div class="parent-icon">
+                <i class='bx  bx-user'></i> 
             </div>
             <div class="menu-title">Pengguna</div>
         </a>
 
     </li>
+    @endif
+    @if(ViewHelper::canDo('read_position'))
        <li>
         <a href="{{route('positions.index')}}" >
-            <div class="parent-icon"><i class="bx bx-category"></i>
+            <div class="parent-icon">
+                <i class='bx  bx-briefcase-alt-2'></i> 
             </div>
             <div class="menu-title">Jabatan</div>
         </a>
 
     </li>
+    @endif
+
+    @if(ViewHelper::canDo('read_department'))
        <li>
-        <a href="{{route('users.index')}}" >
-            <div class="parent-icon"><i class="bx bx-category"></i>
+        <a href="{{route('departments.index')}}" >
+            <div class="parent-icon">
+                <i class='bx bx-buildings'></i> 
             </div>
             <div class="menu-title">Departemen</div>
         </a>
-    </li> --}}
+    </li>
+    @endif
+
+
     {{-- <li>
         <a href="javascript:;" class="has-arrow">
             <div class="parent-icon"><i class='bx bx-lock'></i>

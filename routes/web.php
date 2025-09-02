@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Master\DepartmentsController;
 use App\Http\Controllers\Master\PositionsController;
 use App\Http\Controllers\Master\UsersController;
 use App\Http\Controllers\Trans\ApplicationController;
@@ -8,11 +9,13 @@ use App\Livewire\FormLists\Applications\ApplicationCreateDraft;
 use App\Livewire\FormLists\Applications\ApplicationDetail;
 use App\Livewire\FormLists\Applications\ApplicationList;
 use App\Livewire\FormLists\Dashboard;
+use App\Livewire\FormLists\Master\DepartmentList;
 use App\Livewire\FormLists\Master\PosiitionList;
 use App\Livewire\FormLists\Master\PositionList;
 use App\Livewire\FormLists\Master\UserList;
 use App\Livewire\FormLists\Reports\ReportCreate;
 use App\Livewire\FormLists\Reports\ReportList;
+use App\Models\Department;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Route;
 
@@ -49,12 +52,18 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
         });
 
         Route::group(['prefix' => 'master'], function () {
-            // Livewire Master 
-            Route::get('users', UserList::class)->name('users.index');
-            Route::get('positions', PositionList::class)->name('positions.index');
-            
-            Route::resource('users', UsersController::class)->except(['index']);
-            Route::resource('positions', PositionsController::class)->except(['index']);
+            Route::group(['middleware' => ['permissionRole:read_user']], function () {
+                Route::get('users', UserList::class)->name('users.index');
+                Route::resource('users', UsersController::class)->except(['index']);
+            });
+            Route::group(['middleware' => ['permissionRole:read_position']], function () {
+                Route::get('positions', PositionList::class)->name('positions.index');
+                Route::resource('positions', PositionsController::class)->except(['index']);
+            });
+            Route::group(['middleware' => ['permissionRole:read_department']], function () {
+                Route::get('departments', DepartmentList::class)->name('departments.index');
+                Route::resource('departments', DepartmentsController::class)->except(['index']);
+            });
 
         });
         Route::get('logout', function () {

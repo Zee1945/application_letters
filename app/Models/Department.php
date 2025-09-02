@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\AuthService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -36,4 +37,8 @@ class Department extends Model
     public function children(){
         return $this->hasMany(Department::class,'parent_id');
     }
+    // public function scopeListOptions($query){
+    //     $current_department = AuthService::currentAccess()['']
+    //     return $query->
+    // }
 }

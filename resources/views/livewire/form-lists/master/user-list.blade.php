@@ -29,7 +29,7 @@
                     
                     <button type="submit" class="btn btn-primary">Cari</button>
                 </form>
-                <a href="{{ route('users.create') }}" class="btn btn-success">+ Tambah User</a>
+                <a href="{{ route('users.create') }}" class="btn btn-success">+ Tambah</a>
             </div>
 
             <div class="table-responsive">

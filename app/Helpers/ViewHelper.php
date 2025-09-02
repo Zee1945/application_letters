@@ -274,6 +274,16 @@ public static function humanReadableDate($date_time)
         }
     }
 
+    public static function canDo($permission)
+{
+    $user = auth()->user();
+    // Jika permission ada di posisi user
+    if ($user && $user->position && $user->position->hasPermissionTo($permission)) {
+        return true;
+    }
+    return false;
+}
+
 
 
 

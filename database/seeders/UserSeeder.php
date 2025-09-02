@@ -22,23 +22,13 @@ class UserSeeder extends Seeder
                 'email' => 'admin@gmail.com',
                 'password' => Hash::make('admin123'),
                 'position' => 'Super Admin',
-                'role' => 'super_admin',
                 'department_id' => null,
-            ],
-            [
-                'name' => 'Bapak Admin Saintek',
-                'email' => 'adminsaintek@gmail.com',
-                'password' => Hash::make('admin123'),
-                'position' => 'Staff Admin Aplikasi',
-                'role' => 'admin',
-                'department_id' => 2,
             ],
             [
                 'name' => 'Ibu Anggota Lp2m Rektorat',
                 'email' => 'lp2m@gmail.com',
                 'password' => Hash::make('admin123'),
                 'position' => 'Staff umum',
-                'role' => 'user',
                 'department_id' => 1,
             ],
             [
@@ -46,7 +36,6 @@ class UserSeeder extends Seeder
                 'email' => 'kabagsaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'position' => 'Kabag Umum',
-                'role' => 'kabag',
                 'department_id' => 2,
             ],
             [
@@ -54,7 +43,6 @@ class UserSeeder extends Seeder
                 'email' => 'dekansaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'position' => 'Dekan',
-                'role' => 'dekan',
                 'department_id' => 2,
             ],
             [
@@ -62,7 +50,6 @@ class UserSeeder extends Seeder
                 'email' => 'bendaharasaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
-                'role' => 'finance',
                 'position' => 'Kabag Keuangan',
 
             ],
@@ -71,7 +58,6 @@ class UserSeeder extends Seeder
                 'email' => 'ketupelsaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
-                'role' => 'user',
                 'position' => 'Dosen'
             ],
             [
@@ -79,7 +65,6 @@ class UserSeeder extends Seeder
                 'email' => 'ketupel@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 2,
-                'role' => 'user',
                 'position' => 'Mahasiswa'
             ],
             [
@@ -87,15 +72,34 @@ class UserSeeder extends Seeder
                 'email' => 'ketupelti@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => 5,
-                'role' => 'user',
                 'position' => 'Dosen'
+            ],
+            [
+                'name' => 'Admin Zul',
+                'email' => 'adminzul@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => null,
+                'position' => 'Admin Super'
+            ],
+            [
+                'name' => 'Admin Departemen F. Saintek ',
+                'email' => 'adminsaintek@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => 2,
+                'position' => 'Admin Departemen'
+            ],
+            [
+                'name' => 'Admin Departemen J. TIF ',
+                'email' => 'adminti@gmail.com',
+                'password' => Hash::make('admin123'),
+                'department_id' => 5,
+                'position' => 'Admin Departemen'
             ],
             ];
 
         foreach ($users as $user) {
             if (!User::where('email', $user['email'])->exists()) {
                 $pos = Position::where('name',$user['position'])->first();
-                $role = $user['role'];
                 unset($user['position']);
                 unset($user['role']);
                 $user['position_id'] = $pos->id;

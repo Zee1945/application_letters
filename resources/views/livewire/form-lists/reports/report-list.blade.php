@@ -27,6 +27,7 @@
                             <th>Kegiatan</th>
                             <th>Status LPJ</th>
                             <th>Pemroses Saat ini</th>
+                            <th>Departemen</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -39,6 +40,7 @@
                             <td>{{ $application->activity_name }}</td>
                             <td>{!! viewHelper::statusReportHTML($application->report?->approval_status) !!}</td>
                             <td>{!! viewHelper::getCurrentUserProcess($application,true) !!}</td>
+                            <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">
                                     <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class='bx bx-info-circle'></i></a>

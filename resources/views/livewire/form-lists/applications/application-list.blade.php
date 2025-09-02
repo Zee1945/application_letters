@@ -32,9 +32,11 @@
                 </div>
                 <!-- New Application Button -->
                 <div class="ms-auto">
-                    <a href="{{ route('applications.create') }}" class="btn btn-primary radius-30 mt-2 mt-lg-0 {{viewHelper::actionPermissionButton('create-new-application')? '':'disabled'}}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{viewHelper::actionPermissionButton('create-new-application')? 'Buat pengajuan proposal baru':'Lakukan submit LPJ sebelum melakukan pengajuan baru'}}">
-                        <i class="bx bxs-plus-square"></i> Pengajuan Baru
-                    </a>
+                    @if (viewHelper::canDo('create_application'))
+                        <a href="{{ route('applications.create') }}" class="btn btn-primary radius-30 mt-2 mt-lg-0 {{viewHelper::actionPermissionButton('create-new-application')? '':'disabled'}}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{viewHelper::actionPermissionButton('create-new-application')? 'Buat pengajuan proposal baru':'Lakukan submit LPJ sebelum melakukan pengajuan baru'}}">
+                            <i class="bx bxs-plus-square"></i> Pengajuan Baru
+                        </a>
+                    @endif
                 </div>
             </div>
 

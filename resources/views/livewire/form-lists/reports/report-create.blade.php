@@ -219,7 +219,24 @@
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button>
+                                {{-- <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button> --}}
+
+                             {{-- <button type="button"
+                                    class="btn btn-primary px-4 border-none bg-warning me-2"
+                                    wire:click="store"
+                                    wire:loading.attr="disabled"
+                                    wire:target="store">
+                                    <span wire:loading wire:target="store(true)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Submit LPJ
+                            </button> --}}
+                             <button type="button"
+                                    class="btn btn-primary px-4 border-none bg-success me-2"
+                                    wire:click="store(true)"
+                                    wire:loading.attr="disabled"
+                                    wire:target="store(true)">
+                                    <span wire:loading wire:target="store(true)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Submit LPJ
+                            </button>
                             @endif
                         </div>
                     </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\User;
 use App\Models\Position;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,12 @@ class UsersController extends Controller
      */
     public function create()
     {
+        
         $positions = Position::all(); // Fetch all positions
-        $department = Department::all(); // Fetch all positions
+        $department =Department::all();
+        // if (AuthService::currentAccess()) {
+        //     # code...
+        // }
         return view('master.users.create', compact('positions','department')); // return the form view with the positions
     }
 
@@ -37,6 +42,7 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+     
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
@@ -44,8 +50,7 @@ class UsersController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'nullable|exists:departments,id',
-            'role' => 'required|string'
-        ]);
+        ]); 
 
         // Create a new user
         $user = new User();
@@ -56,8 +61,7 @@ class UsersController extends Controller
         $user->department_id = $request->department_id;
         $user->save();
 
-
-        return redirect()->route('master.users.index')->with('success', 'User created successfully');
+        return redirect()->route('users.index')->with('success', 'User created successfully');
     }
 
     /**
