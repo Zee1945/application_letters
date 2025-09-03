@@ -16,7 +16,7 @@
                                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" data-bs-toggle="dropdown"><span class="alert-count">7</span>
                                             <i class='bx bx-bell'></i>
                                         </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
+                                        {{-- <div class="dropdown-menu dropdown-menu-end">
                                             <a href="javascript:;">
                                                 <div class="msg-header">
                                                     <p class="msg-header-title">Notifications</p>
@@ -66,7 +66,7 @@
                                                     <button class="btn btn-primary w-100">View All Notifications</button>
                                                 </div>
                                             </a>
-                                        </div>
+                                        </div> --}}
                                     </li>
                                 </ul>
                             </div>
