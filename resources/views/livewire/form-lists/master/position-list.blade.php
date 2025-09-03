@@ -17,7 +17,7 @@
             <!-- Search Section -->
             <div class="d-flex gap-2 mb-4">
                 <form method="GET" action="#" class="d-flex flex-grow-1 gap-2">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama users..." value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama Jabatan..." value="{{ request('search') }}">
                     <button type="submit" class="btn btn-primary">Cari</button>
                 </form>
                 <a href="{{ route('positions.create') }}" class="btn btn-success">+ Tambah</a>

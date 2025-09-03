@@ -12,9 +12,9 @@ class PositionList extends Component
       public $search = '';
     public function render()
     {
-        $positions = Position::with(['department'])
-            ->when($this->search, function($query) {
-                $query->where('name', 'like', '%'.$this->search.'%');
+        $positions = Position::
+            when($this->search, function($query) {
+                $query->where('name', 'like', '%'.$this->search);
             })
             ->paginate(10);
         return view('livewire.form-lists.master.position-list',compact('positions'))
