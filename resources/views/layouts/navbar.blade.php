@@ -12,11 +12,11 @@
                                         <a class="nav-link" href="avascript:;"><i class='bx bx-search'></i>
                                         </a>
                                     </li>
-                                    <li class="nav-item dropdown dropdown-large">
+                                    {{-- <li class="nav-item dropdown dropdown-large">
                                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" data-bs-toggle="dropdown"><span class="alert-count">7</span>
                                             <i class='bx bx-bell'></i>
                                         </a>
-                                        {{-- <div class="dropdown-menu dropdown-menu-end">
+                                        <div class="dropdown-menu dropdown-menu-end">
                                             <a href="javascript:;">
                                                 <div class="msg-header">
                                                     <p class="msg-header-title">Notifications</p>
@@ -66,8 +66,8 @@
                                                     <button class="btn btn-primary w-100">View All Notifications</button>
                                                 </div>
                                             </a>
-                                        </div> --}}
-                                    </li>
+                                        </div>
+                                    </li> --}}
                                 </ul>
                             </div>
                             <div class="user-box dropdown px-3">
