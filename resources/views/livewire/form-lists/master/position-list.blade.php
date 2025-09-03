@@ -29,6 +29,8 @@
                         <tr>
                             <th>No</th>
                             <th>Nama</th>
+                            <th>Role</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,6 +38,9 @@
                         <tr>
                             <td>{{ $positions->firstItem() + $key }}</td>
                             <td>{{ $pos->name }}</td>
+                            <td>
+                                {{ $pos->roles->pluck('name')->implode(', ') }}
+                            </td>
                             <td class="text-end">
                                 <a href="{{ route('positions.show', $pos->id) }}" class="btn btn-info btn-sm">Detail</a>
                                 <a href="{{ route('positions.edit', $pos->id) }}" class="btn btn-warning btn-sm">Edit</a>

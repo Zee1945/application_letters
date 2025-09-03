@@ -17,7 +17,7 @@
             <!-- Search Section -->
             <div class="d-flex gap-2 mb-4">
                 <form method="GET" action="#" class="d-flex flex-grow-1 gap-2">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama users..." value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama departemen..." value="{{ request('search') }}">
                     <button type="submit" class="btn btn-primary">Cari</button>
                 </form>
                 <a href="{{ route('departments.create') }}" class="btn btn-success">+ Tambah</a>
@@ -27,15 +27,17 @@
                 <table class="table mb-0 table-striped">
                     <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th class="text-center">No</th>
                             <th>Nama</th>
+                            <th class="text-center">Kuota Pengajuan</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($departments as $key => $dep)
                         <tr>
-                            <td>{{ $departments->firstItem() + $key }}</td>
+                            <td class="text-center">{{ $departments->firstItem() + $key }}</td>
                             <td>{{ $dep->name }}</td>
+                            <td class="text-center">{{ $dep->limit_submission }}</td>
                             <td class="text-end">
                                 <a href="{{ route('departments.show', $dep->id) }}" class="btn btn-info btn-sm">Detail</a>
                                 <a href="{{ route('departments.edit', $dep->id) }}" class="btn btn-warning btn-sm">Edit</a>

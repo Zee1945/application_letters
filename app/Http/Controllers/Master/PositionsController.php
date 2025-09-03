@@ -22,8 +22,8 @@ class PositionsController extends Controller
      */
     public function create()
     {
-        $role = Role::all(); // Fetch all positions
-        return view('master.positions.create', compact('role')); // return the form view with the positions
+        $roles = Role::all(); // Fetch all positions
+        return view('master.positions.create', compact('roles')); // return the form view with the positions
     }
 
     /**
@@ -43,8 +43,11 @@ class PositionsController extends Controller
         $position->name = $request->name;
         $position->save();
                // Assign the role
-        $role = Role::findByName($request->role);
-        $position->assignRole($role);
+      
+        $position->assignRole($request->role);
+         return redirect()->route('positions.index')->with('success', 'Jabatan berhasil diupdate.');
+
+
     }
 
     /**
@@ -52,7 +55,9 @@ class PositionsController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $position = Position::find($id);
+        return view('master.positions.show', compact('position'));
+        
     }
 
     /**
@@ -60,7 +65,10 @@ class PositionsController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $position = Position::findOrFail($id);
+        $roles = Role::all();
+        return view('master.positions.edit', compact('position', 'roles'));
+
     }
 
     /**
@@ -68,14 +76,27 @@ class PositionsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'role' => 'required|string'
+        ]);
+
+        $position = Position::findOrFail($id);
+        $position->name = $request->name;
+        $position->save();
+
+        // Sync role
+        $position->syncRoles([$request->role]);
+
+        return redirect()->route('positions.index')->with('success', 'Jabatan berhasil diupdate.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
+        $position = Position::findOrFail($id);
+        $position->delete();
+
+        return redirect()->route('positions.index')->with('success', 'Jabatan berhasil dihapus.');
+
     }
 }
