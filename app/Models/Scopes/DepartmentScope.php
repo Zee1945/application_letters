@@ -26,7 +26,7 @@ public function apply(Builder $builder, Model $model): void
         }
 
         $userRoles = $user->position->getRoleNames()->toArray();
-        $isFinanceOrDekan = array_intersect(['finance', 'dekan','kabag'], $userRoles);
+        $isFinanceOrDekan = array_intersect(['finance', 'dekan','kabag','admin','super_admin','monitor'], $userRoles);
         
         if ($this->hasColumn($model, 'department_id')) {
             $tableName = $model->getTable();
