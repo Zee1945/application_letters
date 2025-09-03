@@ -30,6 +30,7 @@
                             <th class="text-center">No</th>
                             <th>Nama</th>
                             <th class="text-center">Kuota Pengajuan</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
