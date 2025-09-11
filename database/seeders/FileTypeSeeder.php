@@ -35,6 +35,8 @@ class FileTypeSeeder extends Seeder
             ['name' => 'Daftar Kehadiran Moderator', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Daftar Kehadiran Panitia', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Daftar Kehadiran Peserta', 'trans_type' => 1, 'signed_role_id' => $user_id],
+            ['name' => 'Notulensi', 'trans_type' => 2, 'signed_role_id' => $user_id],
+            ['name' => 'File SPJ', 'trans_type' => 2, 'signed_role_id' => $user_id],
         ];
 
         // $parent_ids = [];

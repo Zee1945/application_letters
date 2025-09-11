@@ -13,7 +13,7 @@ abstract class AbstractComponent extends Component
     use WithFileUploads;
 
     #[Url(except: '')]
-    public $step = 2;
+    public $step = 1;
 
     public $process_document_status = 0;
 

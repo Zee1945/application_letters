@@ -151,8 +151,6 @@ class ApplicationCreateDraft extends AbstractComponent
     {
         $this->rundowns = $rundowns;
 
-        Log::info('Ini data yang ditransfer dari komponen table-rundown => ',$this->rundowns);
-        // dd($this->rundowns);
     }
 
     public function submitModalConfirm(){

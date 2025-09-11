@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 
 class ApplicationService
@@ -237,6 +238,7 @@ class ApplicationService
 
                             $app_file = $app->applicationFiles()->findCode('laporan_kegiatan')->first();
                             TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan',$app_file);
+                            self::storeSpjToAppFiles($app);
                             // self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
@@ -320,6 +322,56 @@ class ApplicationService
     }
 
 
+    public static function storeSpjToAppFiles($app)
+    {
+        $spj = $app->report->attachments()->where('type','spj-file')->first();
+        if ($spj) {
+            $app_files = $app->applicationFiles()->whereHas('fileType',function($q){
+                $q->where('code','file-spj');
+            })->first();
+
+            $app_files->status_ready = 3;
+            $app_files->file_id = $spj->file_id;
+            $app_files->save();
+
+
+
+
+            $file = $app_files->file()->first();
+            $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
+            $fileContent = Storage::disk('minio')->get($oldPath);
+
+            // Tentukan ekstensi dari mimetype
+            $extension = match ($file->mimetype) {
+                'application/pdf' => 'pdf',
+                'image/png' => 'png',
+                'image/jpeg' => 'jpg',
+                default => 'dat',
+            };
+
+            // Path baru, tetap di folder yang sama, hanya nama file diganti
+            $newFileName = $app_files->display_name.'-'.$app->activity_name.'-'.$app->id.'.' . $extension;
+            $newPath = dirname($oldPath) . '/' . $newFileName; // hasil: 2025-9/2/report/spj-file/nama_baru.png
+
+            // Simpan file ke path baru
+            Storage::disk('minio')->put($newPath, $fileContent);
+
+            // Hapus file lama
+            Storage::disk('minio')->delete($oldPath);
+
+            // Update path di database
+            $file->filename = $newFileName;
+            $file->path = dirname($oldPath);
+            $file->save();
+
+          
+          
+
+            return ['status'=>true,'message'=>'file spj berhasil ditambahkan'];
+        }
+        return ['status'=>false,'message'=>'file spj tidak ditemukan'];
+
+    }
     public static function storeSuratPermohonanFiles($app)
     {
         $surat_permohonan = FileType::whereIn('code',['surat_permohonan_narasumber','surat_permohonan_moderator'])->get();
@@ -397,7 +449,7 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data,$realization=[],$speakers_info=[],$is_submit=false)
+    public static function storeReport($data,$realization=[],$speakers_info=[],$minutes=[],$is_submit=false)
     {
         try {
             DB::beginTransaction();
@@ -407,26 +459,25 @@ class ApplicationService
 
 
             // store file ke minio dan tambah ke table files
-            $temp=[];
             foreach ($speakers_info as $key => $spk) {
-
-                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id'];
+                
+                $participant= ApplicationParticipant::find($spk['participant_id']);
+                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id','material'];
                     foreach ($columns as $col) {
                         if ($spk[$col]) {
-                            $new_dir = str_replace('temp/report/', '', $spk[$col]);
-                            $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
-                            $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
-
-                            //  $temp[$spk['participant_id']][] = [$col=>$files,''];
-
-                        $participant= ApplicationParticipant::find($spk['participant_id']);
-                            $participant->$col = $files['data']->id;
-
+                            if ($col !=='material') {
+                                $new_dir = str_replace('temp/report/', '', $spk[$col]);
+                                $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
+                                $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
+                               if ($files['status']) {
+                                   $participant->$col = $files['data']?->id;
+                               }
+                            }else{
+                                  $participant->$col = $spk[$col];
+                            }
                             $participant->save();
-                            $temp[]=$participant;
                         }
                     }
-
             }
             // dd($reports,$temp,$realization);
             // store file id ke tabel draft_cost_application
@@ -446,7 +497,36 @@ class ApplicationService
                  }
 
             }
+            foreach ($minutes as $key => $value) {
+                    $app->minutes()->updateOrCreate(['topic'=>$value['topic']],$value);
+            }
 
+
+            foreach ($data['attachments']??[] as $att_type) {
+            //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
+                if (Storage::disk('minio')->exists($att_type['file_path'])) {
+
+                    $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
+    
+                    foreach ($get_dir_files as $dir_file) {
+                        $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
+                        $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
+                        $file = FileManagementService::storeFiles($get_file_storage,$app,'report', $dir_file);
+                        if ($file['status']) {
+                            $arr = [
+                                'file_id'=>$file['data']->id,
+                                'reference_id'=>null,
+                                'application_report_id'=>$att_type['application_report_id'],
+                                'type'=>$att_type['type']
+                            ];
+                            $app->report->attachments()->create($arr);
+                        }
+                       
+                    }
+            }
+
+                # code...
+            }
 
             // foreach ($speakers_info as $key => $value) {
             //     $new_dir = str_replace('temp/report/', '', $path);
@@ -462,7 +542,6 @@ class ApplicationService
             // if (!$reports) {
             //         return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
             //     }
-
             if ($is_submit) {
                 self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             }
@@ -482,7 +561,7 @@ class ApplicationService
             'letter_name'=>'mak',
             'letter_label'=>'MAK',
             'type_field'=>'text',
-                'is_with_date' => 0,
+                'is_with_date' => 1,
                 'letter_number'=>null,
         ],
             [

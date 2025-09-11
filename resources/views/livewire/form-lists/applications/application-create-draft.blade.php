@@ -430,18 +430,39 @@
 
             <div class="row g-3">
                 <div class="col-12">
-                   @forelse ($this->letter_numbers as $key => $item)
-                   <div class="mb-3">
-                    <label for="{{$item['letter_name']}}" class="form-label fw-bold">{{$item['letter_label']}}</label>
-                    <div class="d-flex justify-content-between">
-                        <input type="{{$item['type_field']}}" wire:model="letter_numbers.{{$key}}.letter_number" class="form-control w-50 me-2" name="{{$item['letter_name']}}"  id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
-                        @if ($item['is_with_date'])
-                        <input type="date" wire:model="letter_numbers.{{$key}}.letter_date" class="form-control w-50 ms-2" name="{{$item['letter_name']}}_date"  id="{{$item['letter_name']}}_date" {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
-                        @endif
-                    </div>
-                  </div>
-                    @empty
-                   @endforelse
+           {{-- filepath: c:\laragon\www\application_letters\resources\views\livewire\form-lists\applications\application-create-draft.blade.php --}}
+@forelse ($this->letter_numbers as $key => $item)
+    <div class="mb-3">
+       
+        <div class="row g-2 align-items-center">
+            <div class="col-md-6 col-12">
+                 <label for="{{$item['letter_name']}}" class="form-label fw-bold">
+            {{ $item['letter_label'] }}
+        </label>
+                <input type="{{$item['type_field']}}"
+                    wire:model="letter_numbers.{{$key}}.letter_number"
+                    class="form-control"
+                    name="{{$item['letter_name']}}"
+                    id="{{$item['letter_name']}}"
+                    {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+            </div>
+            @if ($item['is_with_date'])
+                <div class="col-md-6 col-12">
+                    <label for="{{$item['letter_name']}}_date" class="form-label fw-bold mb-1">
+                        Tanggal {{ $item['letter_label'] }}
+                    </label>
+                    <input type="date"
+                        wire:model="letter_numbers.{{$key}}.letter_date"
+                        class="form-control"
+                        name="{{$item['letter_name']}}_date"
+                        id="{{$item['letter_name']}}_date"
+                        {!! viewHelper::handleFieldDisabled($this->application,true) !!}>
+                </div>
+            @endif
+        </div>
+    </div>
+@empty
+@endforelse
                 </div>
 
                 <div class="col-12">

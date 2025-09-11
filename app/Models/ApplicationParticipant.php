@@ -20,6 +20,7 @@ class ApplicationParticipant extends Model
         'institution',
         'nip',
         'rank',
+        'material',
         'functional_position',
         'commitee_position_id',
         'participant_type_id',

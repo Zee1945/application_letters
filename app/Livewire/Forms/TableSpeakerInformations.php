@@ -24,13 +24,14 @@ class TableSpeakerInformations extends Component
     {
         $this->application = $application;
         $this->filterSpeakers($participants);
-        $this->rows = array_fill(0, count($this->speakers), ['participant_id' => null, 'cv_file_id' => null, 'idcard_file_id' => null, 'npwp_file_id' => null]);
+        $this->rows = array_fill(0, count($this->speakers), ['participant_id' => null, 'cv_file_id' => null, 'idcard_file_id' => null, 'npwp_file_id' => null,'material'=>null]);
         $speakers = $this->speakers->values();
         $this->rows = array_map(function ($item, $index) use ($speakers) {
             $item['participant_id'] = $speakers[$index]['id'];  // Pastikan index valid di $speakers
             $item['cv_file_id'] = $speakers[$index]['cv_file_id'];  // Pastikan index valid di $speakers
             $item['idcard_file_id'] = $speakers[$index]['idcard_file_id'];  // Pastikan index valid di $speakers
             $item['npwp_file_id'] = $speakers[$index]['npwp_file_id'];  // Pastikan index valid di $speakers
+            $item['material'] = $speakers[$index]['material'];  // Pastikan index valid di $speakers
             return $item;
         }, $this->rows, array_keys($this->rows));
     }
@@ -43,6 +44,13 @@ class TableSpeakerInformations extends Component
         return view('livewire.forms.table-speaker-informations', compact('new_index'));
     }
 
+
+    
+
+    public function syncValueSpeaker()
+    {
+        $this->render();
+    }
     public function filterSpeakers($participants)
     {
         $speaker_type_id = ParticipantType::whereName('Narasumber')->first()->id;
@@ -85,6 +93,13 @@ class TableSpeakerInformations extends Component
             return $row;
         },$new_rows);
     }
+    public function debug()
+    {
+        $normalizeData = $this->normalizeData();
+        $this->dispatch('transfer-speakerInformation',[...$normalizeData]);
+
+        // dd($normalizeData);
+    }
     public function openModalPreview($file_id)
     {
         // $draft_cost_budget = ApplicationParticipant::find($draft_cost_id);
@@ -92,4 +107,6 @@ class TableSpeakerInformations extends Component
         // $file_ids = $draft_cost_budget->files()->get()->pluck('id')->toArray();
         $this->dispatch('open-modal-preview', [...$files]);
     }
+
+
 }

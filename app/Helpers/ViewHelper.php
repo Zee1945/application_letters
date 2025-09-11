@@ -129,7 +129,7 @@ public static function getCurrentUserProcess($app,$is_report=false){
     }
 
 
-public static function humanReadableDate($date_time)
+public static function humanReadableDate($date_time,$is_with_day=true)
 {
 
     // Cek jika $date_time null atau kosong
@@ -140,6 +140,9 @@ public static function humanReadableDate($date_time)
     try {
         $date = Carbon::parse($date_time);
         $date->locale('id');
+        if (!$is_with_day) {
+            return $date->isoFormat('D MMMM YYYY');
+        }
         return $date->isoFormat('dddd, D MMMM YYYY');
     } catch (\Exception $e) {
         return '-';

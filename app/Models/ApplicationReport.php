@@ -25,6 +25,9 @@ class ApplicationReport extends Model
         'speaker_material',
         'recommendations',
         'current_user_approval',
+        'total_participants',
+        'total_participants_not_present',
+        'total_participants_present',
         'approval_status',
         'closing',
         'speaker_material',
@@ -65,6 +68,11 @@ class ApplicationReport extends Model
     {
         return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
     }
+    public function attachments()
+    {
+        return $this->hasMany(ReportAttachment::class, 'application_report_id');
+    }
+
     public function scopeNeedMyProcess(Builder $query)
     {
         $user = AuthService::currentAccess();

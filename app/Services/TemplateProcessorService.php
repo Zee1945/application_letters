@@ -119,6 +119,9 @@ class TemplateProcessorService
             case 'daftar_kehadiran_narasumber':
                 self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'speaker');
                 break;
+            case 'notulensi':
+                self::generateNotulensi($application, $templatePath, $directory_temp, $file_type,'speaker');
+                break;
             default:
                 # code...
                 break;
@@ -153,7 +156,7 @@ class TemplateProcessorService
             'Jabatan'     => $log_approval->position->name,
             'Lokasi'     => $log_approval->location_city,
             'Nama'     => $log_approval->user->name,
-            'NIP'     => 'soon to be update',
+            'NIP'     => isset($log_approval->user->nip)?$log_approval->user->nip:null,
             // 'nip'     => $log_approval->user->nip??'soon to be update',
             // 'dicetak_oleh'     => $application->currentUserApproval->user->name,
             'status_surat'   => 'SIGNED',
@@ -223,8 +226,8 @@ class TemplateProcessorService
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -335,7 +338,7 @@ class TemplateProcessorService
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
         $templateProcessor->setValue('nomor_surat_undangan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -440,8 +443,8 @@ class TemplateProcessorService
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -567,8 +570,8 @@ class TemplateProcessorService
         $templateProcessor->setValue('recipient_institution', ucwords($get_recipient->institution));
         $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
         $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -672,8 +675,8 @@ class TemplateProcessorService
         $templateProcessor->setValue('nomor_surat_tugas_uppercase', strtoupper($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -778,8 +781,8 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -794,6 +797,114 @@ foreach ($new_data as $index => $item) {
             // dd($get_draft_cost);
 
             $templateProcessor->cloneRowAndSetValues('rd_start_date', $get_rundowns);
+
+
+        // // Ambil konten HTML dari database atau variabel lain
+        // $htmlContent = $yourHtmlContentFromDatabase;
+
+        // // Buat section baru di template (tanpa menambah halaman baru)
+        // $section = $templateProcessor->getSection(0);  // Mengambil section pertama template
+
+        // // Konversi HTML ke dalam format yang dikenali oleh PHPWord
+        // Html::addHtml($section, $htmlContent);
+
+
+        // set qr code ttd
+        $templateProcessor->setImageValue('signed_barcode', [
+            'path'   => $qrPath,
+            'width'  => 100,
+            'height' => 100,
+            'ratio'  => true,
+        ]);
+            // end set qr code ttd
+
+        $templateProcessor->saveAs($write_output);
+
+        // return response()->download($converted_to_pdf);
+        return true;
+    }
+    public static function generateNotulensi($application, $templatePath, $directory_temp, $file_type)
+    {
+        $write_output = public_path($directory_temp);
+        // dd($get_commitees);
+
+            $get_minutes = self::generateTableMinutes($application->minutes);
+
+            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $qrPath = self::generateQrCode($metadata_signer);
+            // dd($application->getAttributes(),$application->detail->getAttributes());
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $temp=[];
+            foreach ($application->getAttributes() as $key => $value) {
+                if ($key == 'funding_source') {
+                    $value = $value==1? 'BLU':'BOPTN';
+                }
+                if ($key == 'activity_name') {
+                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                }
+                $temp[$key] = $value;
+
+                $templateProcessor->setValue($key, $value);
+            }
+
+            foreach ($application->detail->getAttributes() as $key => $value) {
+                    switch ($key) {
+                        case 'activity_location':
+                            $templateProcessor->setValue($key, ucwords($value));
+                        break;
+                        case 'activity_dates':
+                             // Pisahkan tanggal berdasarkan koma
+                                $dates = explode(',', $value);
+
+                                // Variabel untuk menyimpan hasil parsing
+                                $formatted_dates = [];
+                                $days = [];
+                                Carbon::setLocale('id');
+                                foreach ($dates as $date) {
+                                    // Format tanggal menjadi "20 Mei 2025"
+                                    $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
+
+                                    // Ambil hari dari tanggal
+                                    $days[] = Carbon::parse($date)->translatedFormat('l');
+                                }
+
+                                // Gabungkan hasil menjadi string
+                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
+                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                            break;
+                        default:
+                            $templateProcessor->setValue($key, $value);
+                            break;
+                    }
+
+            }
+             foreach ($application->report->getAttributes() as $key => $value) {
+                $templateProcessor->setValue($key, $value);
+            }
+
+
+        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
+
+        // Inject variabel
+        $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
+        // Inject variabel
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('current_year', date("Y"));
+
+        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
+        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
+        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+
+
+
+            // dd($get_draft_cost);
+
+            $templateProcessor->cloneRowAndSetValues('mn_topic', $get_minutes);
 
 
         // // Ambil konten HTML dari database atau variabel lain
@@ -896,6 +1007,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
 
         $templateProcessor->setValue('nomor_mak', strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number));
+        $templateProcessor->setValue('tanggal_nomor_mak', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','mak')->first()->letter_date,false)));
         $templateProcessor->setValue('nomor_sk_uppercase', strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number));
         $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date)));
         $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number)));
@@ -1000,9 +1112,35 @@ foreach ($new_data as $index => $item) {
                 $templateProcessor->setValue($key, $value);
             }
 
+            // $documentation_photos = $application->report->attachments;
+            $need_to_delete_dir = [];
+            $max_photos = 5; // jumlah maksimal placeholder di template
+
+            $documentation_photos = $application->report->attachments()->where('type','document-photos')->get();
+            foreach ($documentation_photos as $key => $photo) {
+                $localPath = public_path('temp/documentation-photo/'.$application->id.'/photo_' . ($key+1) . '.' . pathinfo($photo->file->path, PATHINFO_EXTENSION));
+                if (!file_exists(dirname($localPath))) {
+                    mkdir(dirname($localPath), 0755, true);
+                }
+                $need_to_delete_dir[]=$localPath;
+                file_put_contents($localPath, Storage::disk('minio')->get($photo->file->path));
+                $templateProcessor->setImageValue('documentation_photo_' . ($key+1), [
+                    'path' => $localPath,
+                    'width' => 300,
+                    'height' => 200,
+                    'ratio' => true,
+                ]);
+            }
+            // Isi placeholder kosong untuk sisa yang tidak ada file
+            $temp=[];
+            for ($i = count($documentation_photos) + 1; $i <= $max_photos; $i++) {
+                $temp[]=$i;
+                $templateProcessor->setValue('documentation_photo_' . $i, ' ');
+            }
+
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->name));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->name));
+        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -1047,6 +1185,27 @@ foreach ($new_data as $index => $item) {
             // end set qr code ttd
 
         $templateProcessor->saveAs($write_output);
+
+        foreach ($need_to_delete_dir as $key => $dir) {
+             if (file_exists($dir)) {
+                unlink($dir);
+            }
+        }
+        // Hapus folder setelah file dihapus
+        $folderPath = public_path('temp/documentation-photo/' . $application->id);
+        if (is_dir($folderPath)) {
+            // Hapus semua isi folder (jaga-jaga jika ada file lain)
+            $files = glob($folderPath . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            // Hapus foldernya
+            rmdir($folderPath);
+        }
+       
+
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -1129,6 +1288,23 @@ foreach ($new_data as $index => $item) {
                 'rd_speaker_label'=> (!empty($row->speaker_text) ? 'Narasumber' : ''),
                 'rd_speaker_list'   => self::speakerListToUnorderedString($row->speaker_text),
                 'rd_moderator_list'   => self::speakerListToUnorderedString($row->moderator_text),
+            ];
+            $number++;
+        }
+        return $rows;
+    }
+
+    public static function generateTableMinutes($minutes){
+        $rows = [];
+        $number = 1;
+        foreach ($minutes as $index => $row) {
+            $rows[] = [
+                'mn_no'      => $number,
+                'mn_topic'    => $row->topic,
+                'mn_explanation'    => $row->explanation,
+                'mn_deadline'    => ViewHelper::humanReadableDate($row->deadline),
+                'mn_follow_up'=> $row->follow_up,
+                'mn_assignee'=> $row->assignee,
             ];
             $number++;
         }

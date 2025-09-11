@@ -5,81 +5,83 @@
         </div>
     @endif
 
-    <table class="table table-striped mb-0">
-        <thead class="table-light">
+<table class="table table-striped mb-0">
+    <thead class="table-light">
+        <tr>
+            <th>No</th>
+            <th>Nama (Jabatan-Lembaga)</th>
+            <th>Formulir</th>
+        </tr>
+    </thead>
+    <tbody id="table-body-speaker">
+        @foreach ($speakers as $index => $row)
             <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>Jabatan - Lembaga</th>
-                <th>Input CV</th>
-                <th>Input KTP</th>
-                <th>Input NPWP</th>
-            </tr>
-        </thead>
-        <tbody id="table-body-speaker">
-
-            @foreach ($speakers as $index => $row)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $row->name }}</td>
-                    <td>{{ $row->institution }}</td>
-
-                    <td>
+                <td>{{ $index + 1 }}</td>
+                <td>
+                   <span class="fw-bold"> {{ $row->name }}</span> <br> <small class="fw-bold text-secondary"> ({{ $row->institution }})</small></td>
+                <td>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold mb-1">CV</label>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                         @if (!empty($this->rows[$new_index]['cv_file_id']))
-                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['cv_file_id']}})">Lihat</button>
-                        @else
-                            <small> <i> File tidak diupload</i></small>
-                        @endif
-                        @else
-                        <input type="file"
-                               wire:model="rows.{{ $new_index }}.cv_file_id"
-                               id="cv_file_id_{{ $index }}"
-                               class="form-control"
-                               accept=".pdf">
-                        @endif
-                    </td>
-
-                    <td>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                        @if (!empty($this->rows[$new_index]['idcard_file_id']))
-                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['idcard_file_id']}})">Lihat</button>
-                                @else
-                                    <small> <i> File tidak diupload</i></small>
-                                @endif
-                        @else
-                        <input type="file"
-                               wire:model="rows.{{ $new_index }}.idcard_file_id"
-                               id="file_ktp_{{ $index }}"
-                               class="form-control"
-                               accept=".jpg,.jpeg,.png,.pdf">
-
-                        @endif
-                    </td>
-
-                    <td>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-
-                                @if (!empty($this->rows[$new_index]['npwp_file_id']))
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['npwp_file_id']}})">Lihat</button>
-                                @else
-                                    <small> <i> File tidak diupload</i></small>
-                                @endif
-                              
-
+                            @if (!empty($this->rows[$new_index]['cv_file_id']))
+                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['cv_file_id']}})">Lihat</button>
+                            @else
+                                <small><i>File tidak diupload</i></small>
+                            @endif
                         @else
                             <input type="file"
-                               wire:model="rows.{{ $new_index }}.npwp_file_id"
-                               id="file_npwp_{{ $index }}"
-                               class="form-control"
-                               accept=".jpg,.jpeg,.png,.pdf">
+                                wire:model="rows.{{ $new_index }}.cv_file_id"
+                                id="cv_file_id_{{ $index }}"
+                                class="form-control"
+                                accept=".pdf">
                         @endif
-                    </td>
-                </tr>
-                @php
-                    $new_index++;
-                @endphp
-            @endforeach
-        </tbody>
-    </table>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold mb-1">KTP</label>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                            @if (!empty($this->rows[$new_index]['idcard_file_id']))
+                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['idcard_file_id']}})">Lihat</button>
+                            @else
+                                <small><i>File tidak diupload</i></small>
+                            @endif
+                        @else
+                            <input type="file"
+                                wire:model="rows.{{ $new_index }}.idcard_file_id"
+                                id="file_ktp_{{ $index }}"
+                                class="form-control"
+                                accept=".jpg,.jpeg,.png,.pdf">
+                        @endif
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold mb-1">NPWP</label>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                            @if (!empty($this->rows[$new_index]['npwp_file_id']))
+                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['npwp_file_id']}})">Lihat</button>
+                            @else
+                                <small><i>File tidak diupload</i></small>
+                            @endif
+                        @else
+                            <input type="file"
+                                wire:model="rows.{{ $new_index }}.npwp_file_id"
+                                id="file_npwp_{{ $index }}"
+                                class="form-control"
+                                accept=".jpg,.jpeg,.png,.pdf">
+                        @endif
+                    </div>
+                    <div class="">
+                         <label class="form-label fw-bold mb-1">Materi</label>
+                        <textarea wire:change="syncValueSpeaker" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" wire:model="rows.{{ $new_index }}.material" rows="4"></textarea>
+
+                    </div>
+                </td>
+           
+            </tr>
+            @php
+                $new_index++;
+            @endphp
+        @endforeach
+    </tbody>
+</table>
+
+<button class="btn btn-success" wire:click="debug"> debug</button>
 </div>

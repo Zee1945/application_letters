@@ -78,9 +78,10 @@
                                                     <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
                                                 </div>
                                                 @if ($item->status_ready == 3)
-                                                {{-- @dump($item->file->filename ?? null) --}}
                                                 <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
+                                                    @if($item->fileType->code !== 'file-spj')
                                                     <i class="fa-solid fa-signature"></i></span></span>
+                                                    @endif
                                                 @else
                                                 <span>{{$item->display_name}}</span>
                                                 @endif

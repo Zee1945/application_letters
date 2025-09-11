@@ -8,14 +8,14 @@ use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ReportCreate extends AbstractComponent
 {
-    use WithFileUploads;
     public $application_id = null;
 
     public $open_modal_confirm = null;
@@ -29,15 +29,26 @@ class ReportCreate extends AbstractComponent
     public $speaker_material;
     public $background;
 
+    public $attachment_files = [];
+
 
 
     // Step 2
     public $speakers_info = [];
     public $rundowns = [];
     public $draft_costs = [];
+    public $minutes = [];
+    public $spj_file = null;
+    public $documentation_photos = [];
     public $excel_participant = null;
 
     public $letter_numbers = [];
+
+    public $total_participants = 0;
+    public $total_participants_not_present = 0;
+    public $total_participants_present = 0;
+
+    public $temp_attachments = [];
 
 
     // public function __set($name, $value)
@@ -49,11 +60,13 @@ class ReportCreate extends AbstractComponent
 
     public function mount($application_id = null)
     {
+
         $this->application = Application::find($application_id);
 
-        $this->step = $this->application->draft_step_saved;
+        // $this->step = $this->application->draft_step_saved;
         $this->application_id = $application_id;
         $this->draft_costs = $this->application->draftCostBudgets->toArray();
+        $this->minutes = $this->application->minutes->toArray();
 
         $keysToKeep = ['id', 'letter_label', 'letter_name', 'type_field', 'letter_number'];
         $this->letter_numbers = array_map(function ($item) use ($keysToKeep) {
@@ -72,12 +85,22 @@ class ReportCreate extends AbstractComponent
     public function render()
     {
 
+        // if (!empty($this->spj_file)) {
+        //     dd($this->spj_file);
+        // }
+
         return view('livewire.form-lists.reports.report-create')->extends('layouts.main');
     }
 
     #[On('transfer-speakerInformation')]
     public function receiveSpeakerInformation($speaker_info){
         $this->speakers_info = $speaker_info;
+
+        // if (count($this->speakers_info)>0) {
+        //     # code...
+        //     dd($this->speakers_info);
+        // }
+        
     }
 
     #[On('transfer-realization')]
@@ -86,6 +109,13 @@ class ReportCreate extends AbstractComponent
 
         // dd('sett',$draft_costs);
         $this->draft_costs = $draft_costs;
+    }
+    #[On('transfer-minutes')]
+    public function receiveMinutes($minutes)
+    {
+
+        // dd('sett',$draft_costs);
+        $this->minutes = $minutes;
     }
 
     public function store($is_submit=false)
@@ -98,13 +128,14 @@ class ReportCreate extends AbstractComponent
             'obstacles' => $this->obstacles,
             'conclusion' => $this->conclusion, // lom ada
             'recommendations' => $this->recommendations,
+            'total_participants' => $this->total_participants,
+            'total_participants_not_present' => $this->total_participants_not_present,
+            'total_participants_present' => $this->total_participants_present,
             'application_id' => $this->application_id,
+            'attachments' => $this->attachment_files,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
-
-        // dd($generals);
-
-        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info,$is_submit);
+        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info,$this->minutes,$is_submit);
         if ($report['status']) {
             $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
         }
@@ -112,7 +143,40 @@ class ReportCreate extends AbstractComponent
     }
 
 
+    public function updatedSpjFile(){
+        if (!empty($this->spj_file)) {
+            $this->onAttachmentChanged([$this->spj_file],'spj-file');
+        }
+    }
+    public function updatedDocumentationPhotos(){
+        if (!empty($this->documentation_photos)) {
+            $this->onAttachmentChanged($this->documentation_photos,'document-photos');
+        }
+    }
 
+
+    public function onAttachmentChanged($files,$type)
+    {
+        $path = 'temp/report/'.$this->application->id.'/' . $type;
+            if (Storage::disk('minio')->exists($path)) {
+                    $files = Storage::disk('minio')->files($path); // Mendapatkan semua file dalam folder
+                    foreach ($files as $file) {
+                        Storage::disk('minio')->delete($file); // Hapus setiap file
+                    }
+            }
+
+            $this->attachment_files[$type]= [
+                'file_path'=>$path,
+                'type'=>$type,
+                'application_report_id'=>$this->application->report->id,
+            ];
+            foreach ($files as $key => $file) {
+                if ($file instanceof TemporaryUploadedFile) {
+                   $file->store($path, 'minio');
+                }
+            }
+            
+}
     public function injectDocument()
     {
         return TemplateProcessorService::generateWord($this->application);
@@ -173,8 +237,8 @@ class ReportCreate extends AbstractComponent
 
     public function debug()
     {
-        $app_file = $this->application->applicationFiles()->findCode('laporan_kegiatan')->first();
-        TemplateProcessorService::generateDocumentToPDF($this->application,'laporan_kegiatan',$app_file);
+        $app_file = $this->application->applicationFiles()->findCode('notulensi')->first();
+        TemplateProcessorService::generateDocumentToPDF($this->application,'notulensi',$app_file);
     }
     public function nextStep()
     {

@@ -15,24 +15,24 @@
                                     <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
                                     <div class="d-flex align-items-center text-muted">
                                         {!! viewHelper::statusReportHTML($this->application->report?->approval_status) !!}
-                                        <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application,true) !!}</small>
+                                        <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application, true) !!}</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group" role="group">
-                                {{-- @if ($application->report->approval_status == 11)
+                                @if ($application->report->approval_status == 11)
                                     <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                         <i class="fa-solid fa-bug me-1"></i>Debug
                                     </button>
-                                @endif --}}
-                                    <a href="{{route('applications.detail',['application_id'=>$this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
+                                @endif
+                                    <a href="{{route('applications.detail', ['application_id' => $this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                         <i class='bx bx-info-circle'></i> Detail
                                     </a>
                          
                             </div>
-                                   @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
+                                   @if (viewHelper::actionPermissionButton('approval_process', $this->application, true))
                                    <div class="btn-group mt-2 w-100" role="group">
                                     <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
                                         <i class="fa-solid fa-times me-1"></i>Reject
@@ -49,18 +49,18 @@
                     </div>
                     <hr />
                     <!-- Alert for status -->
-                    <div class="row {{$application->report->approval_status == 2 || $application->report->approval_status > 20?'':'d-none'}}">
-                        <div class="alert {{$application->report->approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
+                    <div class="row {{$application->report->approval_status == 2 || $application->report->approval_status > 20 ? '' : 'd-none'}}">
+                        <div class="alert {{$application->report->approval_status == 2 ? 'alert-warning' : 'alert-danger'}}" role="alert">
                             <div class="d-flex">
                                 <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
                                     <i class="fa-solid {{$application->report->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                 </div>
                                 <div class="description d-flex flex-column">
-                                    <h6 class="title"> {{$application->report->approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
+                                    <h6 class="title"> {{$application->report->approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}</h6>
                                     <div class="d-flex flex-column">
                                         <div>
                                             <span class="fw-bold">{{$application->report->currentUserApproval->user->name}}</span>
-                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->report->currentUserApproval->updated_at,'d-m-Y H:i:s') !!})</i></small>
+                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->report->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
                                         </div>
                                         <div class="notes">
                                             "{{$application->report->note}}"
@@ -76,7 +76,7 @@
                             <div class="card-header overflow-auto">
                                 <div class="d-lg-flex flex-lg-row align-items-lg-center justify-content-lg-between" role="tablist">
                                     <div class="step d-block" data-target="#test-l-1">
-                                        <div class="step-trigger {{$this->step == 1? 'active':''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
+                                        <div class="step-trigger {{$this->step == 1 ? 'active' : ''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
                                             <div class="bs-stepper-circle">1</div>
                                             <div>
                                                 <h5 class="mb-0 steper-title">Umum</h5>
@@ -86,8 +86,18 @@
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-2">
-                                        <div class="step-trigger {{$this->step == 2? 'active':''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
+                                        <div class="step-trigger {{$this->step == 2 ? 'active' : ''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
                                             <div class="bs-stepper-circle">2</div>
+                                            <div>
+                                                <h5 class="mb-0 steper-title">Notulensi</h5>
+                                                <p class="mb-0 steper-sub-title">Form Notulensi</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bs-stepper-line"></div>
+                                    <div class="step" data-target="#test-l-3">
+                                        <div class="step-trigger {{$this->step == 3 ? 'active' : ''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger2" aria-controls="test-l-3">
+                                            <div class="bs-stepper-circle">3</div>
                                             <div>
                                                 <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
                                                 <p class="mb-0 steper-sub-title">Form Narasumber</p>
@@ -96,8 +106,8 @@
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-3">
-                                        <div class="step-trigger {{$this->step == 3? 'active':''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
-                                            <div class="bs-stepper-circle">3</div>
+                                        <div class="step-trigger {{$this->step == 4 ? 'active' : ''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger3" aria-controls="test-l-3">
+                                            <div class="bs-stepper-circle">4</div>
                                             <div>
                                                 <h5 class="mb-0 steper-title">Realisasi</h5>
                                                 <p class="mb-0 steper-sub-title">Form Realisasi</p>
@@ -108,7 +118,7 @@
                             </div>
                             <div class="card-body">
                                 <!-- Step 1 -->
-                                                           <div id="test-l-1" role="tabpanel" class="{{$this->step == '1'? '':'bs-stepper-pane'}}"
+                                                           <div id="test-l-1" role="tabpanel" class="{{$this->step == '1' ? '' : 'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger1">
                                     <h5 class="mb-1">Formulir Umum</h5>
                                     <p class="mb-4">Formulir untuk Gambaran Umum Kesimpulan Acara</p>
@@ -116,40 +126,90 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Kata Pengantar</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="introduction"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Latar Belakang</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="background"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="Outcome"
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="speaker_material"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">
                                                 Kendala</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Simpulan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application,false,true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
+                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="spj_file" class="form-label fw-bold">
+                                           Dokumen SPJ
+                                                <small class="text-muted">(PDF, maksimal 2MB)</small>
+                                            </label>
+                                            <input type="file"
+                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('spj_file') is-invalid @enderror"
+                                                id="spj_file"
+                                                wire:model.live="spj_file"
+                                                accept=".pdf"
+                                                {{-- wire:change="onAttachmentChanged('spj_file')" --}}
+                                                >
+                                            @error('spj_file')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if ($spj_file)
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> File terpilih: {{ $spj_file->getClientOriginalName() }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-12 mb-3">
+                                            <label for="documentation_photos" class="form-label fw-bold">
+                                                Foto Dokumentasi Kegiatan
+                                                <small class="text-muted">(maksimal 5 foto, JPG/JPEG/PNG, maksimal 2MB/foto)</small>
+                                            </label>
+                                            <input type="file"
+                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('documentation_photos') is-invalid @enderror"
+                                                id="documentation_photos"
+                                                wire:model.live="documentation_photos"
+                                                accept=".jpg,.jpeg,.png"
+                                                multiple
+                                                >
+                                            @error('documentation_photos')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if ($documentation_photos)
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> {{ count($documentation_photos) }} file terpilih</span>
+                                                    <ul class="list-unstyled mt-1">
+                                                        @foreach ($documentation_photos as $photo)
+                                                            <li><i class="fa-solid fa-image text-secondary"></i> {{ $photo->getClientOriginalName() }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
                                         </div>
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
-                                            @if (viewHelper::actionPermissionButton('submit-report',$this->application))
+                                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
                                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
 
@@ -164,8 +224,80 @@
 
                                 </div>
 
-                                <div id="test-l-2" role="tabpanel" class="{{$this->step == '2'? '':'bs-stepper-pane'}}"
+                            <div id="test-l-2" role="tabpanel" class="{{$this->step == '2' ? '' : 'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger2">
+
+                                    <div class="d-flex justify-content-between">
+                                        <div class="">
+                                            <h5 class="mb-1">Notulensi</h5>
+                                            <p class="mb-4">Isi Form Notulensi</p>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                            <div class="col-12">
+                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
+                                                    <h6>Isi Notulensi</h6>
+                                                </label>
+                                                <div class="">
+                                                    <livewire:forms.table-minutes :oldMinutes="$this->minutes" :handleDisable="viewHelper::handleFieldDisabled($this->application, true)"/>
+                                                </div>
+                                                <div class="attendee mt-3">
+                                                    <div class="row mb-3 align-items-center">
+                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta</label>
+                                                        <div class="col-sm-12 col-md-2">
+                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                                class="form-control @error('total_participants') is-invalid @enderror" id="total_participants"
+                                                                wire:model="total_participants" min="0" >
+                                                            @error('total_participants')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                    <div class="row align-items-center">
+                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta Tidak Hadir</label>
+                                                        <div class="col-sm-12 col-md-2">
+                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                                class="form-control @error('total_participants_not_present') is-invalid @enderror" id="total_participants_not_present"
+                                                                wire:model="total_participants_not_present" min="0" >
+                                                            @error('total_participants_not_present')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                    <div class="row align-items-center">
+                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta Hadir</label>
+                                                        <div class="col-sm-12 col-md-2">
+                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                                class="form-control @error('total_participants_present') is-invalid @enderror" id="total_participants_present"
+                                                                wire:model="total_participants_present" min="0" >
+                                                            @error('total_participants_present')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
+                                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                                        <div class="d-flex">
+                                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
+                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                            @endif
+                                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
+                                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!---end row-->
+
+                        </div>
+                        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3' ? '' : 'bs-stepper-pane'}}"
+                                    aria-labelledby="stepper1trigger3">
 
                                     <div class="d-flex justify-content-between">
                                         <div class="">
@@ -187,26 +319,26 @@
 
 
 
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
-                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                        <div class="d-flex">
-                            @if (viewHelper::actionPermissionButton('submit',$this->application))
-                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                            @endif
-                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
-                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
+                                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                                        <div class="d-flex">
+                                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
+                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                            @endif
+                                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
+                                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!---end row-->
+
                         </div>
-                    </div>
-                </div>
-            </div><!---end row-->
-
-        </div>
 
 
 
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '3'? '':'bs-stepper-pane'}}" aria-labelledby="stepper1trigger3">
+        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
             <h5 class="mb-1">Realisasi Anggaran</h5>
             <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 
@@ -220,7 +352,7 @@
                         <button class="btn btn-primary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
-                            @if (viewHelper::actionPermissionButton('submit-report',$this->application))
+                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                 {{-- <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button> --}}
 

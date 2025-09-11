@@ -56,6 +56,10 @@ class Application extends AbstractModel
     {
         return $this->hasMany(ApplicationSchedule::class);
     }
+    public function minutes()
+    {
+        return $this->hasMany(ApplicationMinutes::class);
+    }
     public function userApprovals()
     {
         return $this->hasMany(ApplicationUserApproval::class);

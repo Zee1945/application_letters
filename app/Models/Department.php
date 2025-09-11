@@ -41,4 +41,18 @@ class Department extends Model
     //     $current_department = AuthService::currentAccess()['']
     //     return $query->
     // }
+
+    public function scopeApprovalDepartment($query)
+    {
+        return $query->when($this->approval_by === 'self', function ($q) {
+                return $q->where('id', $this->id); // departemen sendiri
+            })
+            ->when($this->approval_by === 'parent', function ($q) {
+                return $q->where('id', $this->parent_id); // departemen parent
+            })
+            ->when($this->approval_by === 'central', function ($q) {
+                return $q->where('code', 'REKTORAT'); // departemen parent
+            });
+    }
+
 }
