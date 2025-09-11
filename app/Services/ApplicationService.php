@@ -237,7 +237,9 @@ class ApplicationService
                             self::storeLogApproval($action, $application_id, '');
 
                             $app_file = $app->applicationFiles()->findCode('laporan_kegiatan')->first();
+                            $app_file_notulensi = $app->applicationFiles()->findCode('notulensi')->first();
                             TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan',$app_file);
+                            TemplateProcessorService::generateDocumentToPDF($app, 'notulensi',$app_file_notulensi);
                             self::storeSpjToAppFiles($app);
                             // self::storeListLetterNumber($app);
                         }else{
