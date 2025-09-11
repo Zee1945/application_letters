@@ -327,7 +327,7 @@ class ApplicationService
         $spj = $app->report->attachments()->where('type','spj-file')->first();
         if ($spj) {
             $app_files = $app->applicationFiles()->whereHas('fileType',function($q){
-                $q->where('code','file-spj');
+                $q->where('code','file_spj');
             })->first();
 
             $app_files->status_ready = 3;

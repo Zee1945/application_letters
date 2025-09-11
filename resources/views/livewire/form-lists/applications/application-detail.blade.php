@@ -79,7 +79,7 @@
                                                 </div>
                                                 @if ($item->status_ready == 3)
                                                 <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
-                                                    @if($item->fileType->code !== 'file-spj')
+                                                    @if($item->fileType->code !== 'file_spj')
                                                     <i class="fa-solid fa-signature"></i></span></span>
                                                     @endif
                                                 @else
