@@ -83,5 +83,4 @@
     </tbody>
 </table>
 
-<button class="btn btn-success" wire:click="debug"> debug</button>
 </div>

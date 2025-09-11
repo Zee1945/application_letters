@@ -22,11 +22,11 @@
                         </div>
                         <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group" role="group">
-                                @if ($application->report->approval_status == 11)
+                                {{-- @if ($application->report->approval_status == 11)
                                     <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                         <i class="fa-solid fa-bug me-1"></i>Debug
                                     </button>
-                                @endif
+                                @endif --}}
                                     <a href="{{route('applications.detail', ['application_id' => $this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                         <i class='bx bx-info-circle'></i> Detail
                                     </a>
