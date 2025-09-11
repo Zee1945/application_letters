@@ -20,7 +20,7 @@
 	{{-- <link href="assets/sass/app.css" rel="stylesheet"> --}}
 	{{-- <link href="assets/css/icons.css" rel="stylesheet"> --}}
 	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-	@vite(['resources/js/app.js','resources/css/app.css', 'resources/sass/app.css']) <!-- Menambahkan JS dan CSS -->
+	@vite(['resources/js/app.js','resources/css/app.css', 'resources/sass/app.scss']) <!-- Menambahkan JS dan CSS -->
     @livewireStyles
 	<title>SIRAPEL</title>
 </head>
