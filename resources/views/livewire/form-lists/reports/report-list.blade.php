@@ -60,7 +60,7 @@
             </div>
                <!-- Pagination Section -->
             <div class="mt-4">
-                {{ $applications->links() }}
+                {{ $reports->links() }}
             </div>
         </div>
     </div>
