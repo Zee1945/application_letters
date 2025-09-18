@@ -316,7 +316,7 @@
                                         @if (count($this->participants) > 0)
                                             <div class="col-12">
                                                 <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Narasumber dan Moderator</h6>
+                                                    <h6>Daftar  Narasumber dan Moderator</h6>
                                                 </label>
                                                 <div class="">
                                                     <livewire:forms.table-participants :participants="$this->participants" :participantType="'speaker'" />
@@ -324,13 +324,13 @@
                                             </div>
                                             <div class="col-12">
                                                 <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Panitia</h6>
+                                                    <h6>Daftar Panitia</h6>
                                                 </label>
                                                 <livewire:forms.table-participants :participants="$this->participants" :participantType="'commitee'" />
                                             </div>
                                             <div class="col-12">
                                                 <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Pilih Peserta</h6>
+                                                    <h6>Daftar Peserta</h6>
                                                 </label>
                                                 <livewire:forms.table-participants :participants="$this->participants" :participantType="'participant'" />
                                             </div>
@@ -416,7 +416,7 @@
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-success px-4" wire:click="saveDraft('1','true')">Submit</button>
+                                <button class="btn btn-success px-4" wire:click="openModalConfirmSubmit">Submit</button>
                             @endif
                         </div>
                     </div>
@@ -472,7 +472,8 @@
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-letter-number',$this->application))
                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('5')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                <button class="btn btn-success px-4" wire:click="openModalLoadingGenerateDoc">Submit</button>
+                                <button class="btn btn-success px-4" wire:click="openModalConfirmSubmit('true')">Submit</button>
+                                {{-- <button class="btn btn-success px-4" wire:click="openModalLoadingGenerateDoc">Submit</button> --}}
                             @endif
                         </div>
                     </div>
@@ -525,50 +526,132 @@
     </div>
   </div>
 </div>
+{{-- Modal generate document loading  --}}
 
+
+{{-- Modal Confirm Approval --}}
 <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="modalConfirmLabel"><i class="fa-solid {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['icon_class']}} ms-2 text-{{ viewHelper::handleConfirmModal($this->open_modal_confirm)['color']}}"></i> {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['title']}}</h1>
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-light border-0">
+        <h1 class="modal-title fs-5 fw-bold text-dark d-flex align-items-center gap-2" id="modalConfirmLabel">
+          <i class="fa-solid {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['icon_class'] }} text-{{ viewHelper::handleConfirmModal($this->open_modal_confirm)['color'] }}"></i>
+          {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['title'] }}
+        </h1>
         <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body pb-4">
         @if ($this->open_modal_confirm == 'approve')
-        <div class="">
-                <div class="row">
-                    <div class="d-flex flex-column align-items-center">
-                        <i class="fa-solid fa-circle-check fs-1 text-success"></i>
-                        <h4 class="text-center"> Apakah Anda yakin ingin menyetujui ?</h4>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btn-secondary mx-1" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-success mx-1" wire:click="submitModalConfirm">Setujui</button>
-                    </div>
-                </div>
-        </div>
-          @else
+          <div class="d-flex flex-column align-items-center gap-3">
+            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+              <i class="fa-solid fa-circle-check fs-1 text-success"></i>
+            </div>
+            <h4 class="text-center fw-semibold mb-2">Apakah Anda yakin ingin menyetujui?</h4>
+          </div>
+          <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+              <i class="fa-solid fa-times me-1"></i> Batal
+            </button>
+            <button type="button" class="btn btn-success px-4" wire:click="submitModalConfirm"
+    wire:loading.attr="disabled"
+    wire:target="submitModalConfirm">
+    <span wire:loading.remove wire:target="submitModalConfirm">
+        <i class="fa-solid fa-check me-1"></i> Setujui
+    </span>
+    <span wire:loading wire:target="submitModalConfirm">
+        <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+    </span>
+</button>
+          </div>
+        @else
           <form>
             <div class="mb-3">
-              <label for="message-text" class="col-form-label fw-bold">Beri Alasan {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['text_reaseon']}}</label>
-              <textarea class="form-control" wire:model="notes" id="message-text"></textarea>
-              {{-- <livewire:forms.tinymce-editor :editorId="'notes'"/> --}}
+              <label for="message-text" class="col-form-label fw-bold">
+                Beri Alasan {{ viewHelper::handleConfirmModal($this->open_modal_confirm)['text_reaseon'] }}
+              </label>
+              <textarea class="form-control" wire:model="notes" id="message-text" rows="3" placeholder="Tulis alasan Anda di sini..."></textarea>
+            </div>
+            <div class="d-flex justify-content-center gap-3 mt-3">
+              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                <i class="fa-solid fa-times me-1"></i> Batal
+              </button>
+              <button type="button" class="btn btn-warning px-4" wire:click="submitModalConfirm"
+    wire:loading.attr="disabled"
+    wire:target="submitModalConfirm">
+    <span wire:loading.remove wire:target="submitModalConfirm">
+        <i class="fa-solid fa-paper-plane me-1"></i> Submit
+    </span>
+    <span wire:loading wire:target="submitModalConfirm">
+        <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+    </span>
+</button>
             </div>
           </form>
         @endif
-
       </div>
-      <div class="modal-footer">
-        @if ($this->open_modal_confirm != 'approve')
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-primary" wire:click="submitModalConfirm">Submit</button>
-        @endif
-    </div>
     </div>
   </div>
 </div>
+{{-- Modal Confirm Approval --}}
+
+{{-- Modal Confirm Submit  --}}
+<div class="modal fade" id="modalConfirmSubmit" tabindex="-1" aria-labelledby="modalConfirmSubmitLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-light border-0">
+        <h1 class="modal-title fs-5 fw-bold text-dark" id="modalConfirmSubmitLabel">
+          <i class="fa-solid fa-circle-question text-warning me-2"></i> Konfirmasi Pengajuan
+        </h1>
+        <button type="button" class="btn-close" wire:click="closeModalConfirm" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pb-4">
+        <div class="d-flex flex-column align-items-center gap-3">
+          <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+            <i class="fa-solid fa-circle-check fs-1 text-success"></i>
+          </div>
+          <h4 class="text-center fw-semibold mb-2">Apakah Data Pengajuan Sudah Sesuai?</h4>
+          <p class="text-center text-muted mb-0" style="max-width: 350px;">
+            Pastikan seluruh data yang Anda input sudah benar sebelum melakukan submit. Setelah submit, data tidak dapat diubah kembali.
+          </p>
+        </div>
+<div class="d-flex justify-content-center gap-3 mt-4">
+  <button type="button" class="btn btn-outline-secondary px-4" wire:click="closeModalConfirmSubmit">
+    <i class="fa-solid fa-times me-1"></i> Batal
+  </button>
+ @if ($this->is_submit_letter_number)
+    <button type="button" class="btn btn-success px-4"
+      wire:click="openModalLoadingGenerateDoc"
+      wire:loading.attr="disabled"
+      wire:target="openModalLoadingGenerateDoc"
+    >
+      <span wire:loading.remove wire:target="openModalLoadingGenerateDoc">
+        <i class="fa-solid fa-paper-plane me-1"></i> Ya, Submit
+      </span>
+      <span wire:loading wire:target="openModalLoadingGenerateDoc">
+        <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+      </span>
+    </button>
+  @else
+    <button type="button" class="btn btn-success px-4"
+      wire:click="saveDraft('1','true')"
+      wire:loading.attr="disabled"
+      wire:target="saveDraft"
+    >
+      <span wire:loading.remove wire:target="saveDraft">
+        <i class="fa-solid fa-paper-plane me-1"></i> Ya, Submit
+      </span>
+      <span wire:loading wire:target="saveDraft">
+        <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+      </span>
+    </button>
+  @endif
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+{{-- Modal Confirm Submit  --}}
+
 
 
 <script type="module">
@@ -577,14 +660,24 @@
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.show();
        });
+        Livewire.on('open-modal-confirm-submit', (event) => {
+           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirmSubmit');
+           modal.show();
+       });
+        Livewire.on('close-modal-confirm-submit', (event) => {
+           const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirmSubmit');
+           modal.hide();
+       });
         Livewire.on('close-modal', (event) => {
            const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
            modal.hide();
        });
         Livewire.on('open-modal-loading-generate-doc', (event) => {
            const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');
-           modals.show();
-           @this.dispatch('update-letter-number');
+           modals.show();           
+            if (event.status === 'processing') {
+                @this.dispatch('update-letter-number');
+            }
        });
         Livewire.on('close-modal-loading-generate-doc', (event) => {
            const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');

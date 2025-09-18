@@ -35,8 +35,9 @@ class FileTypeSeeder extends Seeder
             ['name' => 'Daftar Kehadiran Moderator', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Daftar Kehadiran Panitia', 'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Daftar Kehadiran Peserta', 'trans_type' => 1, 'signed_role_id' => $user_id],
-            ['name' => 'Notulensi', 'trans_type' => 2, 'signed_role_id' => $user_id],
-            ['name' => 'File SPJ', 'trans_type' => 2, 'signed_role_id' => $user_id],
+            ['name' => 'Notulensi', 'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
+            ['name' => 'File SPJ', 'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
+            ['name' => 'Materi Narasumber', 'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
         ];
 
         // $parent_ids = [];
@@ -48,35 +49,9 @@ class FileTypeSeeder extends Seeder
                 'code'         => strtolower(str_replace(' ', '_', $file['name'])), // Membuat 'code' dari nama file
                 'trans_type'   => $file['trans_type'],  // trans_type sesuai dengan yang didefinisikan
                 'signed_role_id' => $file['signed_role_id'],  // signed_role_id sesuai dengan role yang terhubung
+                'is_upload' => isset($file['is_upload'])?$file['is_upload']:0 
             ]);
-            // $parent_ids[$parent->code] = $parent->id; // Menyimpan parent_id dengan key 'code' untuk digunakan di child
         }
 
-        // Data child (kolom tengah gambar) yang akan diinsert setelah parent
-        // $child_files = [
-            // ['name' => 'TOR', 'parent_code' => 'tor', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-
-            // ['name' => 'Surat Undangan Peserta & Panitia', 'parent_code' => 'surat_undangan', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-            // ['name' => 'Surat Undangan Panitia', 'parent_code' => 'surat_undangan', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-            // ['name' => 'Daftar Hadir Narasumber', 'parent_code' => 'daftar_hadir', 'trans_type' => 1, 'signed_role_id' => $user_id],
-            // ['name' => 'Daftar Hadir Moderator', 'parent_code' => 'daftar_hadir', 'trans_type' => 1, 'signed_role_id' => $user_id],
-            // ['name' => 'Daftar Hadir Peserta', 'parent_code' => 'daftar_hadir', 'trans_type' => 1, 'signed_role_id' => $user_id],
-            // ['name' => 'Daftar Hadir Panitia', 'parent_code' => 'daftar_hadir', 'trans_type' => 1, 'signed_role_id' => $user_id],
-
-            // ['name' => 'Surat Tugas Peserta', 'parent_code' => 'surat_tugas', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-            // ['name' => 'Surat Tugas Panitia', 'parent_code' => 'surat_tugas', 'trans_type' => 1, 'signed_role_id' => $dean_id],
-
-        // ];
-
-        // Insert data child dengan parent_id yang didapatkan dari parent_code
-        // foreach ($child_files as $file) {
-        //     FileType::create([
-        //         'name'    => $file['name'],
-        //         'code'         => strtolower(str_replace(' ', '_', $file['name'])),
-        //         'trans_type'   => $file['trans_type'],
-        //         'signed_role_id' => $file['signed_role_id'],
-        //         'parent_id'    => $parent_ids[$file['parent_code']] ?? null, // Menggunakan parent_id yang sesuai berdasarkan parent_code
-        //     ]);
-        // }
     }
 }

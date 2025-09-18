@@ -40,9 +40,30 @@
                         <div class="col-sm-9"><span>{{$app->funding_source == '1' ? 'BLU' : 'BOPTN'}}</span></div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-sm-3"><span class="fw-bold">Status</span></div>
+    {{-- <div class="col-sm-3"><span class="fw-bold">Penandatangan dan Verifikator</span></div>
+    <div class="col-sm-9">
+        <div class="d-flex flex-column gap-1">
+            <div>
+                <span class="badge bg-primary me-2"><i class="fa-solid fa-user-tie me-1"></i> Dekan</span>
+                <span>{{ $app->dean->name ?? '-' }}</span>
+            </div>
+            <div>
+                <span class="badge bg-success me-2"><i class="fa-solid fa-user-check me-1"></i> Ketua Panitia</span>
+                <span>{{ $app->participants()->where('is_signer_commitee',1)->first()->name ?? '-' }}</span>
+            </div>
+        </div>
+    </div> --}}
+</div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><span class="fw-bold">Status Pengajuan</span></div>
                         <div class="col-sm-9"><span>{!! viewHelper::statusSubmissionHTML($app->approval_status) !!}</span></div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><span class="fw-bold">Status Laporan</span></div>
+                        <div class="col-sm-9"><span>{!! viewHelper::statusReportHTML($app->report?->approval_status) !!}
+</span></div>
+                    </div>
+                 
                       <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Pengusul</span></div>
                         <div class="col-sm-9"><span>{{$app->createdBy->name }}</span></div>

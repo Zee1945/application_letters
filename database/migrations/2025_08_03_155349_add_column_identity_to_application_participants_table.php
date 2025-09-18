@@ -25,9 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('application_participants', function (Blueprint $table) {
-            $table->string('nip')->after('institution')->nullable();
-            $table->string('rank')->after('nip')->nullable();
-            $table->string('functional_position')->after('rank')->nullable();
+            $table->dropColumn('nip')->after('institution')->nullable();
+            $table->dropColumn('rank')->after('nip')->nullable();
+            $table->dropColumn('functional_position')->after('rank')->nullable();
         });
     }
 };

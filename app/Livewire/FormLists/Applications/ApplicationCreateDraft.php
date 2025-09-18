@@ -42,6 +42,8 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public $sameDay =true;
 
+    public $is_submit_letter_number;
+
 
 
     // Step 2
@@ -139,6 +141,15 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->open_modal_confirm =$type;
         $this->dispatch('open-modal');
     }
+    public function openModalConfirmSubmit($is_letter_number=false){
+        $this->is_submit_letter_number = $is_letter_number;
+        $this->dispatch('open-modal-confirm-submit');
+    }
+
+    public function closeModalConfirmSubmit(){
+        $this->is_submit_letter_number = false;
+        $this->dispatch('close-modal-confirm-submit');
+    }
 
     public function closeModalConfirm(){
         $this->open_modal_confirm =null;
@@ -170,12 +181,15 @@ class ApplicationCreateDraft extends AbstractComponent
 #[On('update-letter-number')]
     public function updateLetterNumber(){
             
-            $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
+        $this->closeModalConfirmSubmit();
+        $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application);
             // $res = true;
             if ($res) {
                 $this->dispatch('close-modal-loading-generate-doc');
                 $this->process_document_status = 'success';
-                $this->dispatch('open-modal-loading-generate-doc');
+                $this->dispatch('open-modal-loading-generate-doc',...[
+                    'status' => $this->process_document_status,
+                ]);
                 // $this->redirectRoute('applications.create.draft', ['application_id' => $this->application_id], false, true);
             }else{
                 $this->process_document_status = 'failed';
@@ -185,7 +199,9 @@ class ApplicationCreateDraft extends AbstractComponent
     public function openModalLoadingGenerateDoc(){
 
         $this->process_document_status = 'processing';
-        $this->dispatch('open-modal-loading-generate-doc');
+        $this->dispatch('open-modal-loading-generate-doc',...[
+                    'status' => $this->process_document_status,
+                ]);
         // $this->dispatch('open-modal-loading-generate-doc');
 
     }
@@ -282,7 +298,8 @@ class ApplicationCreateDraft extends AbstractComponent
     }
 
     public function exportPreviousData(){
-            return Excel::download(new ApplicationsExport($this->participants,$this->draft_costs), $this->application->activity_name.' (Data Peran dan RAB).xlsx');
+            $filename = preg_replace('/[\/\\\:\*\?"<>\|]/', ' ', $this->application->activity_name) . '.xlsx';
+            return Excel::download(new ApplicationsExport($this->participants,$this->draft_costs), $filename);
     }
 
     public function clearAllParticipant(){

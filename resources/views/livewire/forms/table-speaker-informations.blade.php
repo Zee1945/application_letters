@@ -49,7 +49,7 @@
                                 wire:model="rows.{{ $new_index }}.idcard_file_id"
                                 id="file_ktp_{{ $index }}"
                                 class="form-control"
-                                accept=".jpg,.jpeg,.png,.pdf">
+                                accept=".jpg,.jpeg,.png">
                         @endif
                     </div>
                     <div class="mb-2">
@@ -65,13 +65,24 @@
                                 wire:model="rows.{{ $new_index }}.npwp_file_id"
                                 id="file_npwp_{{ $index }}"
                                 class="form-control"
-                                accept=".jpg,.jpeg,.png,.pdf">
+                                accept=".jpg,.jpeg,.png">
                         @endif
                     </div>
-                    <div class="">
-                         <label class="form-label fw-bold mb-1">Materi</label>
-                        <textarea wire:change="syncValueSpeaker" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" wire:model="rows.{{ $new_index }}.material" rows="4"></textarea>
-
+                    <div class="mb-2">
+                        <label class="form-label fw-bold mb-1">Materi</label>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                            @if (!empty($this->rows[$new_index]['material_file_id']))
+                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['material_file_id']}})">Lihat</button>
+                            @else
+                                <small><i>File tidak diupload</i></small>
+                            @endif
+                        @else
+                            <input type="file"
+                                wire:model="rows.{{ $new_index }}.material_file_id"
+                                id="file_material_{{ $index }}"
+                                class="form-control"
+                                accept=".pdf">
+                        @endif
                     </div>
                 </td>
            

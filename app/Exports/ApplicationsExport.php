@@ -65,10 +65,10 @@ class ApplicationsExport implements FromView,WithEvents
 
         $mapped = array_map(function ($item) use ($name) {
             $item['participant_type_name'] = $name;
-            if ($name == 'Panitia') {
-                $commitee_position_name = CommiteePosition::find($item['commitee_position_id'])->name ?? '';
-                $item['commitee_position'] = $commitee_position_name;
-            }
+            // if ($name == 'Panitia') {
+            //     $commitee_position_name = CommiteePosition::find($item['commitee_position_id'])->name ?? '';
+            //     $item['commitee_position'] = $commitee_position_name;
+            // }
             return $item;
         }, array_values($filtered));
 

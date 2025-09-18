@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Helpers\ViewHelper;
 use App\Models\ApplicationParticipant;
-use App\Models\CommiteePosition;
 use App\Models\FileType;
 use App\Models\LogApproval;
 use App\Models\ParticipantType;
@@ -28,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Mpdf\Mpdf;
 use PhpOffice\PhpWord\IOFactory;
+use Spatie\Permission\Models\Role;
 
 class TemplateProcessorService
 {
@@ -119,9 +119,6 @@ class TemplateProcessorService
             case 'daftar_kehadiran_narasumber':
                 self::generateDaftarKehadiran($application, $templatePath, $directory_temp, $file_type,'speaker');
                 break;
-            case 'notulensi':
-                self::generateNotulensi($application, $templatePath, $directory_temp, $file_type,'speaker');
-                break;
             default:
                 # code...
                 break;
@@ -149,13 +146,21 @@ class TemplateProcessorService
     public static function getSignerMetadata($application, $file_type)
     {
         $file_type = FileType::whereCode($file_type)->first();
+        $role = Role::find($file_type->signed_role_id);
         $log_approval = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
-        // dd($log_approval);
+        $signer_position = $log_approval->position->name;
+        $signer_name = $log_approval->user->name;
+        $position_name = $log_approval->position->name;
+        if ($role->name == 'user') {
+            $get_chief_commitee = $application->participants()->where('is_signer_commitee',1)->first();
+            $signer_name = $get_chief_commitee->name;
+            $signer_position = $get_chief_commitee->commitee_position;
+        }
         $meta = [
-            'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->updated_at),
-            'Jabatan'     => $log_approval->position->name,
+            'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->updated_at,false),
+            'Jabatan'     => ucwords($signer_position),
             'Lokasi'     => $log_approval->location_city,
-            'Nama'     => $log_approval->user->name,
+            'Nama'     => ucwords($signer_name),
             'NIP'     => isset($log_approval->user->nip)?$log_approval->user->nip:null,
             // 'nip'     => $log_approval->user->nip??'soon to be update',
             // 'dicetak_oleh'     => $application->currentUserApproval->user->name,
@@ -1253,7 +1258,7 @@ foreach ($new_data as $index => $item) {
 
             if ($participantType != 'participant') {
                 if ($participantType == 'commitee') {
-                    $peran = ucwords(self::findName('commitee', $row['commitee_position_id']));
+                    $peran = ucwords( $row['commitee_position']);
                 } else {
                     $peran = ucwords(self::findName('participant', $row['participant_type_id']));
                 }
@@ -1440,7 +1445,7 @@ foreach ($new_data as $index => $item) {
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
             size: 800,
-            margin: 20,
+            margin: 5,
             roundBlockSizeMode: RoundBlockSizeMode::Margin,
             foregroundColor: new Color(0, 0, 0),
             backgroundColor: new Color(255, 255, 255),

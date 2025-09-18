@@ -3,7 +3,6 @@
 namespace App\Imports;
 
 use App\Models\Application;
-use App\Models\CommiteePosition;
 use App\Models\ParticipantType;
 use App\Services\AuthService;
 use Carbon\Carbon;
@@ -164,7 +163,7 @@ class ApplicationsImport implements ToCollection
             if (!empty($value[8])) {
                 $this->finest_participant_data[$this->index_participant] = $this->default_participant_fields;
                 $this->finest_participant_data[$this->index_participant]['name'] = $value[8] ?? null;
-                $this->finest_participant_data[$this->index_participant]['commitee_position_id'] = CommiteePosition::whereName(strtolower($value[7]))->first()?->id;
+                $this->finest_participant_data[$this->index_participant]['commitee_position'] = strtolower($value[7]);
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('panitia')->first()?->id;
                 $this->index_participant++;
             }

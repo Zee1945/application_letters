@@ -23,7 +23,6 @@ return new class extends Migration
             $table->unsignedBigInteger('approval_status')->nullable(); // Saran
             $table->text('closing')->nullable(); // Penutup
             $table->text('speaker_material')->nullable(); // Materi narasumber
-            $table->text('notulen')->nullable(); // Notulen
             $table->text('speaker_cv')->nullable(); // CV narasumber
             $table->text('financial_statement')->nullable(); // SPJ Keuangan (optional, tergantung sudah diinput di realisasi anggaran)
             $table->text('photos')->nullable(); // Foto dokumentasi

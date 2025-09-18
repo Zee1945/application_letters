@@ -125,7 +125,7 @@ class ApplicationService
                         'created_by' => Auth::id(), // Assuming you want to store who created this approval
                     ]);
                 }
-            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber'];
+            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber','materi_narasumber'];
             $get_file_types = FileType::whereNotIn('code',$exclude)->get();
             foreach ($get_file_types as $ft) {
                 $app_file = [
@@ -237,10 +237,8 @@ class ApplicationService
                             self::storeLogApproval($action, $application_id, '');
 
                             $app_file = $app->applicationFiles()->findCode('laporan_kegiatan')->first();
-                            $app_file_notulensi = $app->applicationFiles()->findCode('notulensi')->first();
                             TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan',$app_file);
-                            TemplateProcessorService::generateDocumentToPDF($app, 'notulensi',$app_file_notulensi);
-                            self::storeSpjToAppFiles($app);
+                            self::storeAttachmentToDetails($app);
                             // self::storeListLetterNumber($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
@@ -324,60 +322,89 @@ class ApplicationService
     }
 
 
-    public static function storeSpjToAppFiles($app)
+    public static function storeAttachmentToDetails($app)
     {
-        $spj = $app->report->attachments()->where('type','spj-file')->first();
-        if ($spj) {
-            $app_files = $app->applicationFiles()->whereHas('fileType',function($q){
-                $q->where('code','file_spj');
-            })->first();
-
-            $app_files->status_ready = 3;
-            $app_files->file_id = $spj->file_id;
-            $app_files->save();
-
-
-
-
-            $file = $app_files->file()->first();
-            $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
-            $fileContent = Storage::disk('minio')->get($oldPath);
-
-            // Tentukan ekstensi dari mimetype
-            $extension = match ($file->mimetype) {
-                'application/pdf' => 'pdf',
-                'image/png' => 'png',
-                'image/jpeg' => 'jpg',
-                default => 'dat',
-            };
-
-            // Path baru, tetap di folder yang sama, hanya nama file diganti
-            $newFileName = $app_files->display_name.'-'.$app->activity_name.'-'.$app->id.'.' . $extension;
-            $newPath = dirname($oldPath) . '/' . $newFileName; // hasil: 2025-9/2/report/spj-file/nama_baru.png
-
-            // Simpan file ke path baru
-            Storage::disk('minio')->put($newPath, $fileContent);
-
-            // Hapus file lama
-            Storage::disk('minio')->delete($oldPath);
-
-            // Update path di database
-            $file->filename = $newFileName;
-            $file->path = dirname($oldPath);
-            $file->save();
-
-          
-          
-
-            return ['status'=>true,'message'=>'file spj berhasil ditambahkan'];
+        $attachments = $app->report->attachments()->whereIn('type', ['spj-file', 'minutes-file'])->get();
+        $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
+        if (count($attachments) > 0) {
+            foreach ($attachments as $key => $attachment) {
+                switch ($attachment->type) {
+                    case 'minutes-file':
+                        $code = 'notulensi';
+                        break;
+                    case 'spj-file':
+                        $code = 'file_spj';
+                        break;
+                    default:
+                        $code = 'none';
+                        break;
+                }
+                self::updateApplicationFilesReport($app,$code,$attachment->file_id);
+            }
         }
-        return ['status'=>false,'message'=>'file spj tidak ditemukan'];
+        if (count($participant_speakers) > 0) {
+            foreach ($participant_speakers as $key => $par) {
+                self::updateApplicationFilesReport($app,'materi_narasumber',$par->material_file_id,$par->id);
+            }
+        }
 
+        
+        return ['status' => true, 'message' => 'Berhasil memindahkan file ke detail'];
+
+    }
+
+    
+    public static function updateApplicationFilesReport($app,$code,$file_id,$participant_id=null){
+        $app_files = $app->applicationFiles()->whereHas('fileType', function ($q) use ($code) {
+                    $q->where('code', $code);
+                })
+                ->when($participant_id, function($query) use ($participant_id) {
+                    return $query->where('participant_id', $participant_id);
+                })
+                ->first();
+                $app_files->status_ready = 3;
+                $app_files->file_id = $file_id;
+                $app_files->save();
+
+
+
+
+                $file = $app_files->file()->first();
+                $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
+                $fileContent = Storage::disk('minio')->get($oldPath);
+
+                // Tentukan ekstensi dari mimetype
+                $extension = match ($file->mimetype) {
+                    'application/pdf' => 'pdf',
+                    'image/png' => 'png',
+                    'image/jpeg' => 'jpg',
+                    default => 'dat',
+                };
+                
+                // Path baru, tetap di folder yang sama, hanya nama file diganti
+                $newFileName = $app_files->display_name . '-' . $app->activity_name . '-' . $app->id .(!empty($participant_id)?'-partid-'.$participant_id:null). '.' . $extension;
+                $newPath = dirname($oldPath) . '/' . $newFileName; // hasil: 2025-9/2/report/spj-file/nama_baru.png
+            if ($file->filename !== $newFileName || $file->path !== dirname($oldPath)) {
+                // Simpan file ke path baru
+                Storage::disk('minio')->put($newPath, $fileContent);
+
+                // Hapus file lama
+                // Storage::disk('minio')->delete($oldPath);
+
+                // Update path di database
+                $file->filename = $newFileName;
+                $file->path = $newPath;
+                // $file->path = dirname($oldPath);
+                $file->save();
+            }
     }
     public static function storeSuratPermohonanFiles($app)
     {
         $surat_permohonan = FileType::whereIn('code',['surat_permohonan_narasumber','surat_permohonan_moderator'])->get();
+        $materi = FileType::where('code','materi_narasumber')->first();
         $data = [];
+
+        $materi_narasumbers = [];
         foreach ($surat_permohonan as $ft) {
                     $par_type = explode('_',$ft->code)[2];
                     $get_speaker = $app->participants()->whereHas('participantType',function($q) use ($par_type){
@@ -393,9 +420,19 @@ class ApplicationService
                         ];
                         // $data[]= $app_file;
                         $app->applicationFiles()->create($app_file);
+                        if ($par_type == 'narasumber') {
+                            $cp_app_file = $app_file;
+                            $cp_app_file['display_name'] = $materi->name.' - '.$value->name;
+                            $cp_app_file['file_type_id'] = $materi->id;
+                            $materi_narasumbers[]=$cp_app_file;
+                            // $app->applicationFiles()->create($cp_app_file);
+                        }
                     }
                 } 
-                // dd($data);
+
+                foreach ($materi_narasumbers as $key => $app_file_materi) {
+                    $app->applicationFiles()->create($app_file_materi);
+                }
         return true; 
     }
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
@@ -422,7 +459,6 @@ class ApplicationService
             if (!$details) {
                     return ['status' => false, 'message' => 'data pengajuan Gagal ditambahkan'];
                 }
-
 
                 foreach ($participants as $key => $value) {
                     $participant = ApplicationParticipant::updateOrCreate($value);
@@ -451,32 +487,28 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data,$realization=[],$speakers_info=[],$minutes=[],$is_submit=false)
+    public static function storeReport($data,$realization=[],$speakers_info=[],$is_submit=false)
     {
         try {
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
             $reports = $app->report->update($data);
 
-
+            // dd($data['attachments'],$speakers_info,$realization);
 
             // store file ke minio dan tambah ke table files
             foreach ($speakers_info as $key => $spk) {
                 
                 $participant= ApplicationParticipant::find($spk['participant_id']);
-                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id','material'];
+                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id','material_file_id'];
                     foreach ($columns as $col) {
                         if ($spk[$col]) {
-                            if ($col !=='material') {
                                 $new_dir = str_replace('temp/report/', '', $spk[$col]);
                                 $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
                                 $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
                                if ($files['status']) {
                                    $participant->$col = $files['data']?->id;
                                }
-                            }else{
-                                  $participant->$col = $spk[$col];
-                            }
                             $participant->save();
                         }
                     }
@@ -499,21 +531,18 @@ class ApplicationService
                  }
 
             }
-            foreach ($minutes as $key => $value) {
-                    $app->minutes()->updateOrCreate(['topic'=>$value['topic']],$value);
-            }
-
 
             foreach ($data['attachments']??[] as $att_type) {
             //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
                 if (Storage::disk('minio')->exists($att_type['file_path'])) {
-
                     $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
+                
     
                     foreach ($get_dir_files as $dir_file) {
                         $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
                         $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
                         $file = FileManagementService::storeFiles($get_file_storage,$app,'report', $dir_file);
+                       
                         if ($file['status']) {
                             $arr = [
                                 'file_id'=>$file['data']->id,
@@ -649,19 +678,14 @@ class ApplicationService
     public static function updateLetterNumber($letterNumbers,$app){
         try {
             DB::beginTransaction();
-
-            // dd($letterNumbers);
             foreach ($letterNumbers as $key => $value) {
                 $field = $app->letterNumbers()->find($value['id'])->update($value);
             }
-
             $app->update(['approval_status'=>12]);
-
             $department = Department::find($app->department_id);
             $department->current_limit_submission = $department->current_limit_submission+1;
             $department->save();
             TemplateProcessorService::generateApplicationDocument($app);
-            // TemplateProcessorService::generateDocumentToPDF($app, 'sk');
             DB::commit();
             return true;
         } catch (\Throwable $th) {

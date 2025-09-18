@@ -179,6 +179,29 @@ class FileManagementService
 
 }
 
+public static function getFileStorageById($file_id,$with_content=false,$disk='minio'){
+    $file = Files::find($file_id)??null;
+    if (!empty($file)) {
+        if (Storage::disk($disk)->exists($file->path)) {
+            $data = [
+                'file_id'=>$file_id,
+                'fileName'=>basename($file->path),
+                'size'=>Storage::disk($disk)->size($file->path),
+                'mimeType'=>Storage::disk($disk)->mimeType($file->path),
+                'path'=>$file->path,
+            ];
+            if ($with_content) {
+                $data = [...$data,
+                    'content'=>Storage::disk($disk)->get($file->path)
+                ];
+            }
+            return $data;
+        }
+    }
+     return [];
+ 
+}
+
     public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     {
         $config = [

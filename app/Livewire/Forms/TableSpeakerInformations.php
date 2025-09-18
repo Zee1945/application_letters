@@ -18,20 +18,21 @@ class TableSpeakerInformations extends Component
     public $cv_file_id = [];
     public $idcard_file_id = [];
     public $npwp_file_id = [];
+    public $material_file_id = [];
     public $application;
 
     public function mount($application = null,$participants=null)
     {
         $this->application = $application;
         $this->filterSpeakers($participants);
-        $this->rows = array_fill(0, count($this->speakers), ['participant_id' => null, 'cv_file_id' => null, 'idcard_file_id' => null, 'npwp_file_id' => null,'material'=>null]);
+        $this->rows = array_fill(0, count($this->speakers), ['participant_id' => null, 'cv_file_id' => null, 'idcard_file_id' => null, 'npwp_file_id' => null,'material_file_id'=>null]);
         $speakers = $this->speakers->values();
         $this->rows = array_map(function ($item, $index) use ($speakers) {
             $item['participant_id'] = $speakers[$index]['id'];  // Pastikan index valid di $speakers
             $item['cv_file_id'] = $speakers[$index]['cv_file_id'];  // Pastikan index valid di $speakers
             $item['idcard_file_id'] = $speakers[$index]['idcard_file_id'];  // Pastikan index valid di $speakers
             $item['npwp_file_id'] = $speakers[$index]['npwp_file_id'];  // Pastikan index valid di $speakers
-            $item['material'] = $speakers[$index]['material'];  // Pastikan index valid di $speakers
+            $item['material_file_id'] = $speakers[$index]['material_file_id'];  // Pastikan index valid di $speakers
             return $item;
         }, $this->rows, array_keys($this->rows));
     }
@@ -69,7 +70,8 @@ class TableSpeakerInformations extends Component
             $files = [
                 'cv_file_id' => $row['cv_file_id'],
                 'idcard_file_id' => $row['idcard_file_id'],
-                'npwp_file_id' => $row['npwp_file_id']
+                'npwp_file_id' => $row['npwp_file_id'],
+                'material_file_id' => $row['material_file_id']
             ];
             $directory = 'temp/report/speaker-information/' . $participant_id;
             if (Storage::disk('minio')->exists($directory)) {

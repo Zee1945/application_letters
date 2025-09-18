@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
             PositionSeeder::class,
             UserSeeder::class,
             ParticipantTypeSeeder::class,
-            CommiteePositionSeeder::class,
             FileTypeSeeder::class,
         ]);
 

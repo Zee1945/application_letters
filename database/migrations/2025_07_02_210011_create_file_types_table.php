@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('parent_id')->nullable(); // Nama jadwal aplikasi
             $table->string('code')->nullable(); // Nama jadwal aplikasi
             $table->integer('trans_type')->nullable(); // Nama jadwal aplikasi
+            $table->integer('is_upload')->default(0); // Nama jadwal aplikasi
             $table->unsignedBigInteger('signed_role_id')->nullable(); // Tanggal mulai jadwal
             $table->text('delete_note')->nullable(); // Catatan penghapusan (jika ada)
             $table->unsignedBigInteger('created_by')->nullable(); // Dibuat oleh (ID user)

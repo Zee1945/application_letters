@@ -86,18 +86,8 @@
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-2">
-                                        <div class="step-trigger {{$this->step == 2 ? 'active' : ''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-2">
+                                        <div class="step-trigger {{$this->step == 2 ? 'active' : ''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-3">
                                             <div class="bs-stepper-circle">2</div>
-                                            <div>
-                                                <h5 class="mb-0 steper-title">Notulensi</h5>
-                                                <p class="mb-0 steper-sub-title">Form Notulensi</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="bs-stepper-line"></div>
-                                    <div class="step" data-target="#test-l-3">
-                                        <div class="step-trigger {{$this->step == 3 ? 'active' : ''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger2" aria-controls="test-l-3">
-                                            <div class="bs-stepper-circle">3</div>
                                             <div>
                                                 <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
                                                 <p class="mb-0 steper-sub-title">Form Narasumber</p>
@@ -106,8 +96,8 @@
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-3">
-                                        <div class="step-trigger {{$this->step == 4 ? 'active' : ''}}" role="tab" wire:click="directStep('4')" id="stepper1trigger3" aria-controls="test-l-3">
-                                            <div class="bs-stepper-circle">4</div>
+                                        <div class="step-trigger {{$this->step == 3 ? 'active' : ''}}" role="tab" wire:click="directStep('3')" id="stepper1trigger3" aria-controls="test-l-3">
+                                            <div class="bs-stepper-circle">3</div>
                                             <div>
                                                 <h5 class="mb-0 steper-title">Realisasi</h5>
                                                 <p class="mb-0 steper-sub-title">Form Realisasi</p>
@@ -134,11 +124,11 @@
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="background"></textarea>
                                         </div>
-                                        <div class="col-12">
+                                        {{-- <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="speaker_material"></textarea>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
@@ -158,26 +148,131 @@
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
                                         </div>
                                         <div class="col-12 mb-3">
+                                            <div class="d-flex">
+
+                                            <label for="minutes_file" class="form-label fw-bold">File Notulensi
+                                                <small class="text-muted">(PDF, maksimal 2MB)</small>
+                                            </label>
+                                            <span class=" ms-2 d-flex align-items-center gap-2 mb-2">
+                                                <a wire:click="downloadTemplateMinutes" wire:loading.class="opacity-50" role="button" class="d-flex align-items-baseline" download>
+                                                    <i class="fa-solid fa-download me-1"></i> Download Template
+                                                </a>
+                                            </span>
+                                            </div>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_minutes_file))
+                                <table class="table table-striped mt-2">
+                                    <thead>
+                                        <tr>
+
+                                         <th class="text-center" style="width:40%">Nama File</th>
+                                         <th class="text-center" style="width:20%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                {{$this->old_minutes_file['fileName']}}
+                                            </td>
+                                            <td class="text-center">
+                                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_minutes_file['file_id']}})">Lihat</button>
+                                                
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            <input type="file"
+                                            {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('minutes_file') is-invalid @enderror"
+                                                id="minutes_file"
+                                                wire:model="minutes_file"
+                                                accept=".pdf">
+                                            @error('minutes_file')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if ($old_minutes_file)
+                                            @if (is_array($old_minutes_file))
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file->getClientOriginalName() }}
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                                
+                                            @endif
+                        @endif
+                                            
+                                        </div>
+                                        <div class="col-12 mb-3">
                                             <label for="spj_file" class="form-label fw-bold">
                                            Dokumen SPJ
                                                 <small class="text-muted">(PDF, maksimal 2MB)</small>
                                             </label>
-                                            <input type="file"
-                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+
+                                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_spj_file))
+                                 <table class="table table-striped mt-2">
+                                    <thead>
+                                        <tr>
+
+                                         <th class="text-center" style="width:40%">Nama File</th>
+                                         <th class="text-center" style="width:20%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                {{$this->old_spj_file['fileName']}}
+                                            </td>
+                                            <td class="text-center">
+                                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_spj_file['file_id']}})">Lihat</button>
+                                                
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            <input type="file"
+                                            {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
                                                 class="form-control @error('spj_file') is-invalid @enderror"
                                                 id="spj_file"
-                                                wire:model.live="spj_file"
-                                                accept=".pdf"
-                                                {{-- wire:change="onAttachmentChanged('spj_file')" --}}
-                                                >
+                                                wire:model="spj_file"
+                                                accept=".pdf">
                                             @error('spj_file')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
-                                            @if ($spj_file)
+                                            @if ($old_spj_file)
+                                            @if (is_array($old_spj_file))
                                                 <div class="mt-2">
-                                                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> File terpilih: {{ $spj_file->getClientOriginalName() }}</span>
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file->getClientOriginalName() }}
+                                                    </span>
                                                 </div>
                                             @endif
+
+                                                
+                                            @endif
+                        @endif
                                         </div>
 
                                         <div class="col-12 mb-3">
@@ -185,7 +280,68 @@
                                                 Foto Dokumentasi Kegiatan
                                                 <small class="text-muted">(maksimal 5 foto, JPG/JPEG/PNG, maksimal 2MB/foto)</small>
                                             </label>
-                                            <input type="file"
+                                            {{-- <input type="file"
+                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('documentation_photos') is-invalid @enderror"
+                                                id="documentation_photos"
+                                                wire:model.live="documentation_photos"
+                                                accept=".jpg,.jpeg,.png"
+                                                multiple
+                                                >
+                                            @error('documentation_photos')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror --}}
+                                            {{-- @if ($documentation_photos)
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> {{ count($documentation_photos) }} file terpilih</span>
+                                                    <ul class="list-unstyled mt-1">
+                                                        @foreach ($documentation_photos as $photo)
+                                                            <li><i class="fa-solid fa-image text-secondary"></i> {{ $photo->getClientOriginalName() }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif --}}
+                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_documentation_photos))
+                                {{-- @php
+                                    
+                                    dd($old_documentation_photos);
+                                @endphp --}}
+                               {{-- filepath: c:\laragon\www\application_letters\resources\views\livewire\form-lists\reports\report-create.blade.php --}}
+<table class="table table-striped mt-2">
+    <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width:40%">Nama File</th>
+            <th class="text-center" style="width:20%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($old_documentation_photos as $photo)
+            <tr>
+                <td>
+                    <i class="fa-solid fa-image text-secondary me-1"></i>
+                    {{ $photo['fileName'] }}
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
+                         Lihat
+                    </button>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="2" class="text-center text-muted"><em>Tidak ada file dokumentasi</em></td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+                              
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            
+                                                 <input type="file"
                                                 {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
                                                 class="form-control @error('documentation_photos') is-invalid @enderror"
                                                 id="documentation_photos"
@@ -196,16 +352,28 @@
                                             @error('documentation_photos')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
-                                            @if ($documentation_photos)
+                                            @if (count($old_documentation_photos) > 0)
+                                            @foreach ($old_documentation_photos as $photo)
+                                                
+                                            @if (is_array($photo))
                                                 <div class="mt-2">
-                                                    <span class="badge bg-success"><i class="fa-solid fa-check"></i> {{ count($documentation_photos) }} file terpilih</span>
-                                                    <ul class="list-unstyled mt-1">
-                                                        @foreach ($documentation_photos as $photo)
-                                                            <li><i class="fa-solid fa-image text-secondary"></i> {{ $photo->getClientOriginalName() }}</li>
-                                                        @endforeach
-                                                    </ul>
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo->getClientOriginalName() }}
+                                                    </span>
                                                 </div>
                                             @endif
+                                            @endforeach
+
+
+                                                
+                                            @endif
+                        @endif
                                         </div>
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
@@ -224,80 +392,8 @@
 
                                 </div>
 
-                            <div id="test-l-2" role="tabpanel" class="{{$this->step == '2' ? '' : 'bs-stepper-pane'}}"
+                        <div id="test-l-2" role="tabpanel" class="{{$this->step == '2' ? '' : 'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger2">
-
-                                    <div class="d-flex justify-content-between">
-                                        <div class="">
-                                            <h5 class="mb-1">Notulensi</h5>
-                                            <p class="mb-4">Isi Form Notulensi</p>
-                                        </div>
-                                    </div>
-                                    <div class="row g-3">
-                                            <div class="col-12">
-                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Isi Notulensi</h6>
-                                                </label>
-                                                <div class="">
-                                                    <livewire:forms.table-minutes :oldMinutes="$this->minutes" :handleDisable="viewHelper::handleFieldDisabled($this->application, true)"/>
-                                                </div>
-                                                <div class="attendee mt-3">
-                                                    <div class="row mb-3 align-items-center">
-                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta</label>
-                                                        <div class="col-sm-12 col-md-2">
-                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                                class="form-control @error('total_participants') is-invalid @enderror" id="total_participants"
-                                                                wire:model="total_participants" min="0" >
-                                                            @error('total_participants')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                    <div class="row align-items-center">
-                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta Tidak Hadir</label>
-                                                        <div class="col-sm-12 col-md-2">
-                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                                class="form-control @error('total_participants_not_present') is-invalid @enderror" id="total_participants_not_present"
-                                                                wire:model="total_participants_not_present" min="0" >
-                                                            @error('total_participants_not_present')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                    <div class="row align-items-center">
-                                                        <label for="total_participants" class="col-sm-12 col-md-2 col-form-label fw-bold">Jumlah Peserta Hadir</label>
-                                                        <div class="col-sm-12 col-md-2">
-                                                            <input type="number" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                                class="form-control @error('total_participants_present') is-invalid @enderror" id="total_participants_present"
-                                                                wire:model="total_participants_present" min="0" >
-                                                            @error('total_participants_present')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between align-items-center gap-3 ">
-                                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
-                                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                                        <div class="d-flex">
-                                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                            @endif
-                                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
-                                                    class='bx bx-right-arrow-alt ms-2'></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div><!---end row-->
-
-                        </div>
-                        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3' ? '' : 'bs-stepper-pane'}}"
-                                    aria-labelledby="stepper1trigger3">
 
                                     <div class="d-flex justify-content-between">
                                         <div class="">
@@ -338,7 +434,7 @@
 
 
 
-        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+        <div id="test-l-3" role="tabpanel" class="{{$this->step == '3' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger3">
             <h5 class="mb-1">Realisasi Anggaran</h5>
             <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 

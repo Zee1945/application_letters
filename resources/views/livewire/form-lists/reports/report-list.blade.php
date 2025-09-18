@@ -38,7 +38,9 @@
                                 {{$key+1}}
                             </td>
                             <td>{{ $application->activity_name }}</td>
-                            <td>{!! viewHelper::statusReportHTML($application->report?->approval_status) !!}</td>
+                            <td>
+                                {!! viewHelper::statusReportHTML($application->report?->approval_status) !!}
+                            </td>
                             <td>{!! viewHelper::getCurrentUserProcess($application,true) !!}</td>
                             <td>{{$application->department->name}}</td>
                             <td>

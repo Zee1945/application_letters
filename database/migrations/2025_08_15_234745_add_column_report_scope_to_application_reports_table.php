@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('application_reports', function (Blueprint $table) {
-            $table->text('report_scope')->nullable();  
+            $table->dropColumn('report_scope')->nullable();  
         });
     }
 };

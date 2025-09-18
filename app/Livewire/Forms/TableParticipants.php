@@ -18,7 +18,6 @@ class TableParticipants extends Component
         $this->raw_participant = $participants;
         $this->participantType = $participantType;
         $this->filteredParticipants = $this->filterParticipantByType();
-        $this->commiteePositions = $this->getCommiteePositions();
     }
 
     public function render()
@@ -51,15 +50,10 @@ class TableParticipants extends Component
             }
         });
     }
-    public function getCommiteePositions()
-    {
-        return CommiteePosition::all();
-    }
+
     public function findName($type,$id)
     {
         switch ($type) {
-            case 'commitee':
-                return CommiteePosition::findOrFail($id)->name;
             case 'participant':
                 return ParticipantType::findOrFail($id)->name;
             default:

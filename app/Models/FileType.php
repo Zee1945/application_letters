@@ -15,6 +15,7 @@ class FileType extends Model
         'trans_type',
         'signed_role_id',
         'parent_id',
+        'is_upload',
         'created_by',
         'updated_by',
         'deleted_note',

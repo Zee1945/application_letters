@@ -10,9 +10,13 @@
                 @if ($participantType != 'commitee')
                     <th>Jabatan - Lembaga</th>
                 @endif
+                @if ($participantType == 'commitee')
+                    <th class="text-center">Penandatangan</th>
+                @endif
                 @if ($participantType != 'participant')
                     <th>Peran</th>
                 @endif
+            
             </tr>
         </thead>
         <tbody id="table-body-{{$participantType}}">
@@ -26,6 +30,11 @@
 
                     @if ($participantType != 'commitee')
                         <td>{{$row['institution']}}</td>
+                        {{-- <td>{!!$row['is_signer_commitee']===1? '<i class="ri-check-line"></i>':''!!}</td> --}}
+                    @endif
+                     @if ($participantType == 'commitee')
+                     {{-- <td>{{$row['is_signer_commitee']}}</td> --}}
+                        <td class="text-center">{!! $row['is_signer_commitee']===1? '<i class="fa-solid fa-circle-check text-success fs-5"></i>':''!!} </td>
                     @endif
 
                     <td>
@@ -36,7 +45,7 @@
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                     @endforeach
                                 </select> --}}
-                                <span class="text-capitalize">{{$this->findName('commitee',$row['commitee_position_id'])}}</span>
+                                <span class="text-capitalize">{{$row['commitee_position']}}</span>
                             @else
                                 <span class="text-capitalize">{{$this->findName('participant',$row['participant_type_id'])}}</span>
 

@@ -3,7 +3,6 @@
 namespace App\Imports;
 
 use App\Models\Application;
-use App\Models\CommiteePosition;
 use App\Models\ParticipantType;
 use App\Services\AuthService;
 use Carbon\Carbon;
@@ -43,8 +42,9 @@ class ApplicationsImport implements ToCollection
             'nip' => null,
             'rank' => null,
             'functional_position' => null,
-            'commitee_position_id' => null,
+            'commitee_position' => null,
             'participant_type_id' => null,
+            'is_signer_commitee' => 0,
             'application_id' => $this->application_id,
             'department_id' => AuthService::currentAccess()['department_id']
 
@@ -172,11 +172,13 @@ class ApplicationsImport implements ToCollection
         foreach ($data as $key => $value) {
             if (!empty($value[10]) && !empty($value[11])) {
                 $this->finest_participant_data[$this->index_participant] = $this->default_participant_fields;
-                $this->finest_participant_data[$this->index_participant]['commitee_position_id'] = CommiteePosition::whereName(strtolower($value[10]))->first()?->id;
+                $this->finest_participant_data[$this->index_participant]['commitee_position'] = strtolower($value[10]);
                 $this->finest_participant_data[$this->index_participant]['name'] = $value[11] ?? null;
                 $this->finest_participant_data[$this->index_participant]['nip'] = $value[12] ?? null;
                 $this->finest_participant_data[$this->index_participant]['rank'] = $value[13] ?? null;
                 $this->finest_participant_data[$this->index_participant]['functional_position'] = $value[14] ?? null;
+                $this->finest_participant_data[$this->index_participant]['is_signer_commitee'] = strtolower($value[10]) === 'ketua panitia' ?1:0;
+                // $this->finest_participant_data[$this->index_participant]['is_signer_commitee'] = strtolower($value[10]) === 'ketua pelaksana' ?1:0;
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('panitia')->first()?->id;
                 $this->index_participant++;
             }

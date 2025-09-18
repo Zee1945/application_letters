@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('application_letter_numbers', function (Blueprint $table) {
-            $table->integer('is_with_date')->after('letter_number')->default(0);
+            $table->dropColumn('is_with_date')->after('letter_number')->default(0);
         });
     }
 };
