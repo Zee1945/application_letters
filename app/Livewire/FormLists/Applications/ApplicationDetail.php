@@ -30,7 +30,7 @@ class ApplicationDetail extends Component
     public function downloadFile($path,$filename,$is_upload =0){
 
         $newPath = $is_upload == 1?$path:$path.'/'.$filename;
-        $url = Storage::disk('minio')->temporaryUrl(, now()->addHours(1), [
+        $url = Storage::disk('minio')->temporaryUrl($newPath, now()->addHours(1), [
                 'ResponseContentType' => 'application/octet-stream',
                 'ResponseContentDisposition' => 'attachment; '. $filename,
                 'filename' => $filename,
