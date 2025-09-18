@@ -196,6 +196,14 @@ class ApplicationCreateDraft extends AbstractComponent
             }
     }
 
+    
+
+    public function syncData(){
+
+        sleep(0.5);
+        // $this->saveDraft(3);
+
+    }
     public function openModalLoadingGenerateDoc(){
 
         $this->process_document_status = 'processing';
