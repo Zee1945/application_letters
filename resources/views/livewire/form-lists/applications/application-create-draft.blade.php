@@ -392,8 +392,13 @@
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
                         <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
-                        <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
-                                class='bx bx-right-arrow-alt ms-2'></i></button>
+                        <div class="d-flex">
+                            @if (viewHelper::actionPermissionButton('submit',$this->application))
+                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="saveDraft('3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                            @endif
+                            <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
+                                    class='bx bx-right-arrow-alt ms-2'></i></button>
+                        </div>
                     </div>
                 </div>
             </div><!---end row-->
