@@ -124,11 +124,11 @@
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="background"></textarea>
                                         </div>
-                                        {{-- <div class="col-12">
+                                        <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="speaker_material"></textarea>
-                                        </div> --}}
+                                        </div>
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
