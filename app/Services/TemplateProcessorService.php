@@ -154,7 +154,8 @@ class TemplateProcessorService
         if ($role->name == 'user') {
             $get_chief_commitee = $application->participants()->where('is_signer_commitee',1)->first();
             $signer_name = $get_chief_commitee->name;
-            $signer_position = $get_chief_commitee->commitee_position;
+            $signer_position = 'Ketua Panitia';
+            // $signer_position = $get_chief_commitee->commitee_position;
         }
         $meta = [
             'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->updated_at,false),

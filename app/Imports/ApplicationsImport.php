@@ -177,7 +177,7 @@ class ApplicationsImport implements ToCollection
                 $this->finest_participant_data[$this->index_participant]['nip'] = $value[12] ?? null;
                 $this->finest_participant_data[$this->index_participant]['rank'] = $value[13] ?? null;
                 $this->finest_participant_data[$this->index_participant]['functional_position'] = $value[14] ?? null;
-                $this->finest_participant_data[$this->index_participant]['is_signer_commitee'] = strtolower($value[10]) === 'ketua panitia' ?1:0;
+                $this->finest_participant_data[$this->index_participant]['is_signer_commitee'] = strtolower($value[10]) === 'ketua' ?1:0;
                 // $this->finest_participant_data[$this->index_participant]['is_signer_commitee'] = strtolower($value[10]) === 'ketua pelaksana' ?1:0;
                 $this->finest_participant_data[$this->index_participant]['participant_type_id'] = ParticipantType::whereName('panitia')->first()?->id;
                 $this->index_participant++;
