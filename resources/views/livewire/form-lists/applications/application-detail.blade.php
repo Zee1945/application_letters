@@ -99,10 +99,13 @@
                                                     <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
                                                 </div>
                                                 @if ($item->status_ready == 3)
-                                                <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
-                                                    @if($item->fileType->code !== 'file_spj')
+                                                    @if ($item->fileType->is_upload == 1)
+                                                          <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u></span>
+                                                    @else
+                                                         <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
                                                     <i class="fa-solid fa-signature"></i></span></span>
                                                     @endif
+                                               
                                                 @else
                                                 <span>{{$item->display_name}}</span>
                                                 @endif

@@ -1014,8 +1014,8 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('nomor_mak', strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number));
         $templateProcessor->setValue('tanggal_nomor_mak', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','mak')->first()->letter_date,false)));
         $templateProcessor->setValue('nomor_sk_uppercase', strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number));
-        $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date)));
-        $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number)));
+        $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date,false)));
+        $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number,false)));
 
 
 
