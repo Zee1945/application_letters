@@ -62,12 +62,31 @@
                                     class="btn btn-outline-secondary btn-sm">
                                     <i class='bx bx-info-circle'></i> Detail
                                 </a>
+
+                                
+
+                                
                                 {{-- <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                     <i class="fa-solid fa-bug me-1"></i>Debug
                                 </button> --}}
 
 
                             </div>
+                                  @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                            <div class="btn-group" role="group">
+    <button class="btn btn-sm btn-outline-primary px-4 me-2"
+        wire:click="regenerateDocument" wire:loading.attr="disabled"
+        wire:target="regenerateDocument">
+        <span wire:loading.remove wire:target="regenerateDocument">
+            <i class="fa-solid fa-rotate-right me-1"></i> Regenerate Document
+        </span>
+        <span wire:loading wire:target="regenerateDocument">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Memproses...
+        </span>
+    </button>
+</div>
+@endif
 
                             @if (viewHelper::actionPermissionButton('approval_process', $this->application))
                                 <div class="btn-group mt-2 w-100" role="group">
@@ -305,6 +324,20 @@
                                                                 </span>
                                                             </button>
                                                         @endif
+                                                            @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="saveDraft('1')" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraft">
+                                                                    <span wire:loading.remove wire:target="saveDraft">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="saveDraft">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+                                                            @endif
                                                         <!-- Step 1 - Tombol Save Draft sudah benar -->
                                                         {{-- @if
                                                         (viewHelper::actionPermissionButton('submit',$this->application))
@@ -445,6 +478,22 @@
                                                                 </button>
 
                                                             @endif
+                                                            @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="saveDraft('3')" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraft">
+                                                                    <span wire:loading.remove wire:target="saveDraft">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="saveDraft">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+
+                                                            @endif
+
                                                             <button class="btn btn-primary px-4"
                                                                 wire:click="nextStep">Next<i
                                                                     class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -471,15 +520,6 @@
                                                         :participants="$this->participants"
                                                         :participantType="'participant'" /> --}}
 
-                                                    {{-- tambahkan note disini agar sebagiknya user melakukan klik
-                                                    tombol sync data sebelum save draft agar data yang terakhir diinput
-                                                    masuk --}}
-                                                    {{-- filepath:
-                                                    c:\laragon\www\application_letters\resources\views\livewire\form-lists\applications\application-create-draft.blade.php
-                                                    --}}
-                                                    {{-- tambahkan note disini agar sebaiknya user melakukan klik tombol
-                                                    sync data sebelum save draft agar data yang terakhir diinput masuk
-                                                    --}}
                                                     <div class="alert alert-info d-flex align-items-center my-2"
                                                         role="alert" style="font-size: 0.97rem;">
                                                         <i class="fa-solid fa-circle-info me-2"></i>
@@ -526,6 +566,33 @@
                                                                     </span>
                                                                 </button>
                                                             @endif
+                                                                     @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                 <button class="btn btn-info px-4 me-2" wire:click="syncData"
+                                                                    wire:loading.attr="disabled" wire:target="syncData">
+                                                                    <span wire:loading.remove wire:target="syncData">
+                                                                        <i class="fa-solid fa-arrows-rotate me-1"></i> Sync
+                                                                        Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="syncData">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Memproses...
+                                                                    </span>
+                                                                </button>
+                                                                     <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="saveDraft('3')" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraft">
+                                                                    <span wire:loading.remove wire:target="saveDraft">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="saveDraft">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+
+                                                            @endif
                                                             <button class="btn btn-primary px-4"
                                                                 wire:click="nextStep">Next<i
                                                                     class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -570,6 +637,21 @@
                                                                 <button class="btn btn-success px-4"
                                                                     wire:click="openModalConfirmSubmit">Submit</button>
                                                             @endif
+                                                                     @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="saveDraft('3')" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraft">
+                                                                    <span wire:loading.remove wire:target="saveDraft">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="saveDraft">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -596,10 +678,22 @@
                                                                         class="form-label fw-bold">
                                                                         {{ $item['letter_label'] }}
                                                                     </label>
-                                                                    <input type="{{$item['type_field']}}"
-                                                                        wire:model="letter_numbers.{{$key}}.letter_number"
-                                                                        class="form-control" name="{{$item['letter_name']}}"
-                                                                        id="{{$item['letter_name']}}" {!! viewHelper::handleFieldDisabled($this->application, true) !!}>
+
+                                                                     @if($item['type_field'] === 'textarea')
+                    <textarea
+                        wire:model="letter_numbers.{{$key}}.letter_number"
+                        class="form-control"
+                        name="{{$item['letter_name']}}"
+                        id="{{$item['letter_name']}}"
+                        {!! viewHelper::handleFieldDisabled($this->application, true) !!}></textarea>
+                @else
+                    <input type="{{$item['type_field']}}"
+                        wire:model="letter_numbers.{{$key}}.letter_number"
+                        class="form-control"
+                        name="{{$item['letter_name']}}"
+                        id="{{$item['letter_name']}}"
+                        {!! viewHelper::handleFieldDisabled($this->application, true) !!}>
+                @endif
                                                                 </div>
                                                                 @if ($item['is_with_date'])
                                                                     <div class="col-md-6 col-12">
@@ -633,12 +727,12 @@
                                                                         class="fa-solid fa-bookmark"></i>Save Draft</button>
                                                                 --}}
                                                                 <button class="btn btn-warning text-white px-4 me-2"
-                                                                    wire:click="saveDraft('5')" wire:loading.attr="disabled"
-                                                                    wire:target="saveDraft">
-                                                                    <span wire:loading.remove wire:target="saveDraft">
+                                                                    wire:click="saveDraftLetterNumber" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraftLetterNumber">
+                                                                    <span wire:loading.remove wire:target="saveDraftLetterNumber">
                                                                         <i class="fa-solid fa-bookmark me-1"></i> Save Draft
                                                                     </span>
-                                                                    <span wire:loading wire:target="saveDraft">
+                                                                    <span wire:loading wire:target="saveDraftLetterNumber">
                                                                         <span
                                                                             class="spinner-border spinner-border-sm me-2"></span>
                                                                         Menyimpan...
@@ -649,6 +743,21 @@
                                                                 {{-- <button class="btn btn-success px-4"
                                                                     wire:click="openModalLoadingGenerateDoc">Submit</button>
                                                                 --}}
+                                                            @endif
+                                                                     @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="saveDraftLetterNumber" wire:loading.attr="disabled"
+                                                                    wire:target="saveDraftLetterNumber">
+                                                                    <span wire:loading.remove wire:target="saveDraftLetterNumber">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="saveDraftLetterNumber">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+
                                                             @endif
                                                         </div>
                                                     </div>
@@ -671,35 +780,21 @@
                     <div class="modal-content border-0 shadow-lg">
                         <div class="modal-body py-5 px-4">
                             <div class="d-flex flex-column align-items-center gap-4">
-                                @if ($this->process_document_status == 'processing')
                                     <img src="{{ asset('assets/images/rubic-cube-loading.gif') }}" alt="Loading..."
-                                        style="width: 6rem; height: 6rem;">
-                                    <div class="fw-bold fs-5 text-center">
-                                        Memproses dokumen, mohon ditunggu
-                                        <span class="dot-animated"></span>
-                                    </div>
-                                @elseif($this->process_document_status == 'success')
-                                    <div class="d-flex justify-content-center align-items-center" style="height: 4rem;">
-                                        <i class="fa-solid fa-circle-check text-success" style="font-size: 5rem;"></i>
-                                    </div>
-                                    <div class="fw-bold fs-5 text-center mb-2">Dokumen berhasil Di Proses</div>
-                                @elseif($this->process_document_status == 'failed')
-                                    <div class="d-flex justify-content-center align-items-center" style="height: 4rem;">
-                                        <i class="fa-solid fa-circle-xmark text-danger" style="font-size: 5rem;"></i>
-                                    </div>
-                                    <div class="fw-bold fs-5 text-center mb-2">Gagal Memproses Dokumen !</div>
-                                @else
-                                    <div class="fw-bold fs-5 text-center mb-2">Tidak ada proses</div>
-                                @endif
+    style="width: 6rem; height: 6rem;">
+<div class="fw-bold fs-5 text-center text-primary">
+    Dokumen Anda sedang diproses <span class="dot-animated"></span>
+</div>
+<p class="text-center text-muted mb-0" style="max-width: 350px;">
+    Silakan cek status dokumen anda secara berkala pada halaman <span class="fw-bold text-primary">Lihat Detail</span>
+                                
 
-                                @if (in_array($this->process_document_status, ['success', 'failed']))
                                     <div class="d-flex justify-content-center gap-2 w-100 mt-2">
                                         <button class="btn btn-hover btn-outline-secondary flex-fill border-2"
                                             wire:click="closeModalLoadingGenerateDoc">Tutup</button>
                                         <a href="{{ route('applications.detail', ['application_id' => $this->application_id]) }}"
                                             class="btn btn-hover btn-primary flex-fill">Lihat Detail</a>
                                     </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -860,9 +955,6 @@
                     Livewire.on('open-modal-loading-generate-doc', (event) => {
                         const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');
                         modals.show();
-                        if (event.status === 'processing') {
-                            @this.dispatch('update-letter-number');
-                        }
                     });
                     Livewire.on('close-modal-loading-generate-doc', (event) => {
                         const modals = bootstrap.Modal.getOrCreateInstance('#modalLoadingGenerateDocument');

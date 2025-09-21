@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\GenerateApplicationFileJob;
 use App\Models\Application;
 use App\Models\ApplicationDetail;
 use App\Models\ApplicationDraftCostBudget;
@@ -116,9 +117,10 @@ class ApplicationService
                         }
                     $application->userApprovals()->create([
                         'user_id' => $verifier->id,
-                        'user_text' => $verifier->name, // Assuming you want to store the name of the verifier
+                        'user_text' => $verifier->name.' - '.$verifier->position->name, // Assuming you want to store the name of the verifier
                         'sequence' => $sequence, // Assuming sequence starts at 1
                         'status' => 0, // Assuming 0 means pending
+                        'position_id' => $verifier->position_id, // Assuming 0 means pending
                         'report_status' => 0, // Assuming 0 means pending
                         'application_id' => $application->id,
                         'department_id' => AuthService::currentAccess()['department_id'], // Assuming the department ID is from the current user
@@ -132,6 +134,7 @@ class ApplicationService
                     'display_name'=> $ft->name,
                     'seq'=> $ft->seq,
                     'file_type_id'=> $ft->id,
+                    'order'=> $ft->order,
                     'department_id' => $application->department_id,
                 ];
                 $application->applicationFiles()->create($app_file);
@@ -592,7 +595,14 @@ class ApplicationService
             'letter_name'=>'mak',
             'letter_label'=>'MAK',
             'type_field'=>'text',
-                'is_with_date' => 1,
+                'is_with_date' => 0,
+                'letter_number'=>null,
+        ],
+            [
+            'letter_name'=>'keterangan_mak',
+            'letter_label'=>'Poin No 7 SK terkait MAK',
+            'type_field'=>'textarea',
+                'is_with_date' => 0,
                 'letter_number'=>null,
         ],
             [
@@ -675,17 +685,21 @@ class ApplicationService
 
         return true;
     }
-    public static function updateLetterNumber($letterNumbers,$app){
+    public static function updateLetterNumber($letterNumbers,$app,$is_submit=true){
         try {
             DB::beginTransaction();
             foreach ($letterNumbers as $key => $value) {
                 $field = $app->letterNumbers()->find($value['id'])->update($value);
             }
-            $app->update(['approval_status'=>12]);
-            $department = Department::find($app->department_id);
-            $department->current_limit_submission = $department->current_limit_submission+1;
-            $department->save();
-            TemplateProcessorService::generateApplicationDocument($app);
+            if ($is_submit) {
+                $app->update(['approval_status'=>12]);
+                $department = Department::find($app->department_id);
+                $department->current_limit_submission = $department->current_limit_submission+1;
+                $department->save();
+                GenerateApplicationFileJob::dispatch($app);
+            }
+
+            // TemplateProcessorService::generateApplicationDocument($app);
             DB::commit();
             return true;
         } catch (\Throwable $th) {

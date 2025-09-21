@@ -17,6 +17,7 @@ protected $fillable = [
     'report_status',
     'report_note',
     'application_id',
+    'position_id',
     'department_id',
     'delete_note',
     'created_by',
@@ -36,6 +37,10 @@ protected $fillable = [
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
     }
 
     public function createdBy()

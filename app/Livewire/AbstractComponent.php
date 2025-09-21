@@ -35,7 +35,7 @@ public function permissionApplication($application_id)
         $userRoles = $user->position->getRoleNames()->toArray();
         
         // Cek apakah user memiliki role finance atau dekan
-        $isFinanceOrDekan = array_intersect(['finance', 'dekan','kabag'], $userRoles);
+        $isFinanceOrDekan = array_intersect(['finance', 'dekan','kabag','admin'], $userRoles);
         
         $hasPermission = false;
         

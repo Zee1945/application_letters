@@ -70,16 +70,21 @@
                                     </li> --}}
                                 </ul>
                             </div>
-                            <div class="user-box dropdown px-3">
+                            <div class="user-box dropdown px-4">
                                 <a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-img d-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 40px; height: 40px;">
                                         {{-- <i class="fas fa-user"></i> --}}
                                         <i class="fa-regular fa-user" style="font-size: 1.2rem;"></i>
                                     </div>
-
                                     <div class="user-info">
-                                        <p class="user-name mb-0">{{viewHelper::currentAccess()['name']}}</p>
-                                        <p class="designattion mb-0">{{viewHelper::currentAccess()['department']}}</p>
+                                        {{-- <p class="user-name mb-0">{{viewHelper::currentAccess()['name']}}</p>
+                                        <p class="designattion mb-0">{{viewHelper::currentAccess()['department']}}</p> --}}
+                                        <div class="d-flex flex-column p-0 m-0">
+                                            <span class="user-name fw-bold lh-1">{{ viewHelper::currentAccess()['name'] ?? '-' }}</span>
+                                            <small class="lh-2">{{ viewHelper::currentAccess()['position'] ?? '-' }}</small>
+                                            <small class="lh-1 text-muted">{{ viewHelper::currentAccess()['department'] ?? '-' }}</small>
+                                        </div>
+
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">

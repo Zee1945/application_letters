@@ -38,7 +38,7 @@
                                     <input type="checkbox" 
                                            id="speaker_{{ $index }}_{{ $key }}"
                                            class="form-check-input"
-                                           wire:click="toggleSpeaker({{ $index }}, '{{ $speaker['text'] }}')"
+                                           wire:click="toggleSpeaker({{ $index }}, `{{ $speaker['text'] }}`)"
                                            {{ in_array($speaker['text'], $row['speaker_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
                                     <label for="speaker_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
                                         {{ $speaker['text'] }}
@@ -54,7 +54,7 @@
                                     <input type="checkbox" 
                                            id="moderator_{{ $index }}_{{ $key }}"
                                            class="form-check-input"
-                                           wire:click="toggleModerator({{ $index }}, '{{ $moderator['text'] }}')"
+                                           wire:click="toggleModerator({{ $index }}, `{{ $moderator['text'] }}`)"
                                            {{ in_array($moderator['text'], $row['moderator_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
                                     <label for="moderator_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
                                         {{ $moderator['text'] }}
@@ -100,9 +100,6 @@
     </table>
     
     <div class="row">
-        {{-- <div class="col-12">
-            <button type="button" wire:click="debug" class="btn btn-primary mt-3 w-100">Debug</button>
-        </div> --}}
         <div class="col-12">
             <button type="button" wire:click="addRow" class="btn btn-primary mt-3 w-100">Tambah Baris</button>
         </div>

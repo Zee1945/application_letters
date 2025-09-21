@@ -40,17 +40,18 @@ class TemplateProcessorService
     public static $dump = [];
 
     public static function generateApplicationDocument($application){
-        // $file_type = FileType::where('trans_type',1)->get();
         $application_files = $application->applicationFiles()->whereHas('fileType',function($q){
             return $q->where('trans_type',1);
         })->get();
-        // dd($application_files);
         foreach ($application_files as $key => $app_file) {
             $code = $app_file->fileType->code;
+            $app_file->status_ready=2;
+            $app_file->save();
             $res = self::generateDocumentToPDF($application,$code,$app_file);
 
             if (!$res['status']) {
-                dd($res['message']);
+                 $app_file->status_ready=4;
+                 Log::error($res['message']);
             }
         }
         // dd(self::$dump);
@@ -1013,7 +1014,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
 
         $templateProcessor->setValue('nomor_mak', strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number));
-        $templateProcessor->setValue('tanggal_nomor_mak', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','mak')->first()->letter_date,false)));
+        $templateProcessor->setValue('keterangan_mak', ucwords($application->letterNumbers()->where('letter_name','keterangan_mak')->first()->letter_number));
         $templateProcessor->setValue('nomor_sk_uppercase', strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number));
         $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date,false)));
         $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number,false)));

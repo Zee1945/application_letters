@@ -31,7 +31,7 @@ class GenerateApplicationFileJob implements ShouldQueue
     {
         //
 
-        TemplateProcessorService::generateWord($this->application);
+        TemplateProcessorService::generateApplicationDocument($this->application);
     }
 
     public function failed(\Throwable $exception): void

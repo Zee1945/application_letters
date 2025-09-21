@@ -146,6 +146,7 @@ class TableRundown extends Component
 
     public function addSpeaker($index)
     {
+        dd($index);
         $this->rundown[$index]['speaker_text'][] = '';  // Menambah input narasumber baru
         $this->rundown = $this->rundown; // Menetapkan ulang array untuk memicu pembaruan
         $this->dispatch('rundownUpdated'); // Menggunakan dispatch untuk memicu pembaruan
@@ -198,8 +199,7 @@ class TableRundown extends Component
             $this->rundown[$rowIndex]['speaker_text'] = [];
         }
         
-        $currentSpeakers = $this->rundown[$rowIndex]['speaker_text'];
-        
+        $currentSpeakers = $this->rundown[$rowIndex]['speaker_text'];        
         if (in_array($speakerText, $currentSpeakers)) {
             $this->rundown[$rowIndex]['speaker_text'] = array_values(
                 array_diff($currentSpeakers, [$speakerText])

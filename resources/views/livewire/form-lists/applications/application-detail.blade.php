@@ -89,7 +89,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($app->applicationFiles as $item)
+                                @foreach ($application_files as $item)
                                     <tr>
                                         {{-- <td>{{$item->fileType->parent?->name}}</td> --}}
                                         <td class="text-center">{!! viewHelper::generateStatusFileHTML($item->status_ready) !!}</td>
@@ -99,11 +99,11 @@
                                                     <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
                                                 </div>
                                                 @if ($item->status_ready == 3)
-                                                    @if ($item->fileType->is_upload == 1)
+                                                    @if ($item->fileType->is_upload == 1 )
                                                           <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u></span>
                                                     @else
                                                          <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
-                                                    <i class="fa-solid fa-signature"></i></span></span>
+                                                        <i class="fa-solid fa-signature"></i></span></span>
                                                     @endif
                                                
                                                 @else

@@ -11,7 +11,6 @@ use Livewire\Component;
 class ApplicationDetail extends Component
 {
     public $application_id = null;
-    public $application_files = [];
     public function mount($application_id){
         $this->application_id = $application_id;
 
@@ -21,7 +20,8 @@ class ApplicationDetail extends Component
     public function render()
     {
         $app = Application::find($this->application_id);
-        return view('livewire.form-lists.applications.application-detail', compact('app'))
+        $application_files = $app->applicationFiles()->with('fileType')->orderBy('order','asc')->get();
+        return view('livewire.form-lists.applications.application-detail', compact('app','application_files'))
             ->extends('layouts.main');
     }
 

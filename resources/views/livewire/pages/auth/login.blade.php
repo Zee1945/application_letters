@@ -25,7 +25,8 @@ new #[Layout('layouts.guest')] class extends Component
         // $role = auth()->user()->position()->getRoleNames()->first() ?? 'user';
         $role = $position->getRoleNames()->first() ?? 'user';
         $department = auth()->user()->department()->first()->name ?? '';
-        Session::put('user', [...auth()->user()->except('password', 'remember_token'),'role'=> $role,'department'=>$department]);
+        $position = auth()->user()->position()->first()->name ?? '';
+        Session::put('user', [...auth()->user()->except('password', 'remember_token'),'role'=> $role,'position'=>$position,'department'=>$department]);
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>

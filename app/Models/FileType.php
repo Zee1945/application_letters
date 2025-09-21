@@ -16,6 +16,7 @@ class FileType extends Model
         'signed_role_id',
         'parent_id',
         'is_upload',
+        'order',
         'created_by',
         'updated_by',
         'deleted_note',

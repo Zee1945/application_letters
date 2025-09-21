@@ -50,14 +50,15 @@ public static function generateStatusFileHTML($status_number)
         if ($status_number == 0) {
             $label = 'Belum Tersedia';
             $color = 'secondary';
-        } elseif ($status_number == 2) {
-            $label = 'Proses';
+        } elseif ($status_number == 1) {
+            $label = 'Sedang diproses';
             $color = 'info';
         } elseif ($status_number == 3) {
             $label = 'Tersedia';
             $color = 'success';
         } else {
-            // Default case if needed
+            $label ='Gagal';
+            $color ='danger';
         }
 
         return '<span class="badge rounded-pill bg-pastel-' . $color . '">' . $label . '</span>';
@@ -157,6 +158,8 @@ public static function humanReadableDate($date_time,$is_with_day=true)
 
     public static function handleFieldDisabled($application,$is_letter_number =false,$is_report=false) {
         $status = $is_report ? $application->report->approval_status : $application->approval_status;
+        $is_relevan_admin = AuthService::adminHasAccessToApplication($application->department_id);
+        if ($is_relevan_admin) return '';
         if ($status > 5 ) {
             if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
                 return '';
@@ -219,6 +222,7 @@ public static function humanReadableDate($date_time,$is_with_day=true)
     public static function actionPermissionButton($action,$app=null, $is_report=false) {
         $department = Department::find(AuthService::currentAccess()['department_id']);
         $quota_remaining = $department->limit_submission - $department->current_limit_submission;
+        $admin_has_access = $app? AuthService::adminHasAccessToApplication($app->department_id):false;
         switch ($action) {
             case 'approval_process':
                 if (!$is_report) {
@@ -255,9 +259,19 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                     return true;
                 }
                 return false;
+            
             default:
-                # code...
-                break;
+                switch ($action) {
+                    case 'admin-submit':
+                if ($admin_has_access) return true;
+                return false;
+                case 'admin-submit-letter-number':
+                    if ($admin_has_access) return true;
+                    return false;
+                case 'admin-submit-report':
+                if ($admin_has_access) return true;
+                return false;
+                }
         }
 
         return false;

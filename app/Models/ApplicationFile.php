@@ -15,6 +15,7 @@ class ApplicationFile extends Model
      */
     protected $fillable = [
         'file_id',
+        'order',
         'file_type_id',
         'status_ready',
         'application_id',
@@ -54,6 +55,13 @@ class ApplicationFile extends Model
                 });
         });
     }
+
+    public function scopeOrderByFileTypeOrder($query)
+{
+    return $query->join('file_types', 'application_files.file_type_id', '=', 'file_types.id')
+        ->orderBy('file_types.order', 'asc')
+        ->select('application_files.*');
+}
     public function scopeFindCode($query, $file_code)
     {
         return $query->whereHas('fileType', function ($query) use ($file_code) {

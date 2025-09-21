@@ -64,6 +64,7 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public function mount($application_id = null)
     {
+      
        $this->application = Application::find($application_id);
        $this->step = $this->application->draft_step_saved;
        $this->participants = $this->application->participants->toArray();
@@ -93,6 +94,8 @@ class ApplicationCreateDraft extends AbstractComponent
     }
     public function render()
     {
+//           $is_relevan_admin = AuthService::adminHasAccess($app_departemn_id);
+// dd($is_relevan_admin);
         if (count($this->draft_costs) > 0) $this->dispatch('transfer-draft-costs', [...$this->draft_costs]);
         if ($this->application->detail) {
             $this->loadData();
@@ -103,6 +106,13 @@ class ApplicationCreateDraft extends AbstractComponent
         return view('livewire.form-lists.applications.application-create-draft')->extends('layouts.main');
     }
 
+    public function saveDraftLetterNumber(){
+        $res = ApplicationService::updateLetterNumber($this->letter_numbers,$this->application,false);
+        if ($res) {
+            $this->redirectRoute('applications.create.draft',['application_id'=> $this->application_id],false,true);
+        }
+
+    }
     public function saveDraft($last_saved,$is_submit=false){
         // dd($this->rundowns);
         $this->step = $last_saved;
@@ -169,6 +179,11 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->dispatch('open-modal');
     }
 
+    
+    public function regenerateDocument(){
+        GenerateApplicationFileJob::dispatch($this->application);
+    }
+
 
 
 
@@ -186,7 +201,7 @@ class ApplicationCreateDraft extends AbstractComponent
             // $res = true;
             if ($res) {
                 $this->dispatch('close-modal-loading-generate-doc');
-                $this->process_document_status = 'success';
+                // $this->process_document_status = 'success';
                 $this->dispatch('open-modal-loading-generate-doc',...[
                     'status' => $this->process_document_status,
                 ]);
@@ -205,8 +220,7 @@ class ApplicationCreateDraft extends AbstractComponent
 
     }
     public function openModalLoadingGenerateDoc(){
-
-        $this->process_document_status = 'processing';
+        $this->updateLetterNumber();
         $this->dispatch('open-modal-loading-generate-doc',...[
                     'status' => $this->process_document_status,
                 ]);
@@ -241,11 +255,11 @@ class ApplicationCreateDraft extends AbstractComponent
             // $this->updateLetterNumber();
             // GenerateApplicationFileJob::dispatch($this->application);
             // TemplateProcessorService::generateDocumentToPDF($this->application,'tor');
-            $code = 'surat_permohonan_narasumber';
-            $app_files = $this->application->applicationFiles()->findCode($code)->get();
-            foreach ($app_files as $key => $app_file) {
-                TemplateProcessorService::generateDocumentToPDF($this->application,$code,$app_file);
-            }
+            // $code = 'surat_permohonan_narasumber';
+            // $app_files = $this->application->applicationFiles()->findCode($code)->get();
+            // foreach ($app_files as $key => $app_file) {
+            //     TemplateProcessorService::generateDocumentToPDF($this->application,$code,$app_file);
+            // }
             // TemplateProcessorService::generateApplicationDocument($this->application);
             // TemplateProcessorService::generateApplicationDocument($app);
         } catch (\Exception $e) {
