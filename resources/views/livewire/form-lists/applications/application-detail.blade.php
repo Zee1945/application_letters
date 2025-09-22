@@ -107,7 +107,7 @@
                                                     @endif
                                                
                                                 @else
-                                                <span>{{$item->status_ready}} => {{$item->display_name}}</span>
+                                                <span> {{$item->display_name}}</span>
                                                 @endif
                                             </div>
                                         </td>

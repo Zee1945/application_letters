@@ -50,7 +50,7 @@ public static function generateStatusFileHTML($status_number)
         if ($status_number == 0) {
             $label = 'Belum Tersedia';
             $color = 'secondary';
-        } elseif ($status_number == 1) {
+        } elseif ($status_number == 2) {
             $label = 'Sedang diproses';
             $color = 'info';
         } elseif ($status_number == 3) {

@@ -25,14 +25,14 @@
             <div class="card shadow-sm mb-4=1">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-md-8 col-sm-12">
+                        <div class="col-md-10 col-sm-12">
                             <div class="d-flex align-items-center">
                                 <div class="activity-icon me-3">
                                     <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
                                 </div>
                                 <div>
                                     <div class="">
-                                        <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">
+                                        <h5 class="mb-1 text-uppercase fw-bold text-dark text-wrap text-truncate">
                                             {{ $this->application->activity_name }}</h5>
                                     </div>
                                     <div class="d-flex align-items-center text-muted">
@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 col-sm-12 text-end">
+                        <div class="col-md-2 col-sm-12 text-end">
                             <div class="btn-group-vertical d-md-none d-block mb-2"></div>
                             <div class="btn-group" role="group">
                                 {{-- @if ($application->approval_status == 12)
