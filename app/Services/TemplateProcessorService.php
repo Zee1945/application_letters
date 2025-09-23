@@ -89,7 +89,7 @@ class TemplateProcessorService
                 break;
             case 'surat_tugas_moderator':
                 $moderator = $application->participants()->where('participant_type_id',4)->get()->toArray()??[];
-                if (count($moderator)>0) {
+                if (!empty($moderator)) {
                     self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
                 }else{
                     $app_file->status_ready = 0;
@@ -99,7 +99,7 @@ class TemplateProcessorService
                 break; 
             case 'surat_tugas_narasumber':
                 $speaker = $application->participants()->where('participant_type_id',2)->get()->toArray()??[];
-                if (count($speaker)>0) {
+                if (!empty($speaker)) {
                     self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
                 }else{
                     $app_file->status_ready = 0;
