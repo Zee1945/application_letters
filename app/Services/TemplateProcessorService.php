@@ -88,10 +88,23 @@ class TemplateProcessorService
                 self::generateRundown($application, $templatePath, $directory_temp, $file_type);
                 break;
             case 'surat_tugas_moderator':
-                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
+                $moderator = $application->participant()->where('participant_type_id',4)->get()->toArray()??[];
+                if (count($moderator)>0) {
+                    self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
+                }else{
+                    $app_file->status_ready = 0;
+                    $app_file->save();
+                }
+
                 break; 
             case 'surat_tugas_narasumber':
-                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
+                $speaker = $application->participant()->where('participant_type_id',2)->get()->toArray()??[];
+                if (count($speaker)>0) {
+                    self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
+                }else{
+                    $app_file->status_ready = 0;
+                    $app_file->save();
+                }
                 break;
             case 'surat_tugas_panitia':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'commitee');
