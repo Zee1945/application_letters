@@ -417,6 +417,7 @@ class ApplicationService
                     foreach ($get_speaker as $key => $value) {
                         $app_file = [
                             'display_name'=> $ft->name.' - '.$value->name,
+                            'order'=> $ft->order,
                             'participant_id'=> $value->id,
                             'file_type_id'    => $ft->id,
                             'department_id' => $app->department_id,
@@ -427,6 +428,7 @@ class ApplicationService
                             $cp_app_file = $app_file;
                             $cp_app_file['display_name'] = $materi->name.' - '.$value->name;
                             $cp_app_file['file_type_id'] = $materi->id;
+                            $cp_app_file['order'] = $materi->order;
                             $materi_narasumbers[]=$cp_app_file;
                             // $app->applicationFiles()->create($cp_app_file);
                         }
