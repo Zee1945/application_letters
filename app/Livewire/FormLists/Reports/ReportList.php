@@ -13,7 +13,7 @@ class ReportList extends Component
      public $pagination = 10;
     public function render()
     {
-        $reports= ApplicationService::getListReport()->paginate($this->pagination);
+        $reports= ApplicationService::getListReport()->orderBy('created_at', 'desc')->paginate($this->pagination);
         return view('livewire.form-lists.reports.report-list',compact('reports'))->extends('layouts.main');
     }
 }

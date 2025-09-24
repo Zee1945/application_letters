@@ -259,22 +259,35 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                     return true;
                 }
                 return false;
-            
-            default:
-                switch ($action) {
-                    case 'admin-submit':
-                if ($admin_has_access) return true;
-                return false;
-                case 'admin-submit-letter-number':
-                    if ($admin_has_access) return true;
-                    return false;
-                case 'admin-submit-report':
-                if ($admin_has_access) return true;
-                return false;
+            case 'admin-submit':
+                if ($admin_has_access) {
+                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->approval_status != 12) {
+                        return false;
+                    }
+                    return true;
                 }
+                return false;
+            case 'admin-submit-letter-number':
+                if ($admin_has_access) {
+                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->approval_status != 12) {
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
+            case 'admin-submit-report':
+                if ($admin_has_access){
+                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->report->approval_status != 11) {
+                        return false;
+                    }
+                    return true;
+                } 
+                return false;
+            default:
+            
+            return false;
         }
 
-        return false;
     }
 
     public static function getCurrentAccess(){

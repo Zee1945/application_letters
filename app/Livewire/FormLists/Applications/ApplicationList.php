@@ -22,7 +22,7 @@ class ApplicationList extends Component
     public function render()
     {
         // $this->department_list = MasterManagementService::getDepartmentList();
-        $applications = Application::paginate($this->pagination);
+        $applications = Application::orderBy('created_at', 'desc')->paginate($this->pagination);
         // $applications = Application::paginate($this->pagination);
         $department = Department::find(AuthService::currentAccess()['department_id']);
         return view('livewire.form-lists.applications.application-list',compact('applications','department'))
