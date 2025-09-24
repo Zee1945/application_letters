@@ -194,7 +194,7 @@ case 'surat_permohonan_moderator':
     {
         $file_type = FileType::whereCode($file_type)->first();
         $role = Role::find($file_type->signed_role_id);
-        if ($file_type->signed_role_id == 7 && $application->created_by == AuthService::currentAccess()['id']) {
+        if ($file_type->signed_role_id == 7) {
             $log_approval = LogApproval::where('user_id',$application->created_by)->where('application_id',$application->id)->where('department_id',$application->department_id)->first();
             // $log_approval = LogApproval::where('')
             // dd($log_approval);
@@ -268,14 +268,13 @@ case 'surat_permohonan_moderator':
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_dates':
+                            # code...
                             $split_dates = explode(',',$value);
                             $human_readable_dates = array_map(function($date){
-                                $date = trim($date); // HILANGKAN SPASI DI SINI
-                                if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $date)) {
-                                    $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-                                    return ViewHelper::humanReadableDate($converted);
-                                }
-                                return $date;
+                                // tambahkan trim untuk hilangkan spasi
+                                // $date = trim($date); // HILANGKAN SPASI DI SINI
+                                $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
                             $templateProcessor->setValue($key, implode($human_readable_dates));
