@@ -89,6 +89,7 @@ class UsersController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        try {
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
@@ -111,11 +112,14 @@ class UsersController extends Controller
         $user->department_id = $request->department_id;
         $user->save();
 
-        // Update the user's role
-        $role = Role::findByName($request->role);
-        $user->syncRoles([$role]);
+    //    if (!$user) {
+    //         return redirect()->back()->withInput()->with('error', 'Gagal update user: ' . $e->getMessage());
+    //    }
 
         return redirect()->route('master.users.index')->with('success', 'User updated successfully');
+    } catch (\Exception $e) {
+        return redirect()->back()->withInput()->with('error', 'Gagal update user: ' . $e->getMessage());
+    }
     }
 
     /**
