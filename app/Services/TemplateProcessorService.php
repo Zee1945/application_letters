@@ -45,12 +45,58 @@ class TemplateProcessorService
         })->get();
         foreach ($application_files as $key => $app_file) {
             $code = $app_file->fileType->code;
-            $app_file->status_ready=2;
-            $app_file->save();
-            $res = self::generateDocumentToPDF($application,$code,$app_file);
+            $is_exist_participant = true;
+            $speaker = $application->participants()->where('participant_type_id',2)->get();
+            $moderator = $application->participants()->where('participant_type_id',4)->get();
+            $commitee = $application->participants()->where('participant_type_id',1)->get();
+            $participant = $application->participants()->where('participant_type_id',3)->get();
+
+            switch ($code) {
+    case 'surat_tugas_narasumber':
+        $is_exist_participant = $speaker->count() > 0;
+        break;
+    case 'surat_tugas_moderator':
+        $is_exist_participant = $moderator->count() > 0;
+        break;
+    case 'surat_tugas_peserta':
+        $is_exist_participant = $participant->count() > 0;
+        break;
+    case 'surat_tugas_panitia':
+        $is_exist_participant = $commitee->count() > 0;
+        break;
+    case 'surat_permohonan_narasumber':
+    // Cek jika ada peserta dengan tipe narasumber dan participant_id pada $app_file
+    if (empty($app_file->participant_id)) {
+        $is_exist_participant = false;
+        break;
+    }
+    $is_exist_participant = $speaker->where('id', $app_file->participant_id)->count() > 0;
+    break;
+case 'surat_permohonan_moderator':
+    // Cek jika ada peserta dengan tipe moderator dan participant_id pada $app_file
+    if (empty($app_file->participant_id)) {
+        $is_exist_participant = false;
+        break;
+    }
+    $is_exist_participant = $moderator->where('id', $app_file->participant_id)->count() > 0;
+    break;
+    default:
+        $is_exist_participant = true;
+        break;
+}
+            if ($is_exist_participant) {
+                # code...
+                $app_file->status_ready=2;
+                $app_file->save();
+                $res = self::generateDocumentToPDF($application,$code,$app_file);
+            }else{
+                $res=['status'=>false,'message'=>'Peserta Tidak ditemukan pada '.$app_file->display_name];
+            }
+            
 
             if (!$res['status']) {
                  $app_file->status_ready=4;
+                 $app_file->save();
                  Log::error($res['message']);
             }
         }
@@ -88,23 +134,10 @@ class TemplateProcessorService
                 self::generateRundown($application, $templatePath, $directory_temp, $file_type);
                 break;
             case 'surat_tugas_moderator':
-                $moderator = $application->participants()->where('participant_type_id',4)->get()->toArray()??[];
-                if (!empty($moderator)) {
                     self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
-                }else{
-                    $app_file->status_ready = 0;
-                    $app_file->save();
-                }
-
                 break; 
             case 'surat_tugas_narasumber':
-                $speaker = $application->participants()->where('participant_type_id',2)->get()->toArray()??[];
-                if (!empty($speaker)) {
                     self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
-                }else{
-                    $app_file->status_ready = 0;
-                    $app_file->save();
-                }
                 break;
             case 'surat_tugas_panitia':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'commitee');
@@ -161,11 +194,17 @@ class TemplateProcessorService
     {
         $file_type = FileType::whereCode($file_type)->first();
         $role = Role::find($file_type->signed_role_id);
-        $log_approval = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
+        if ($file_type->signed_role_id == 7 && $application->created_by == AuthService::currentAccess()['id']) {
+            $log_approval = LogApproval::where('user_id',$application->created_by)->where('application_id',$application->id)->where('department_id',$application->department_id)->first();
+            // $log_approval = LogApproval::where('')
+            // dd($log_approval);
+        }else{
+            $log_approval = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
+        }
+        
         $signer_position = $log_approval->position->name;
         $signer_name = $log_approval->user->name;
-        $position_name = $log_approval->position->name;
-        if ($role->name == 'user') {
+        if ($role->name !== 'dekan') {
             $get_chief_commitee = $application->participants()->where('is_signer_commitee',1)->first();
             $signer_name = $get_chief_commitee->name;
             $signer_position = 'Ketua Panitia';
