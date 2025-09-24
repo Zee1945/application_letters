@@ -271,6 +271,7 @@ case 'surat_permohonan_moderator':
                             # code...
                             $split_dates = explode(',',$value);
                             $human_readable_dates = array_map(function($date){
+                                $date = trim($date); // HILANGKAN SPASI DI SINI
                                 $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
                                 return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
