@@ -268,12 +268,14 @@ case 'surat_permohonan_moderator':
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_dates':
-                            # code...
                             $split_dates = explode(',',$value);
                             $human_readable_dates = array_map(function($date){
                                 $date = trim($date); // HILANGKAN SPASI DI SINI
-                                $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-                                return ViewHelper::humanReadableDate($converted);
+                                if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $date)) {
+                                    $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                    return ViewHelper::humanReadableDate($converted);
+                                }
+                                return $date;
                             },$split_dates);
 
                             $templateProcessor->setValue($key, implode($human_readable_dates));
