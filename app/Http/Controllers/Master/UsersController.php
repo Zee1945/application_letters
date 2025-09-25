@@ -46,6 +46,7 @@ class UsersController extends Controller
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
+            'name_without_degree' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
@@ -55,6 +56,7 @@ class UsersController extends Controller
         // Create a new user
         $user = new User();
         $user->name = $request->name;
+        $user->name_without_degree = $request->name_without_degree;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->position_id = $request->position_id;
@@ -93,6 +95,7 @@ class UsersController extends Controller
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
+            'name_without_degree' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
@@ -104,6 +107,7 @@ class UsersController extends Controller
 
         // Update user details
         $user->name = $request->name;
+        $user->name_without_degree = $request->name;
         $user->email = $request->email;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

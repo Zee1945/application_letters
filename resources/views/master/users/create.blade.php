@@ -18,6 +18,13 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="form-group mb-3">
+                    <label for="name_without_degree">Nama Tanpa Gelar</label>
+                    <input type="text" class="form-control @error('name_without_degree') is-invalid @enderror" id="name_without_degree" name="name_without_degree" required>
+                    @error('name_without_degree')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 <div class="form-group mb-3">
                     <label for="email">Email</label>

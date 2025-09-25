@@ -20,7 +20,7 @@ class FileTypeSeeder extends Seeder
         // Data parent (kolom kiri gambar) yang akan diinsert pertama kali
         $parent_files = [
             ['name' => 'Draft TOR', 'order'=>1,'trans_type' => 1, 'signed_role_id' => $user_id],
-            ['name' => 'TOR', 'order'=>2,'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'TOR', 'order'=>2,'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'SK', 'order'=>3,'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Surat Undangan Peserta dan Panitia', 'order'=>12,'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Jadwal Kegiatan', 'order'=>13,'trans_type' => 1, 'signed_role_id' => $user_id],

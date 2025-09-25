@@ -451,6 +451,7 @@ class ApplicationService
             $app->save();
 
             unset($data['draft_step_saved']);
+            // cleaning tanggal 
             $data['activity_dates'] = !empty($data['activity_dates'])
                                     ? preg_replace('/\s*,\s*/', ',', trim($data['activity_dates']))
                                     : $data['activity_dates'];

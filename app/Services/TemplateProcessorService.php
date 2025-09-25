@@ -287,7 +287,7 @@ case 'surat_permohonan_moderator':
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -505,7 +505,7 @@ case 'surat_permohonan_moderator':
 
         // Inject variabel
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -632,7 +632,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
         $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
@@ -736,7 +736,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('nomor_surat_tugas_uppercase', strtoupper($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -842,7 +842,7 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -950,7 +950,7 @@ foreach ($new_data as $index => $item) {
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -1053,7 +1053,7 @@ foreach ($new_data as $index => $item) {
         // Inject variabel
 
         $department_to_show = ViewHelper::departmentToShow($application->department);
-        $templateProcessor->setValue('department_name', ucwords($department_to_show->name));
+        $templateProcessor->setValue('department_name', $department_to_show->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($department_to_show->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -1129,6 +1129,8 @@ foreach ($new_data as $index => $item) {
 
             $metadata_signer = self::getSignerMetadata($application,$file_type);
             $qrPath = self::generateQrCode($metadata_signer);
+            $getSigner = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
+
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
@@ -1199,8 +1201,9 @@ foreach ($new_data as $index => $item) {
                 $templateProcessor->setValue('documentation_photo_' . $i, ' ');
             }
 
+
         // Inject variabel
-        $templateProcessor->setValue('department_name', ucwords($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
@@ -1208,6 +1211,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
         $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
         $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signer_name_without_degree', strtoupper($getSigner->user->name_without_degree));
         $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
         $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
         $templateProcessor->setValue('rs_total_all', $get_realization['rs_total_all']);
