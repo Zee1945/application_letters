@@ -21,7 +21,7 @@
                 <div class="form-group mb-3">
                     <label for="name">Nama Tanpa Gelar</label>
                     <input type="text" class="form-control @error('name_without_degree') is-invalid @enderror" id="name_without_degree" name="name_without_degree" value="{{ old('name_without_degree', $user->name_without_degree) }}" required>
-                    @error('name')
+                    @error('name_without_degree')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

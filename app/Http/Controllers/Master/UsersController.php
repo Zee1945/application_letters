@@ -106,7 +106,7 @@ class UsersController extends Controller
 
         // Update user details
         $user->name = $request->name;
-        $user->name_without_degree = $request->name;
+        $user->name_without_degree = $request->name_without_degree;
         $user->email = $request->email;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
