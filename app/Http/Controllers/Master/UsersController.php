@@ -46,7 +46,7 @@ class UsersController extends Controller
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
-            'name_without_degree' => 'required|string|max:255',
+            // 'name_without_degree' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
@@ -95,7 +95,7 @@ class UsersController extends Controller
         // Validation
         $request->validate([
             'name' => 'required|string|max:255',
-            'name_without_degree' => 'required|string|max:255',
+            // 'name_without_degree' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
