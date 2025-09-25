@@ -100,7 +100,6 @@ class UsersController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'position_id' => 'required|exists:positions,id',
             'department_id' => 'nullable|exists:departments,id',
-            'role' => 'required|string'
         ]);
 
         $user = User::findOrFail($id); // Fetch user by ID
