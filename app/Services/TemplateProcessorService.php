@@ -145,7 +145,10 @@ case 'surat_permohonan_moderator':
             case 'surat_tugas_peserta':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'participant');
                 break;
-            case 'surat_undangan_peserta_dan_panitia':
+            case 'surat_undangan_panitia':
+                self::generateSuratUndangan($application, $templatePath, $directory_temp, $file_type);
+                break;
+            case 'surat_undangan_peserta':
                 self::generateSuratUndangan($application, $templatePath, $directory_temp, $file_type);
                 break;
             case 'surat_permohonan_narasumber':
@@ -177,16 +180,26 @@ case 'surat_permohonan_moderator':
             'ResponseContentDisposition' => 'attachment; filename=generated2.docx',
             'filename' => 'generated_output.docx',
         ]);
-        $content = FileManagementService::convertToPdf($temp_fileurl);
-        if ($content) {
-            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type,$app_file);
+        // Jika code diawali dengan 'daftar_kehadiran', langsung gunakan file docx tanpa convertToPdf
+        if (str_starts_with($file_type, 'daftar_kehadiran')) {
+            $content = file_get_contents($write_output); // Ambil file docx dari local
+            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type, $app_file);
             if ($store_document['status']) {
                 unlink($write_output);
                 Storage::disk('minio')->delete($directory_temp);
-                return ['status' => true, 'message' => 'berhasil generate ke pdf'];
+                return ['status' => true, 'message' => 'berhasil generate file docx'];
+            }
+        } else {
+            $content = FileManagementService::convertToPdf($temp_fileurl);
+            if ($content) {
+                $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type, $app_file);
+                if ($store_document['status']) {
+                    unlink($write_output);
+                    Storage::disk('minio')->delete($directory_temp);
+                    return ['status' => true, 'message' => 'berhasil generate ke pdf'];
+                }
             }
         }
-
         return ['status' => false, 'message' => 'Gagal generate ke pdf '.$file_type];
     }
 
@@ -274,7 +287,7 @@ case 'surat_permohonan_moderator':
                                 // tambahkan trim untuk hilangkan spasi
                                 // $date = trim($date); // HILANGKAN SPASI DI SINI
                                 $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-                                return ViewHelper::humanReadableDate($converted);
+                                return ViewHelper::humanReadableDate($converted).' ';
                             },$split_dates);
 
                             $templateProcessor->setValue($key, implode($human_readable_dates));
@@ -411,8 +424,12 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
 
         // tables
-            $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
-            $templateProcessor->cloneRowAndSetValues('participant_name', $participant_participant);
+            if ($file_type == 'surat_undangan_panitia') {
+                $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
+            }
+            if ($file_type == 'surat_undangan_peserta') {
+                $templateProcessor->cloneRowAndSetValues('participant_name', $participant_participant);
+            }
 
             // dd($get_draft_cost);
 
@@ -731,9 +748,11 @@ case 'surat_permohonan_moderator':
 
             }
         $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
+        $get_nomor_surat_tugas_peserta = $application->letterNumbers()->where('letter_name','nomor_surat_tugas_peserta')->first();
         
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_tugas_uppercase', strtoupper($get_nomor_surat_tugas->letter_number));
+        $templateProcessor->setValue('nomor_surat_tugas_peserta_uppercase', strtoupper($get_nomor_surat_tugas_peserta->letter_number));
         $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
         $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
         $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
@@ -1051,7 +1070,8 @@ foreach ($new_data as $index => $item) {
             }
 
         // Inject variabel
-
+        $file_type_first = FileType::whereCode($file_type)->first();
+        $getSigner = LogApproval::getSigner($file_type_first->signed_role_id, $application->department_id,$file_type_first->trans_type, $application->id)->first();
         $department_to_show = ViewHelper::departmentToShow($application->department);
         $templateProcessor->setValue('department_name', $department_to_show->name);
         $templateProcessor->setValue('department_name_uppercase', strtoupper($department_to_show->name));
@@ -1061,6 +1081,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
         $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
         $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
+        $templateProcessor->setValue('signer_name_without_degree', strtoupper($getSigner->user->name_without_degree));
         $templateProcessor->setValue('signer_position_uppercase', strtoupper($metadata_signer['Jabatan']));
         $templateProcessor->setValue('signer_name_uppercase', strtoupper($metadata_signer['Nama']));
         $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
@@ -1129,9 +1150,7 @@ foreach ($new_data as $index => $item) {
 
             $metadata_signer = self::getSignerMetadata($application,$file_type);
             $qrPath = self::generateQrCode($metadata_signer);
-            $getSigner = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
 
-            // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
                         foreach ($application->getAttributes() as $key => $value) {
@@ -1211,7 +1230,6 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
         $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
         $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signer_name_without_degree', strtoupper($getSigner->user->name_without_degree));
         $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
         $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
         $templateProcessor->setValue('rs_total_all', $get_realization['rs_total_all']);

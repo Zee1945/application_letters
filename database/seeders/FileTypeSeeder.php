@@ -22,7 +22,8 @@ class FileTypeSeeder extends Seeder
             ['name' => 'Draft TOR', 'order'=>1,'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'TOR', 'order'=>2,'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'SK', 'order'=>3,'trans_type' => 1, 'signed_role_id' => $dean_id],
-            ['name' => 'Surat Undangan Peserta dan Panitia', 'order'=>12,'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Surat Undangan Panitia', 'order'=>12,'trans_type' => 1, 'signed_role_id' => $dean_id],
+            ['name' => 'Surat Undangan Peserta', 'order'=>12,'trans_type' => 1, 'signed_role_id' => $dean_id],
             ['name' => 'Jadwal Kegiatan', 'order'=>13,'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Laporan Kegiatan', 'order'=>16,'trans_type' => 2, 'signed_role_id' => $user_id],
             ['name' => 'Surat Permohonan Narasumber', 'order'=>14,'trans_type' => 1, 'signed_role_id' => $dean_id],
@@ -47,6 +48,7 @@ class FileTypeSeeder extends Seeder
         foreach ($parent_files as $file) {
              FileType::create([
                 'name'    => $file['name'],
+                'order'    => $file['order'],
                 'code'         => strtolower(str_replace(' ', '_', $file['name'])), // Membuat 'code' dari nama file
                 'trans_type'   => $file['trans_type'],  // trans_type sesuai dengan yang didefinisikan
                 'signed_role_id' => $file['signed_role_id'],  // signed_role_id sesuai dengan role yang terhubung

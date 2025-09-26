@@ -636,7 +636,14 @@ class ApplicationService
         ],
             [
             'letter_name'=>'nomor_surat_tugas',
-            'letter_label'=>'Nomor Surat Tugas',
+            'letter_label'=>'Nomor Surat Tugas Narasumber/Moderator',
+                'type_field' => 'text',
+                'is_with_date' => 1,
+                'letter_number'=>null,
+        ],
+        [
+            'letter_name'=>'nomor_surat_tugas_peserta',
+            'letter_label'=>'Nomor Surat Tugas Peserta',
                 'type_field' => 'text',
                 'is_with_date' => 1,
                 'letter_number'=>null,
