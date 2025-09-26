@@ -183,7 +183,7 @@ case 'surat_permohonan_moderator':
         // Jika code diawali dengan 'daftar_kehadiran', langsung gunakan file docx tanpa convertToPdf
         if (str_starts_with($get_file_type->code, 'daftar_kehadiran')) {
             $content = file_get_contents($write_output); // Ambil file docx dari local
-            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type, $app_file);
+            $store_document = FileManagementService::storeFileApplication($content, $application, $get_file_type->trans_type==1?'letters':'report', $file_type, $app_file,'docx');
             if ($store_document['status']) {
                 unlink($write_output);
                 Storage::disk('minio')->delete($directory_temp);

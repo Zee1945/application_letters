@@ -72,10 +72,10 @@ class FileManagementService
         }
         return ['status' => false, 'message' => 'failed to store new file data, metadata is empty', 'data' => []];
     }
-     public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null){
+     public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null,$mime_type='pdf'){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
-        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code,$app_file));
+        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code,$app_file,$mime_type));
         $target_dir = $get_path . '/' . $filename.'.'.$ext;
         if ($content) {
             $res = Storage::disk('minio')->put($target_dir, $content);
