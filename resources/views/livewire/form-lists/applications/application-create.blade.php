@@ -30,8 +30,9 @@
                                     <div class="col-sm-8">
                                         <ol>
                                         @foreach ($user_approvers as $key => $user)
-                                            <li class="">
-                                                {{$user->name}}
+                                            <li class="mb-2">
+                                                {{$user->name}} <br>
+                                                <small class="text-muted text-secondary fw-bold"> {{$user->position->name}} - {{$user->department->name}}</small>
                                             </li>
                                             @endforeach
                                         </ol>

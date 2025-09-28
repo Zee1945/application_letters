@@ -1,3 +1,4 @@
+{{-- filepath: c:\laragon\www\application_letters\resources\views\livewire\forms\table-speaker-informations.blade.php --}}
 <div>
     @if (session()->has('message'))
         <div class="alert alert-success">
@@ -5,93 +6,137 @@
         </div>
     @endif
 
-<table class="table table-striped mb-0">
-    <thead class="table-light">
-        <tr>
-            <th>No</th>
-            <th>Nama (Jabatan-Lembaga)</th>
-            <th>Formulir</th>
-        </tr>
-    </thead>
-    <tbody id="table-body-speaker">
+    <div class="row g-4">
         @foreach ($speakers as $index => $row)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>
-                   <span class="fw-bold"> {{ $row->name }}</span> <br> <small class="fw-bold text-secondary"> ({{ $row->institution }})</small></td>
-                <td>
-                    <div class="mb-2">
-                        <label class="form-label fw-bold mb-1">CV</label>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            @if (!empty($this->rows[$new_index]['cv_file_id']))
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['cv_file_id']}})">Lihat</button>
-                            @else
-                                <small><i>File tidak diupload</i></small>
-                            @endif
-                        @else
-                            <input type="file"
-                                wire:model="rows.{{ $new_index }}.cv_file_id"
-                                id="cv_file_id_{{ $index }}"
-                                class="form-control"
-                                accept=".pdf">
-                        @endif
+            <div class="col-12">
+                <div class="card shadow border-0 h-100">
+                    <div class="card-header">
+                              <div class="mb-3 d-flex">
+                            <span class="fw-bold fs-6 me-1">{{$index+1}}.</span>
+                            <div class="">
+                                <span class="fw-bold fs-6">{{ $row->name }}</span>
+                                <br>
+                                <small class="fw-bold text-secondary">({{ $row->institution }})</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label fw-bold mb-1">KTP</label>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            @if (!empty($this->rows[$new_index]['idcard_file_id']))
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['idcard_file_id']}})">Lihat</button>
-                            @else
-                                <small><i>File tidak diupload</i></small>
-                            @endif
-                        @else
-                            <input type="file"
-                                wire:model="rows.{{ $new_index }}.idcard_file_id"
-                                id="file_ktp_{{ $index }}"
-                                class="form-control"
-                                accept=".jpg,.jpeg,.png">
-                        @endif
+                    <div class="card-body pb-4">
+                  
+                        <div class="row g-2">
+                            {{-- CV --}}
+                            <div class="col-12 col-lg-6">
+                                <label class="form-label fw-bold mb-1">CV</label>
+                                <div class="input-group">
+                                    <input type="text"
+                                        class="form-control bg-light"
+                                        value="{{ !empty($this->rows[$index]['cv_file_id']) ? 'File terupload' : 'Belum ada file' }}"
+                                        {{-- value="{{ !empty($this->rows[$index]['cv_file_id']) ? ($this->rows[$index]['cv_file_id']->getClientOriginalName() ?? 'File terupload') : 'Belum ada file' }}" --}}
+                                        disabled>
+                                    <input type="file"
+                                        wire:model="rows.{{ $index }}.cv_file_id"
+                                        id="cv_file_id_{{ $index }}"
+                                        class="d-none"
+                                        accept=".pdf">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="document.getElementById('cv_file_id_{{ $index }}').click()"
+                                        title="Upload / Pilih File">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                    </button>
+                                    @if(!empty($this->rows[$index]['cv_file_id']))
+                                    <button class="btn btn-outline-success" type="button"
+                                            wire:click="openModalPreview({{ $this->rows[$index]['cv_file_id'] }})"
+                                            title="Lihat File">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                        @endif
+                                </div>
+                            </div>
+                            {{-- KTP --}}
+                            <div class="col-12 col-lg-6">
+                                <label class="form-label fw-bold mb-1">KTP</label>
+                                <div class="input-group">
+                                    <input type="text"
+                                        class="form-control bg-light"
+                                        value="{{ !empty($this->rows[$index]['idcard_file_id']) ? 'File terupload' : 'Belum ada file' }}"
+                                        {{-- value="{{ !empty($this->rows[$index]['idcard_file_id']) ? ($this->rows[$index]['idcard_file_id']->getClientOriginalName() ?? 'File terupload') : 'Belum ada file' }}" --}}
+                                        disabled>
+                                    <input type="file"
+                                        wire:model="rows.{{ $index }}.idcard_file_id"
+                                        id="file_idcard_{{ $index }}"
+                                        class="d-none"
+                                        accept=".jpg,.jpeg,.png,.pdf">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="document.getElementById('file_idcard_{{ $index }}').click()"
+                                        title="Upload / Pilih File">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                    </button>
+                                    @if(!empty($this->rows[$index]['idcard_file_id']))
+                                    <button class="btn btn-outline-success" type="button"
+                                            wire:click="openModalPreview({{ $this->rows[$index]['idcard_file_id'] }})"
+                                            title="Lihat File">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                        @endif
+                                </div>
+                            </div>
+                            {{-- NPWP --}}
+                            <div class="col-12 col-lg-6">
+                                <label class="form-label fw-bold mb-1">NPWP</label>
+                                <div class="input-group">
+                                    <input type="text"
+                                        class="form-control bg-light"
+                                        value="{{ !empty($this->rows[$index]['npwp_file_id']) ? 'File terupload' : 'Belum ada file' }}"
+                                        disabled>
+                                    <input type="file"
+                                        wire:model="rows.{{ $index }}.npwp_file_id"
+                                        id="file_npwp_{{ $index }}"
+                                        class="d-none"
+                                        accept=".jpg,.jpeg,.png">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="document.getElementById('file_npwp_{{ $index }}').click()"
+                                        title="Upload / Pilih File">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                    </button>
+                                    @if(!empty($this->rows[$index]['npwp_file_id']))
+                                    <button class="btn btn-outline-success" type="button"
+                                            wire:click="openModalPreview({{ $this->rows[$index]['npwp_file_id'] }})"
+                                            title="Lihat File">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                        @endif
+                                </div>
+                            </div>
+                            {{-- Materi --}}
+                            <div class="col-12 col-lg-6">
+                                <label class="form-label fw-bold mb-1">Materi</label>
+                                <div class="input-group">
+                                    <input type="text"
+                                        class="form-control bg-light"
+                                        value="{{ !empty($this->rows[$index]['material_file_id']) ?  'File terupload' : 'Belum ada file' }}"
+                                        disabled>
+                                    <input type="file"
+                                        wire:model="rows.{{ $index }}.material_file_id"
+                                        id="file_material_{{ $index }}"
+                                        class="d-none"
+                                        accept=".pdf">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="document.getElementById('file_material_{{ $index }}').click()"
+                                        title="Upload / Pilih File">
+                                        <i class="fa-regular fa-folder-open"></i>
+                                    </button>
+                                    @if(!empty($this->rows[$index]['material_file_id']))
+                                    <button class="btn btn-outline-success" type="button"
+                                            wire:click="openModalPreview({{ $this->rows[$index]['material_file_id'] }})"
+                                            title="Lihat File">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                        @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label fw-bold mb-1">NPWP</label>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            @if (!empty($this->rows[$new_index]['npwp_file_id']))
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['npwp_file_id']}})">Lihat</button>
-                            @else
-                                <small><i>File tidak diupload</i></small>
-                            @endif
-                        @else
-                            <input type="file"
-                                wire:model="rows.{{ $new_index }}.npwp_file_id"
-                                id="file_npwp_{{ $index }}"
-                                class="form-control"
-                                accept=".jpg,.jpeg,.png">
-                        @endif
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label fw-bold mb-1">Materi</label>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            @if (!empty($this->rows[$new_index]['material_file_id']))
-                                <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->rows[$new_index]['material_file_id']}})">Lihat</button>
-                            @else
-                                <small><i>File tidak diupload</i></small>
-                            @endif
-                        @else
-                            <input type="file"
-                                wire:model="rows.{{ $new_index }}.material_file_id"
-                                id="file_material_{{ $index }}"
-                                class="form-control"
-                                accept=".pdf">
-                        @endif
-                    </div>
-                </td>
-           
-            </tr>
-            @php
-                $new_index++;
-            @endphp
+                </div>
+            </div>
         @endforeach
-    </tbody>
-</table>
-
+    </div>
 </div>

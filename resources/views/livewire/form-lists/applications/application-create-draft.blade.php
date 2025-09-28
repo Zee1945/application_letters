@@ -25,7 +25,7 @@
             <div class="card shadow-sm mb-4=1">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-md-10 col-sm-12">
+                        <div class="col-md-8 col-sm-12">
                             <div class="d-flex align-items-center">
                                 <div class="activity-icon me-3">
                                     <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
@@ -50,7 +50,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2 col-sm-12 text-end">
+                        <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group-vertical d-md-none d-block mb-2"></div>
                             <div class="btn-group" role="group">
                                 {{-- @if ($application->approval_status == 12)
@@ -299,7 +299,8 @@
                                                         <!-- Input Tanggal Mulai -->
                                                         <input type="text" class="form-control w-100" id="InputDate"
                                                             aria-label="Tanggal Pelaksanaan" wire:model="activity_dates"
-                                                            {!! viewHelper::handleFieldDisabled($this->application) !!}>
+                                                            {!! viewHelper::handleFieldDisabled($this->application) !!}
+                                                            >
                                                         <!-- Label Sampai -->
                                                     </div>
                                                     <small>*isi dengan format dd-mm-yyyy (contoh: 20-05-2025), jika
@@ -515,12 +516,15 @@
                                                 <div class="col-12">
                                                     <livewire:forms.table-rundown :rundowns="$this->rundowns"
                                                         :participants="$this->participants"
-                                                        :handleDisable="viewHelper::handleFieldDisabled($this->application, true)" />
+                                                        :handleDisable="viewHelper::handleFieldDisabled($this->application)" />
                                                     {{-- <livewire:forms.table-participants
                                                         :participants="$this->participants"
                                                         :participantType="'participant'" /> --}}
-
-                                                    <div class="alert alert-info d-flex align-items-center my-2"
+                                                        @if (
+                                                            viewHelper::handleFieldDisabled($this->application)
+                                                            !== 'disabled'
+                                                        )
+                                                               <div class="alert alert-info d-flex align-items-center my-2"
                                                         role="alert" style="font-size: 0.97rem;">
                                                         <i class="fa-solid fa-circle-info me-2"></i>
                                                         <div>
@@ -532,6 +536,9 @@
                                                             selesai mengedit di kolom atau textarea.
                                                         </div>
                                                     </div>
+                                                        @endif    
+
+                                                 
                                                 </div>
                                                 <div class="col-12">
                                                     <div

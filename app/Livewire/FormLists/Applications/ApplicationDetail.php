@@ -4,6 +4,7 @@ namespace App\Livewire\FormLists\Applications;
 
 use App\Models\Application;
 use App\Models\Department;
+use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -20,8 +21,9 @@ class ApplicationDetail extends Component
     public function render()
     {
         $app = Application::find($this->application_id);
+        $user_approvers = User::approvers()->get();
         $application_files = $app->applicationFiles()->with('fileType')->orderBy('order','asc')->get();
-        return view('livewire.form-lists.applications.application-detail', compact('app','application_files'))
+        return view('livewire.form-lists.applications.application-detail', compact('app','application_files','user_approvers'))
             ->extends('layouts.main');
     }
 

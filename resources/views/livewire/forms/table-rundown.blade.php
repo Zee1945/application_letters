@@ -5,7 +5,7 @@
                 <th>Tanggal/Waktu</th>
                 <th>Acara</th>
                 <th>Narasumber & Moderator</th>
-                <th>Aksi</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -90,18 +90,23 @@
 
                     <!-- Aksi -->
                     <td>
-                        <button type="button" wire:click="removeRow({{ $index }})" class="btn btn-danger btn-sm">
+                        @if ($this->handleDisable != 'disabled')
+                            <button type="button" wire:click="removeRow({{ $index }})" class="btn btn-danger btn-sm">
                             <i class="fa-solid fa-trash me-0"></i>
                         </button>
+                        @endif
+                        
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
     
+    @if ($this->handleDisable != 'disabled')
     <div class="row">
         <div class="col-12">
             <button type="button" wire:click="addRow" class="btn btn-primary mt-3 w-100">Tambah Baris</button>
         </div>
     </div>
+    @endif
 </div>

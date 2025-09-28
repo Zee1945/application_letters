@@ -70,6 +70,8 @@ class ReportCreate extends AbstractComponent
 
         // $this->step = $this->application->draft_step_saved;
         $this->application_id = $application_id;
+        // dd($this->application->detail->general_description);
+        // $this->background = $this->application->detail->general_description;
         $this->draft_costs = $this->application->draftCostBudgets->toArray();
 
         $keysToKeep = ['id', 'letter_label', 'letter_name', 'type_field', 'letter_number'];
@@ -213,6 +215,9 @@ class ReportCreate extends AbstractComponent
     {
         foreach ($this->application->report->getAttributes() as $key => $value) {
             $this->$key = $value;
+            if ($key == 'background') {
+                $this->$key = $this->application->detail->general_description;
+            }
         }
 
         $file_id_minutes =$this->application->report->attachments()->where('type','minutes-file')->first()->file_id??null;

@@ -77,6 +77,22 @@
                         <div class="col-sm-3"><span class="fw-bold">Departemen</span></div>
                         <div class="col-sm-9"><span>{{$app->department->name }}</span></div>
                     </div>
+                    <div class="row mb-3">
+                                    <label for="verificator" class="form-label col-sm-3 fw-bold">Verifikator/Penandatangan</label>
+                                    <div class="col-sm-9">
+                                        <ol>
+                                        @foreach ($user_approvers as $key => $user)
+                                            <li class="mb-2">
+                                                {{$user->name}} <br>
+                                                <small class="text-muted text-secondary fw-bold"> {{$user->position->name}} - {{$user->department->name}}</small>
+                                            </li>
+                                            @endforeach
+                                        </ol>
+
+
+                                </div>
+                    </div>
+                   
 
                     <!-- File Information Table -->
                     <div class="table-responsive mt-3">
@@ -96,7 +112,11 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div>
+                                                    @if(Str::startsWith($item->fileType->code, 'daftar_kehadiran'))
+                                                    <i class="bx bxs-file-doc me-2 font-24 text-primary"></i>
+                                                    @else
                                                     <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
+                                                    @endif
                                                 </div>
                                                 @if ($item->status_ready == 3)
                                                     @if ($item->fileType->is_upload == 1 )

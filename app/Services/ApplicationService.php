@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\GenerateApplicationFileJob;
+use App\Jobs\GenerateReportJob;
 use App\Models\Application;
 use App\Models\ApplicationDetail;
 use App\Models\ApplicationDraftCostBudget;
@@ -238,11 +239,7 @@ class ApplicationService
                             $department->current_limit_submission = $department->current_limit_submission-1;
                             $department->save();
                             self::storeLogApproval($action, $application_id, '');
-
-                            $app_file = $app->applicationFiles()->findCode('laporan_kegiatan')->first();
-                            TemplateProcessorService::generateDocumentToPDF($app, 'laporan_kegiatan',$app_file);
-                            self::storeAttachmentToDetails($app);
-                            // self::storeListLetterNumber($app);
+                            GenerateReportJob::dispatch($app);
                         }else{
                             $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
                             $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
@@ -385,14 +382,14 @@ class ApplicationService
                 };
                 
                 // Path baru, tetap di folder yang sama, hanya nama file diganti
-                $newFileName = $app_files->display_name . '-' . $app->activity_name . '-' . $app->id .(!empty($participant_id)?'-partid-'.$participant_id:null). '.' . $extension;
+                $newFileName = $app_files->fileType->name . '-' . $app->activity_name . '-' . $app->id .(!empty($participant_id)?'-partid-'.$participant_id:null). '.' . $extension;
                 $newPath = dirname($oldPath) . '/' . $newFileName; // hasil: 2025-9/2/report/spj-file/nama_baru.png
             if ($file->filename !== $newFileName || $file->path !== dirname($oldPath)) {
                 // Simpan file ke path baru
                 Storage::disk('minio')->put($newPath, $fileContent);
 
                 // Hapus file lama
-                // Storage::disk('minio')->delete($oldPath);
+                Storage::disk('minio')->delete($oldPath);
 
                 // Update path di database
                 $file->filename = $newFileName;
@@ -401,7 +398,7 @@ class ApplicationService
                 $file->save();
             }
     }
-    public static function storeSuratPermohonanFiles($app)
+    public static function storeSuratPermohonanFiles($app,$is_reset=false)
     {
         $surat_permohonan = FileType::whereIn('code',['surat_permohonan_narasumber','surat_permohonan_moderator'])->get();
         $materi = FileType::where('code','materi_narasumber')->first();
@@ -444,6 +441,7 @@ class ApplicationService
     {
         // dd($rundowns, $participants);
         try {
+           
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
 
@@ -459,6 +457,15 @@ class ApplicationService
                 $details = $app->detail()->update($data);
             }else{
                 $details = $app->detail()->create($data);
+            }
+
+            if ($app && $app->approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+                $files_with_participant = $app->applicationFiles()->whereNotNull('participant_id')->get();
+                if (!empty($files_with_participant)) {
+                   foreach ($files_with_participant as $key => $file) {
+                       $file->delete();
+                   } 
+                }
             }
 
 
@@ -483,6 +490,10 @@ class ApplicationService
                     $value['unit_cost_realization'] = $value['cost_per_unit'];
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
                 }
+
+            if ($app && $app->approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+                self::storeSuratPermohonanFiles($app);
+            }
 
             if ($is_submit) {
                 self::updateFlowApprovalStatus('submit', $data['application_id']);

@@ -119,11 +119,11 @@
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="introduction"></textarea>
                                         </div>
-                                        <div class="col-12">
+                                        {{-- <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Latar Belakang</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
-                                                wire:model="background"></textarea>
-                                        </div>
+                                                wire:model="background" disabled></textarea>
+                                        </div> --}}
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
@@ -147,7 +147,7 @@
                                                 </label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
                                         </div>
-                                        <div class="col-12 mb-3">
+                                        <div class="col-md-6 col-sm-12 mb-3">
                                             <div class="d-flex">
 
                                             <label for="minutes_file" class="form-label fw-bold">File Notulensi
@@ -214,7 +214,7 @@
                         @endif
                                             
                                         </div>
-                                        <div class="col-12 mb-3">
+                                        <div class="col-sm-12 col-md-6 mb-3">
                                             <label for="spj_file" class="form-label fw-bold">
                                            Dokumen SPJ
                                                 <small class="text-muted">(PDF, maksimal 2MB)</small>
@@ -405,9 +405,6 @@
 
                                     <div class="row g-3">
                                             <div class="col-12">
-                                                <label for="InputUsername" class="form-label fw-bold mx-auto">
-                                                    <h6>Isi Informasi Narasumber</h6>
-                                                </label>
                                                 <div class="">
                                                     <livewire:forms.table-speaker-informations :application="$this->application" :participants="$this->application->participants"/>
                                                 </div>

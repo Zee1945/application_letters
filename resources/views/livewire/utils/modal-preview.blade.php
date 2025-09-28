@@ -19,8 +19,8 @@
                                         width="100%" height="100%" style="min-height: calc(100vh - (2rem));">
                                     </iframe>
                                 @else
-                                    <img src="{{ Storage::disk($file['storage_type'])->temporaryUrl($file['path'], now()->addHours(1)) }}"
-                                         alt="My Image" style="max-width: 100%; height: auto;">
+                                             <img src="{{ Storage::disk($file['storage_type'])->temporaryUrl($file['path'], now()->addHours(1)) }}"
+         alt="My Image" style="width: 100vw; max-width: 100vw; height: 100vh; object-fit: contain;">
                                 @endif
                             @endforeach
                         @else
@@ -50,7 +50,6 @@
                 
                 modalInstance = bootstrap.Modal.getOrCreateInstance('#' + modalId);
                 modalInstance.show();
-                console.log(modalInstance);
                 
             }
         });
