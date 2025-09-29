@@ -43,7 +43,7 @@
 
                                 <div class="col-md-12">
                                     <div class="d-md-flex d-grid justify-content-center align-items-center gap-2">
-                                        <button type="button" class="btn btn-outline-secondary px-4">Batal</button>
+                                        <a href="{{route('applications.index')}}" class="btn btn-outline-secondary px-4">Batal</a>
                                         <button type="submit"  class="btn btn-primary px-4">Submit</button>
                                     </div>
                                 </div>
