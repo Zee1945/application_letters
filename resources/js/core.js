@@ -1,13 +1,13 @@
-import PerfectScrollbar from 'perfect-scrollbar';
+// import PerfectScrollbar from 'perfect-scrollbar';
 
 // Inisialisasi pada elemen tertentu
-const ps = PerfectScrollbar('.sidebar-wrapper');
+// const ps = PerfectScrollbar('.sidebar-wrapper');
 $(function () {
 	"use strict";
 
-	ps(".app-container"),
-		ps(".header-message-list"),
-		ps(".header-notifications-list"),
+	// ps(".app-container"),
+	// 	ps(".header-message-list"),
+	// 	ps(".header-notifications-list"),
 
 
 		$(".mobile-toggle-icon").on("click", function () {

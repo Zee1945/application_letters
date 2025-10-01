@@ -88,7 +88,17 @@
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
+                                    <li>
+                                
+        <div class="p-2 border-bottom d-md-none d-sm-block">
+            <div class="d-flex flex-column p-0 m-0">
+                <span class="user-name fw-bold lh-1">{{ viewHelper::currentAccess()['name'] ?? '-' }}</span>
+                <small class="lh-2">{{ viewHelper::currentAccess()['position'] ?? '-' }}</small>
+                <small class="lh-1 text-muted">{{ viewHelper::currentAccess()['department'] ?? '-' }}</small>
+            </div>
+        </div>
+                                    </li>
+                                    <li><a class="dropdown-item d-flex align-items-center" href="{{route('profile.edit')}}"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
                                     </li>
                                     <li>
                                         <div class="dropdown-divider mb-0"></div>

@@ -41,7 +41,11 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 ->name('applications.detail');
             Route::get('create/{application_id}/draft', ApplicationCreateDraft::class)
                 ->name('applications.create.draft');
+        });
 
+        Route::group(['prefix' => 'profile'], function () {
+            Route::get('/edit', [UsersController::class, 'editProfile'])->name('profile.edit');
+            Route::put('/update', [UsersController::class, 'updateProfile'])->name('profile.update');
         });
 
         Route::group(['prefix' => 'report'], function () {

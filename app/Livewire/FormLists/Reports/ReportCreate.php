@@ -45,6 +45,8 @@ class ReportCreate extends AbstractComponent
     public $old_minutes_file = null;
     public $documentation_photos = [];
     public $old_documentation_photos = [];
+    public $attendence_files = [];
+    public $old_attendence_files = [];
     public $excel_participant = null;
 
     public $letter_numbers = [];
@@ -158,6 +160,12 @@ class ReportCreate extends AbstractComponent
             $this->onAttachmentChanged($this->documentation_photos,'document-photos');
         }
     }
+    public function updatedAttendenceFiles(){
+        if (!empty($this->attendence_files)) {
+            $this->old_attendence_files = $this->attendence_files;
+            $this->onAttachmentChanged($this->attendence_files,'attendence-files');
+        }
+    }
 
 
     public function onAttachmentChanged($files,$type)
@@ -223,12 +231,15 @@ class ReportCreate extends AbstractComponent
         $file_id_minutes =$this->application->report->attachments()->where('type','minutes-file')->first()->file_id??null;
         $file_id_spj =$this->application->report->attachments()->where('type','spj-file')->first()->file_id??null;
         $documentation_file_ids =$this->application->report->attachments()->where('type','document-photos')->get()->pluck('file_id');
+        $attendence_file_ids =$this->application->report->attachments()->where('type','attendence-files')->get()->pluck('file_id');
         $this->old_minutes_file = FileManagementService::getFileStorageById($file_id_minutes);
         $this->old_spj_file = FileManagementService::getFileStorageById($file_id_spj);
         foreach ($documentation_file_ids ??[] as $key => $file_id) {
             $this->old_documentation_photos[] = FileManagementService::getFileStorageById($file_id);
         }
-        // dd($this->old_spj_file);
+        foreach ($attendence_file_ids ??[] as $key => $file_id) {
+            $this->old_attendence_files[] = FileManagementService::getFileStorageById($file_id);
+        }
     }
 
     public function openModalPreview($file_id)
@@ -288,12 +299,5 @@ class ReportCreate extends AbstractComponent
     public function directStep($step)
     {
         $this->step = $step;
-    }
-
-    public function clearAllParticipant()
-    {
-        $this->participants = [];
-        $this->draft_costs = [];
-        $this->rundowns = [];
     }
 }

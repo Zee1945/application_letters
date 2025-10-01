@@ -18,6 +18,7 @@ use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -144,6 +145,7 @@ class ApplicationService
             return $application;
         } catch (\Throwable $th) {
             DB::rollBack();
+            Log::error($th);
             throw $th;
         }
 
@@ -238,6 +240,7 @@ class ApplicationService
                             $department = Department::find($app->department_id);
                             $department->current_limit_submission = $department->current_limit_submission-1;
                             $department->save();
+                            self::storeAttendenceToDetailFiles($app);
                             self::storeLogApproval($action, $application_id, '');
                             GenerateReportJob::dispatch($app);
                         }else{
@@ -316,12 +319,55 @@ class ApplicationService
             return ['status'=>true,'message'=>'success update flow'];
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd($th);
+            Log::error($th);
             return ['status' => false, 'message' => 'Failed update flow'];
         }
     }
 
 
+    public static function storeAttendenceToDetailFiles($app){
+        $get_attendence_file = $app->report->attachments()->where('type', 'attendence-files')->get();
+        $ft = FileType::whereCode('absensi_kehadiran')->first();
+        foreach ($get_attendence_file ?? [] as $key => $attachment) {
+            $new_file_name = $ft->name.'-'.$app->activity_name.'-'.$attachment->file->filename;
+             $data = [
+                            'display_name'=> $new_file_name,
+                            'file_id'=> $attachment->file_id,
+                            'order'=> $ft->order,
+                            'status_ready'=> 3,
+                            'participant_id'=> null,
+                            'file_type_id'    => $ft->id,
+                            'department_id' => $app->department_id,
+                        ];
+                 $app_file = $app->applicationFiles()->create($data);
+
+                // start dari sini 
+
+                $file = $app_file->file()->first();
+                $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
+                $fileContent = Storage::disk('minio')->get($oldPath);
+                
+                // Path baru, tetap di folder yang sama, hanya nama file diganti
+                $newPath = dirname($oldPath) . '/' . $new_file_name; // hasil: 2025-9/2/report/spj-file/nama_baru.png
+            if ($file->filename !== $new_file_name || $file->path !== dirname($oldPath)) {
+                // Simpan file ke path baru
+                Storage::disk('minio')->put($newPath, $fileContent);
+
+                // Hapus file lama
+                Storage::disk('minio')->delete($oldPath);
+
+                // Update path di database
+                $file->filename = $new_file_name;
+                $file->path = $newPath;
+                // $file->path = dirname($oldPath);
+                $file->save();
+            }
+            // start dari sini 
+        }
+
+        return true;
+
+    }
     public static function storeAttachmentToDetails($app)
     {
         $attachments = $app->report->attachments()->whereIn('type', ['spj-file', 'minutes-file'])->get();
@@ -335,13 +381,20 @@ class ApplicationService
                     case 'spj-file':
                         $code = 'file_spj';
                         break;
+                    // case 'attendence-files':
+                    //     $code = 'absensi_kehadiran';
+                    //     break;
                     default:
                         $code = 'none';
                         break;
                 }
+
+        
                 self::updateApplicationFilesReport($app,$code,$attachment->file_id);
             }
         }
+
+     
         if (count($participant_speakers) > 0) {
             foreach ($participant_speakers as $key => $par) {
                 self::updateApplicationFilesReport($app,'materi_narasumber',$par->material_file_id,$par->id);
@@ -502,8 +555,8 @@ class ApplicationService
             return['status'=>true,'message'=>'data pengajuan berhasil ditambahkan'];
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd($th);
-            // throw $th;
+            // dd($th);
+            throw $th;
         }
 
     }
@@ -556,8 +609,6 @@ class ApplicationService
             //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
                 if (Storage::disk('minio')->exists($att_type['file_path'])) {
                     $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
-                
-    
                     foreach ($get_dir_files as $dir_file) {
                         $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
                         $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
@@ -571,8 +622,7 @@ class ApplicationService
                                 'type'=>$att_type['type']
                             ];
                             $app->report->attachments()->create($arr);
-                        }
-                       
+                        } 
                     }
             }
 
@@ -600,8 +650,8 @@ class ApplicationService
             return['status'=>true,'message'=>'data LPJ berhasil ditambahkan'];
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd($th);
-            // throw $th;
+            // dd($th);
+            throw $th;
         }
 
     }
@@ -676,7 +726,6 @@ class ApplicationService
                 );
         } catch (\Throwable $th) {
             throw $th;
-            dd($th);
         }
     }
 
@@ -729,7 +778,6 @@ class ApplicationService
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollBack();
-            dd($th);
             return false;
         }
 
@@ -739,6 +787,64 @@ class ApplicationService
        $list = Application::where('approval_status',12);
        return $list;
     }
+
+    public static function destroyRecursive($id){
+    try {
+        DB::beginTransaction();
+        $app = Application::find($id);
+        if (!$app) {
+            DB::rollBack();
+            return ['status' => false, 'message' => 'Data tidak ditemukan'];
+        }
+        // Hapus semua relasi
+        // Hapus detail
+        if ($app->detail) {
+            $app->detail->delete();
+        }
+        // Hapus draft cost budgets
+        foreach ($app->draftCostBudgets as $draftCostBudget) {
+            $draftCostBudget->delete();
+        }
+        // Hapus letter numbers
+        foreach ($app->letterNumbers as $letterNumber) {
+            $letterNumber->delete();
+        }
+        // Hapus participants
+        foreach ($app->participants as $participant) {
+            $participant->delete();
+        }
+        // Hapus report dan relasi attachments
+        if ($app->report) {
+            foreach ($app->report->attachments as $attachment) {
+                $attachment->delete();
+            }
+            $app->report->delete();
+        }
+        // Hapus schedules
+        foreach ($app->schedules as $schedule) {
+            $schedule->delete();
+        }
+        // Hapus user approvals
+        foreach ($app->userApprovals as $userApproval) {
+            $userApproval->delete();
+        }
+        // Hapus application files
+        if (!empty($app->applicationFiles)) {
+            foreach ($app->applicationFiles as $file) {
+                $file->delete();
+            }
+        }
+
+        // Terakhir, hapus aplikasi utama
+        $app->delete();
+        DB::commit();
+        return ['status' => true, 'message' => 'Data dan seluruh detail berhasil dihapus'];
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        Log::error($th);
+        return ['status' => false, 'message' => 'Gagal menghapus data: ' . $th->getMessage()];
+    }
+}
     public static function hasDepartmentQuota(){
         $department = Department::find(AuthService::currentAccess()['department_id']);
         $quota_remaining = $department->limit_submission - $department->current_limit_submission;

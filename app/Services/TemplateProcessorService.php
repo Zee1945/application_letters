@@ -1028,7 +1028,7 @@ foreach ($new_data as $index => $item) {
             $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
 
             $metadata_signer = self::getSignerMetadata($application,$file_type);
-            $qrPath = self::generateQrCode($metadata_signer);
+            $qrPath = self::generateQrCode($metadata_signer,null,600);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
 
@@ -1120,8 +1120,8 @@ foreach ($new_data as $index => $item) {
         // set qr code ttd
         $templateProcessor->setImageValue('signed_barcode', [
             'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
+            'width'  => 70,
+            'height' => 70,
             'ratio'  => true,
         ]);
             // end set qr code ttd
@@ -1506,7 +1506,7 @@ foreach ($new_data as $index => $item) {
     }
 
 
-    public static function generateQrCode($meta = null, $savePath = null) {
+    public static function generateQrCode($meta = null, $savePath = null,$size=800) {
         // Lokasi file keluaran
         $savePath ??= storage_path('app/qrcodes/' . uniqid('qr_') . '.png');
         if (!is_dir(dirname($savePath))) mkdir(dirname($savePath), 0755, true);
@@ -1522,7 +1522,7 @@ foreach ($new_data as $index => $item) {
             data: $content_barcode,
             encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 800,
+            size: $size,
             margin: 5,
             roundBlockSizeMode: RoundBlockSizeMode::Margin,
             foregroundColor: new Color(0, 0, 0),
@@ -1531,8 +1531,9 @@ foreach ($new_data as $index => $item) {
 
         /* ---------- 2. Tambahkan logo (optional) ---------- */
         $logoPath = public_path('assets/images/logo-icon-bg-white.png');  // ganti sesuai path
+        $logoSize = intval($size/4);
         $logo     = file_exists($logoPath)
-            ? new Logo(path: $logoPath, resizeToWidth: 180)       // otomatis di-tengah
+            ? new Logo(path: $logoPath, resizeToWidth: $logoSize)       // otomatis di-tengah
             : null;
 
         /* ---------- 3. Render & simpan ---------- */

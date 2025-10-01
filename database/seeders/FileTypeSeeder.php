@@ -38,7 +38,8 @@ class FileTypeSeeder extends Seeder
             ['name' => 'Daftar Kehadiran Peserta', 'order'=>11,'trans_type' => 1, 'signed_role_id' => $user_id],
             ['name' => 'Notulensi', 'order'=>17,'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
             ['name' => 'File SPJ', 'order'=>18,'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
-            ['name' => 'Materi Narasumber', 'order'=>19,'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
+            ['name' => 'Absensi Kehadiran', 'order'=>19,'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
+            ['name' => 'Materi Narasumber', 'order'=>20,'trans_type' => 2, 'signed_role_id' => $user_id,'is_upload'=>1],
         ];
         
 

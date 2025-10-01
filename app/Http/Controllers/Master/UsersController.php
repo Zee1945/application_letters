@@ -135,4 +135,45 @@ class UsersController extends Controller
 
         return redirect()->route('master.users.index')->with('success', 'User deleted successfully');
     }
+
+    public function editProfile()
+    {
+        $user = User::find(AuthService::currentAccess()['id']);
+        $positions = Position::all();
+        $department = Department::all();
+        return view('master.users.edit-profile', compact('user', 'positions', 'department'));
+    }
+
+    /**
+     * Update the current user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = User::find(AuthService::currentAccess()['id']);
+
+
+            $request->validate([
+                'name' => 'required|string|max:255',
+                // 'name_without_degree' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|string|min:8|confirmed',
+                // 'position_id' => 'required|exists:positions,id',
+                // 'department_id' => 'nullable|exists:departments,id',
+            ]);
+
+            $user->name = $request->name;
+            $user->name_without_degree = $request->name_without_degree;
+            $user->email = $request->email;
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+            $user->save();
+
+            return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
+        } catch (\Exception $e) {
+            dd($e);
+            return redirect()->back()->withInput()->with('error', 'Gagal update profile: ' . $e->getMessage());
+        }
+    }
 }

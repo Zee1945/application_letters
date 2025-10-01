@@ -1,19 +1,4 @@
 <div>
-    <!--breadcrumb-->
-    <div class="page-breadcrumb d-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">Applications</div>
-        <div class="ps-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 p-0">
-                    <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a></li>
-                    <li class="breadcrumb-item" aria-current="page">Application</li>
-                    <li class="breadcrumb-item active" aria-current="page">Detail</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-    <!--end breadcrumb-->
-
     <div class="row">
         <div class="col-12 col-lg-9 mx-auto">
             <div class="card">
@@ -25,6 +10,14 @@
                             </div>
                             <div class="ms-auto">
                                 <a class="btn btn-sm btn-outline-secondary" href="{{route('applications.create.draft',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i> Lihat Konten</a>
+                    
+                        @if (viewHelper::handleFieldDisabled($app) !== 'disabled')
+                            <button class="btn btn-sm btn-outline-danger"
+                                onclick="if(confirm('Apakah Anda yakin ingin menghapus data ini beserta seluruh file dan detailnya?')) { @this.destroyRecursive({{$app->id}}) }"
+                            >
+                                <i class="bx bx-trash"></i> Hapus
+                            </button>
+                        @endif
                             </div>
                         </div>
                         <hr>

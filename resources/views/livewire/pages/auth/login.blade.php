@@ -53,10 +53,10 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <!-- Remember Me -->
-        <div class="mb-3 form-check">
+        {{-- <div class="mb-3 form-check">
             <input wire:model="form.remember" id="remember" type="checkbox" class="form-check-input" name="remember">
             <label for="remember" class="form-check-label">{{ __('Remember me') }}</label>
-        </div>
+        </div> --}}
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             @if (Route::has('password.request'))

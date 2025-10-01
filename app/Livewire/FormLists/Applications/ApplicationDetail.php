@@ -5,6 +5,7 @@ namespace App\Livewire\FormLists\Applications;
 use App\Models\Application;
 use App\Models\Department;
 use App\Models\User;
+use App\Services\ApplicationService;
 use App\Services\AuthService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -41,6 +42,13 @@ class ApplicationDetail extends Component
     }
 
 
+    public function destroyRecursive($id){
+        $res = ApplicationService::destroyRecursive($id);
+         if (!$res['status']) {
+            return redirect()->back()->withInput()->withErrors(['error' => $res['message']]);
+        }
+        return redirect()->route('applications.index')->with('success', $res['message']);
+    }
     public function mappingFile(){
 
     }
