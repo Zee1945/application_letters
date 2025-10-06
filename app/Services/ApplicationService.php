@@ -809,10 +809,10 @@ class ApplicationService
                 $update_next_seq->status = $app->current_approval_status;
                 $update_next_seq->save();
 
-                // $department = Department::find($app->department_id);
-                // $department->current_limit_submission = $department->current_limit_submission+1;
-                // $department->save();
-                // GenerateApplicationFileJob::dispatch($app);
+                $department = Department::find($app->department_id);
+                $department->current_limit_submission = $department->current_limit_submission+1;
+                $department->save();
+                GenerateApplicationFileJob::dispatch($app);
             }
 
             // TemplateProcessorService::generateApplicationDocument($app);
