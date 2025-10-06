@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\AuthService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -24,5 +25,20 @@ class Position extends Model
 
     public function department(){
         return $this->belongsTo(Department::class);
+    }
+
+
+    public function scopeRestricted($query){
+     $current_role = AuthService::currentAccess()['role'];
+
+    if ($current_role === 'admin') {
+        // Ambil posisi yang tidak memiliki role admin atau super_admin
+        return $query->whereDoesntHave('roles', function ($sub_q) {
+            $sub_q->whereIn('name', ['admin', 'super_admin']);
+        });
+    }
+    // Jika super_admin, tampilkan semua
+    return $query;
+        
     }
 }

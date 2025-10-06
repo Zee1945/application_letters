@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\User;
 use App\Models\Position;
 use App\Services\AuthService;
+use App\Services\MasterManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -29,11 +30,8 @@ class UsersController extends Controller
     public function create()
     {
         
-        $positions = Position::all(); // Fetch all positions
-        $department =Department::all();
-        // if (AuthService::currentAccess()) {
-        //     # code...
-        // }
+        $positions = Position::restricted()->get(); // Fetch all positions
+        $department = MasterManagementService::getDepartmentListOptions()->get();
         return view('master.users.create', compact('positions','department')); // return the form view with the positions
     }
 
@@ -71,7 +69,11 @@ class UsersController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::findOrFail($id); // Fetch user by ID
+        // $user = User::findOrFail($id); // Fetch user by ID
+        $user =User::where('id',$id)->restricted()->first();
+        if (!$user) {
+            abort(404);
+        }
         return view('master.users.show', compact('user')); // Return view to display user details
     }
 
@@ -80,9 +82,12 @@ class UsersController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::findOrFail($id); // Fetch user by ID
-        $positions = Position::all(); // Fetch all positions
-        $department = Department::all(); // Fetch all positions
+        $user =User::where('id',$id)->restricted()->first();
+        if (!$user) {
+            abort(404);
+        }
+        $positions = Position::restricted()->get(); // Gunakan scope restricted
+        $department = MasterManagementService::getDepartmentListOptions()->get();
         return view('master.users.edit', compact('user', 'positions','department')); // Return form view with user and positions
     }
 
@@ -130,7 +135,10 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::findOrFail($id); // Fetch user by ID
+        $user =User::where('id',$id)->restricted()->first();
+        if (!$user) {
+            abort(404);
+        }
         $user->delete(); // Delete user
 
         return redirect()->route('master.users.index')->with('success', 'User deleted successfully');

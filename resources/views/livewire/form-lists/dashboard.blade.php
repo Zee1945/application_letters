@@ -162,8 +162,8 @@
                                             {{ $application->trans_type == 1 ? 'Pengajuan' : 'Laporan' }}
                                         </span>
                                     </td>
-                                    <td>{!! $application->trans_type == 1? viewHelper::statusSubmissionHTML($application->approval_status):viewHelper::statusReportHTML($application->report?->approval_status) !!}</td>
-                                    <td>{!!  $application->trans_type == 1? viewHelper::getCurrentUserProcess($application):viewHelper::getCurrentUserProcess($application,true) !!}</td>
+                                    <td>{!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}</td>
+                                    <td>{!! viewHelper::getCurrentUserProcess($application)['name'] !!}</td>
 
                                     <td>
                                         <small class="text-muted">{{ $application->department->name }}</small>
@@ -176,7 +176,7 @@
                                                class="btn btn-sm btn-outline-info" title="Detail">
                                                 <i class='bx bx-info-circle pe-0'></i>
                                             </a>
-                                            @if ($application->trans_type == 1)
+                                            @if ($application->currentUserApproval->trans_type == 1)
                                             <a href="{{ route('applications.create.draft', ['application_id' => $application->id]) }}" 
                                                class="btn btn-sm btn-outline-primary" title="Edit">
                                                 <i class='bx bxs-edit pe-0'></i>

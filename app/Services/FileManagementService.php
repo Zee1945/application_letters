@@ -75,7 +75,8 @@ class FileManagementService
      public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null,$mime_type='pdf'){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
-        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($application->activity_name,$application, $file_code,$app_file,$mime_type));
+        $clean_activity_name = preg_replace('/[\/\\\\\?\%\*\:\|\"<>\.]/', '-', $application->activity_name);
+        list($filename,$ext) =  explode('.',FileManagementService::generateFilename($clean_activity_name,$application, $file_code,$app_file,$mime_type));
         $target_dir = $get_path . '/' . $filename.'.'.$ext;
         if ($content) {
             $res = Storage::disk('minio')->put($target_dir, $content);
@@ -139,7 +140,7 @@ class FileManagementService
         $date = $carbon->format('Ymd');
         $time = $carbon->format('His');
         $timestamp = $carbon->timestamp;
-        $new_filename = $file_type_name.'-'.$filename.'-'.$application->id.'-'.($app_file->participant_id?'part-id-'.$app_file->participant_id:null).'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
+        $new_filename = $file_type_name.'-'.$filename.'-'.$application->id.($app_file->participant_id?'-part-id-'.$app_file->participant_id:null).'-'.$date.'-'.$time.$timestamp.'.'.$mimeType;
         return $new_filename;
      }
 

@@ -22,7 +22,7 @@ class ApplicationDetail extends Component
     public function render()
     {
         $app = Application::find($this->application_id);
-        $user_approvers = User::approvers()->get();
+        $user_approvers = $app->userApprovals;
         $application_files = $app->applicationFiles()->with('fileType')->orderBy('order','asc')->get();
         return view('livewire.form-lists.applications.application-detail', compact('app','application_files','user_approvers'))
             ->extends('layouts.main');

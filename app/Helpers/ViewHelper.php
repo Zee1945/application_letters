@@ -71,7 +71,14 @@ public static function statusSubmissionHTML($status_number)
         if ($status_number == 0) {
             $label = 'Draft';
             $color = 'secondary';
-        } elseif ($status_number == 2) {
+        }elseif ($status_number == 1) {
+            $label = 'Unsubmitted Report';
+            $color = 'dangeer';
+        } elseif ($status_number == 5) {
+            $label = 'Submitted';
+            $color = 'success';
+        } 
+        elseif ($status_number == 2) {
             $label = 'Revise';
             $color = 'warning';
         } elseif ($status_number > 5 && $status_number < 11 ) {
@@ -81,7 +88,11 @@ public static function statusSubmissionHTML($status_number)
             if ($status_number == 11) {
                 $label = 'Filling Letter Number';
                 $color = 'info';
-            }else {
+            }elseif($status_number == 13){
+                $label = 'Approved & Finish';
+                $color = 'success';
+            }
+            else {
                 $label = 'Approved';
                 $color = 'success';
             }
@@ -105,29 +116,16 @@ public static function getHourAndMinute($date_time){
 }
 
 public static function getCurrentUserProcess($app,$is_report=false){
-    $status_number = $is_report? $app->report->approval_status :$app->approval_status;
-    $creator = $app->createdBy->name;
-        if ($status_number < 6) {
-            return $creator;
-        } elseif ($status_number > 5 && $status_number < 11) {
-            if ($is_report) {
-                return $app->report->currentUserApproval->user_text;
-            }
-            return $app->currentUserApproval->user_text;
-        } elseif ($status_number > 10 && $status_number < 21) {
-            if ($status_number == 11 && !$is_report) {
-                $get_kabag = User::rolePosition('kabag',$app->department_id)->first();
+  list($name,$position,$department) = explode('-',$app->currentUserApproval->user_text);
+  $data = [
+    'name'=>$name,
+    'position'=>$position??'',
+    'department'=>$department??'',
+  ];
+  return $data;
 
-                return $get_kabag->name;
-            } else {
-               return $app->currentUserApproval->user_text;
-            }
-        } elseif ($status_number > 20) {
-            return $app->currentUserApproval?->user_text;
-        } else {
-            return '';
-        }
-    }
+
+}
 
 
 public static function humanReadableDate($date_time,$is_with_day=true)
@@ -157,7 +155,7 @@ public static function humanReadableDate($date_time,$is_with_day=true)
     }
 
     public static function handleFieldDisabled($application,$is_letter_number =false,$is_report=false) {
-        $status = $is_report ? $application->report->approval_status : $application->approval_status;
+        $status =  $application->current_approval_status;
         $is_relevan_admin = AuthService::adminHasAccessToApplication($application->department_id);
         if ($is_relevan_admin) return '';
         if ($status > 5 ) {
@@ -220,36 +218,37 @@ public static function humanReadableDate($date_time,$is_with_day=true)
 
 
     public static function actionPermissionButton($action,$app=null, $is_report=false) {
+        if (AuthService::currentAccess()['role'] == 'super_admin') return true;
         $department = Department::find(AuthService::currentAccess()['department_id']);
         $quota_remaining = $department->limit_submission - $department->current_limit_submission;
         $admin_has_access = $app? AuthService::adminHasAccessToApplication($app->department_id):false;
         switch ($action) {
             case 'approval_process':
                 if (!$is_report) {
-                      if ($app->approval_status > 5 && $app->approval_status < 11 && $app->current_user_approval == AuthService::currentAccess()['id']) {
+                      if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id']) {
                             return true;
                         }
                 }else{
 
-                    if ($app->report->approval_status > 5 && $app->report->approval_status < 11 && $app->report->current_user_approval == AuthService::currentAccess()['id']) {
+                    if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id']) {
                         return true;
                     }
                 }
 
                 return false;
             case 'submit':
-                if ($app->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
+                if ($app->current_approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
                     return true;
                 }
                 return false;
             case 'submit-report':
-                if ($app->report->approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
+                if ($app->current_approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;
             case 'submit-letter-number':
                 // dd(User::rolePosition('kabag',$app->department_id)->first());
-                if ($app->approval_status == 11 &&
+                if ($app->current_approval_status == 11 &&
                     User::rolePosition('kabag',$app->department_id)->first()->id == AuthService::currentAccess()['id']) {
                     return true;
                 }
@@ -261,7 +260,7 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                 return false;
             case 'admin-submit':
                 if ($admin_has_access) {
-                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->approval_status != 12) {
+                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 12) {
                         return false;
                     }
                     return true;
@@ -269,7 +268,7 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                 return false;
             case 'admin-submit-letter-number':
                 if ($admin_has_access) {
-                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->approval_status != 12) {
+                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 12) {
                         return false;
                     }
                     return true;
@@ -277,7 +276,7 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                 return false;
             case 'admin-submit-report':
                 if ($admin_has_access){
-                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->report->approval_status != 11) {
+                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 11) {
                         return false;
                     }
                     return true;
@@ -313,6 +312,20 @@ public static function humanReadableDate($date_time,$is_with_day=true)
     }
     return false;
 }
+
+    public static function generateColorSequence($current_seq, $sequence,$status)
+    {
+        if ($current_seq == $sequence){
+            if ($status == 13) {
+                return 'success';
+            }
+            return 'warning';
+        }elseif( $current_seq > $sequence){
+            return 'success';
+        }elseif ($current_seq < $sequence) {
+            return 'secondary';
+        }
+    }
 
 
 

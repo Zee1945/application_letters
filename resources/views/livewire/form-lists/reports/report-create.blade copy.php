@@ -9,7 +9,7 @@
             <div class="text-center">
                 <h5 class="mb-0 text-uppercase">{{ $this->application->activity_name }}</h5>
                 <div class="">
-                    @if ($application->report->approval_status == 11)
+                    @if ($application->current_approval_status == 11)
                         <button class="btn btn-sm btn-primary" wire:click="debug">Debug</button>
                     @endif
                     @if (viewHelper::actionPermissionButton('approval_process',$this->application,true))
@@ -70,14 +70,14 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="row {{$application->approval_status == 2 || $application->approval_status > 20?'':'d-none'}}">
-                            <div class="alert {{$application->approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
+                        <div class="row {{$application->current_approval_status == 2 || $application->current_approval_status > 20?'':'d-none'}}">
+                            <div class="alert {{$application->current_approval_status == 2?'alert-warning':'alert-danger'}}" role="alert">
                                 <div class="d-flex">
                                     <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
-                                        <i class="fa-solid {{$application->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                        <i class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                     </div>
                                     <div class="description d-flex flex-column">
-                                        <h6 class="title"> {{$application->approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
+                                        <h6 class="title"> {{$application->current_approval_status == 2?'Formulir Butuh Untuk Direvisi !':'Formulir Ditolak !'}}</h6>
                                         <div class="d-flex flex-column">
                                             <div class=>
                                                 <span class="fw-bold">{{$application->currentUserApproval->user->name}}</span>

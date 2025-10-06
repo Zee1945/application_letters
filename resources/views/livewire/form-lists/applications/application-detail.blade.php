@@ -1,6 +1,6 @@
 <div>
     <div class="row">
-        <div class="col-12 col-lg-9 mx-auto">
+        <div class="col-md-8 col-sm-12">
             <div class="card">
                 <div class="card-body">
                     <div class="row mb-3">
@@ -49,41 +49,21 @@
 </div>
                     <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Status Pengajuan</span></div>
-                        <div class="col-sm-9"><span>{!! viewHelper::statusSubmissionHTML($app->approval_status) !!}</span></div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-3"><span class="fw-bold">Status Laporan</span></div>
-                        <div class="col-sm-9"><span>{!! viewHelper::statusReportHTML($app->report?->approval_status) !!}
-</span></div>
+                        <div class="col-sm-9"><span>{!! viewHelper::statusSubmissionHTML($app->current_approval_status) !!}</span></div>
                     </div>
                  
                       <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Pengusul</span></div>
                         <div class="col-sm-9"><span>{{$app->createdBy->name }}</span></div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Pemroses Saat Ini</span></div>
                         <div class="col-sm-9"><span>{!! viewHelper::getCurrentUserProcess($app) !!}</span></div>
-                    </div>
+                    </div> --}}
                   
                     <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Departemen</span></div>
                         <div class="col-sm-9"><span>{{$app->department->name }}</span></div>
-                    </div>
-                    <div class="row mb-3">
-                                    <label for="verificator" class="form-label col-sm-3 fw-bold">Verifikator/Penandatangan</label>
-                                    <div class="col-sm-9">
-                                        <ol>
-                                        @foreach ($user_approvers as $key => $user)
-                                            <li class="mb-2">
-                                                {{$user->name}} <br>
-                                                <small class="text-muted text-secondary fw-bold"> {{$user->position->name}} - {{$user->department->name}}</small>
-                                            </li>
-                                            @endforeach
-                                        </ol>
-
-
-                                </div>
                     </div>
                    
 
@@ -132,6 +112,51 @@
 
                 </div>
             </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+             <div class="card">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="mb-2 d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold fs-5">Alur Pengajuan</span>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                <div class="position-relative" style="margin-left: 30px;">
+        <div class="timeline">
+            @foreach ($user_approvers as $key => $user)
+                @php
+                    $user_text = explode('-', $user['user_text']);
+                @endphp
+                <div class="timeline-item d-flex mb-4">
+                    <div class="timeline-sequence flex-shrink-0 d-flex flex-column align-items-center" style="width: 40px;">
+                        <div class="rounded-circle bg-{{ViewHelper::generateColorSequence($app->current_seq_user_approval,$user->sequence,$app->current_approval_status)}} text-white d-flex align-items-center justify-content-center mb-1" style="width: 32px; height: 32px; font-size: 1rem;">
+                            {{ $user['sequence'] }}
+                        </div>
+                        @if(!$loop->last)
+                                <div class="flex-grow-1 border-start border-2 border-{{ViewHelper::generateColorSequence($app->current_seq_user_approval,$user->sequence,$app->current_approval_status)}}" style="min-height: 30px;"></div>
+                        @endif
+                    </div>
+                    <div class="timeline-content ms-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-1">
+                            {{ ucfirst($user['role_text']) }}
+                        </span>
+                        <div class="fw-semibold fs-6">{{ $user_text[0] ?? '-' }}</div>
+                        <div class="small text-muted">
+                            {{ $user_text[1] ?? '-' }}
+                            @if(!empty($user_text[2]))
+                                <span class="mx-1">|</span> {{ $user_text[2] }}
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+                </div>
+                </div>
         </div>
     </div>
     <!--end row-->

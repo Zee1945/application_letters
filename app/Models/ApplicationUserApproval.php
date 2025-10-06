@@ -16,10 +16,13 @@ protected $fillable = [
     'sequence',
     'status',
     'note',
-    'report_status',
     'report_note',
     'application_id',
     'position_id',
+    'trans_type',
+    'role',
+    'role_text',
+    'is_verificator',
     'department_id',
     'delete_note',
     'created_by',
@@ -62,6 +65,6 @@ protected $fillable = [
 
     public function currentUserApproval()
     {
-        return $this->hasMany(Application::class, 'current_user_approval', 'user_id');
+        return $this->hasMany(Application::class, 'current_seq_user_approval', 'sequence');
     }
 }

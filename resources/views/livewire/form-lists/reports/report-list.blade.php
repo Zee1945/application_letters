@@ -39,9 +39,9 @@
                             </td>
                             <td>{{ $application->activity_name }}</td>
                             <td>
-                                {!! viewHelper::statusReportHTML($application->report?->approval_status) !!}
+                               {!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}
                             </td>
-                            <td>{!! viewHelper::getCurrentUserProcess($application,true) !!}</td>
+                            <td>{!! viewHelper::getCurrentUserProcess($application,true)['name'] !!}</td>
                             <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">

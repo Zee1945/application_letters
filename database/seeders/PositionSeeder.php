@@ -22,7 +22,6 @@ class PositionSeeder extends Seeder
             ['name' => 'Dosen', 'role' => 'user'],
             ['name' => 'Staff umum', 'role' => 'user'],
             ['name' => 'Admin Departemen', 'role' => 'admin'],
-            ['name' => 'Admin Super', 'role' => 'super_admin'],
         ];
         foreach ($activePositions as $pos) {
             if (!Position::where('name', $pos['name'])->exists()) {

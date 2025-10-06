@@ -19,8 +19,6 @@ return new class extends Migration
             $table->text('obstacles')->nullable(); // Kendala
             $table->text('conclusion')->nullable(); // Simpulan
             $table->text('recommendations')->nullable(); // Saran
-            $table->unsignedBigInteger('current_user_approval')->nullable(); // Saran
-            $table->unsignedBigInteger('approval_status')->nullable(); // Saran
             $table->text('closing')->nullable(); // Penutup
             $table->text('speaker_material')->nullable(); // Materi narasumber
             $table->text('speaker_cv')->nullable(); // CV narasumber

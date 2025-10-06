@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('activity_name'); // Nama kegiatan
             $table->integer('funding_source'); // Nama kegiatan
-            $table->integer('approval_status');
-            $table->integer('current_user_approval'); // Nama kegiatan
-            $table->string('user_approval_ids'); // Nama kegiatan
+            $table->integer('current_approval_status');
+            $table->integer('current_seq_user_approval'); // Nama kegiatan
             $table->text('note')->nullable(); // Nama kegiatan
             $table->integer('draft_step_saved')->default(1); // Nama kegiatan
             // $table->date('activity_dates')->nullable(); // Tanggal pelaksanaan

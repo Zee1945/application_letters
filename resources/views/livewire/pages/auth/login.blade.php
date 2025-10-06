@@ -33,8 +33,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 
 
-{{-- filepath: c:\DATA DISK\Projects\application generator\application_letters\resources\views\livewire\pages\auth\login.blade.php --}}
-<div class="container mt-5" style="max-width: 400px;">
+<div class="container" style="max-width: 400px;">
     <x-auth-session-status class="mb-3" :status="session('status')" />
 
     <form wire:submit="login">

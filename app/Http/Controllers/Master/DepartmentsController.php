@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Position;
+use App\Services\MasterManagementService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -23,7 +24,7 @@ class DepartmentsController extends Controller
      */
     public function create()
     {
-        $departments = Department::all(); // Fetch all positions
+        $departments = MasterManagementService::getDepartmentListOptions()->get();
         return view('master.departments.create', compact('departments')); // return the form view with the positions
     }
 
@@ -70,7 +71,7 @@ class DepartmentsController extends Controller
     public function edit(string $id)
     {
         $department = Department::find($id);
-        $departments= Department::all();
+        $departments = MasterManagementService::getDepartmentListOptions()->get();
         return view('master.departments.edit', compact('departments','department')); // return the form view with the positions
     }
 

@@ -20,20 +20,28 @@
     </head>
     <body>
         <div class="min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light">
-            <div class="mb-4">
-                <a href="/" wire:navigate class="d-flex justify-content-center align-items-center">
-                    <x-application-logo class="w-25 h-25" />
-                </a>
-                <h2 class="logo-text">SIRAPEL</h2>
-            </div>
+            
 
             <div class="w-100" style="max-width: 400px;">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        {{ $slot }}
-                    </div>
-                </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body py-4 px-4">
+            <div class="text-center mb-3">
+                <a href="/" wire:navigate class="d-flex justify-content-center align-items-center mb-2">
+                    <x-application-logo :width="60"/>
+                </a>
+                <h2 class="logo-text fw-bold text-primary mb-1" style="letter-spacing: 2px;">SIRAPEL</h2>
+                <span class="text-center text-secondary mb-0" style="font-size: 0.8rem;">
+                    <h4 class="text-dark pb-0 mb-0">Selamat Datang!</h4>
+                    <span class="text-grey pt-0 mt-0">Silakan login untuk mengakses layanan pengajuan surat dan pelaporan Anda.</span>
+                </span>
             </div>
+            {{ $slot }}
+        </div>
+        <div class="card-footer p-0 pt-1 d-flex justify-content-center">
+            <small class="text-center mx-auto">Powered By UIN Sunan Kalijaga</small>
+        </div>
+    </div>
+</div>
         </div>
 
         <script type="module">
@@ -46,6 +54,21 @@
                 // // Initialize Bootstrap popovers
                 // $('[data-bs-toggle="popover"]').popover();
             });
+
+            $(document).ready(function () {
+			$("#show_hide_password a").on('click', function (event) {
+				event.preventDefault();
+				if ($('#show_hide_password input').attr("type") == "text") {
+					$('#show_hide_password input').attr('type', 'password');
+					$('#show_hide_password i').addClass("bx-hide");
+					$('#show_hide_password i').removeClass("bx-show");
+				} else if ($('#show_hide_password input').attr("type") == "password") {
+					$('#show_hide_password input').attr('type', 'text');
+					$('#show_hide_password i').removeClass("bx-hide");
+					$('#show_hide_password i').addClass("bx-show");
+				}
+			});
+		});
         </script>
 
         <!-- Bootstrap JS (optional, for interactive components) -->

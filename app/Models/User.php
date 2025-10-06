@@ -78,6 +78,28 @@ class User extends Authenticatable
         return $this->belongsTo(Position::class);
     }
 
+    public function scopeUserProcessors($query)
+    {
+        $user= Auth::user();
+        if ($user){
+            $check_is_admin = $user->position->hasRole('super_admin');
+            if ($check_is_admin) {
+                return $query;
+            } else {
+                $data = $query->where('id',$user->id)->orWhereHas('department',function($dq)use($user){
+                    if ($user->department->approval_by == 'self') {
+                        return $dq->where('id', $user->department->id);
+                    }else if($user->department->approval_by == 'parent'){
+                        return $dq->where('id', $user->department->parent->id);
+                    }
+                })->whereHas('position', function ($sub_query) {
+                    return $sub_query->role(['dekan','finance','kabag']);
+                });
+                // dd($data);
+                return $data;
+            }
+        }
+    }
 
     public function scopeApprovers($query)
     {
@@ -103,6 +125,35 @@ class User extends Authenticatable
         return $query;
     }
 
+
+
+
+public function scopeRestricted($query)
+{
+    $current_user = AuthService::currentAccess();
+    // Jika super_admin, tampilkan semua user
+    if ($current_user['role'] == 'super_admin') {
+        return $query;
+    }
+
+    // Jika admin, tampilkan user yang bukan super_admin dan dari departemen sendiri atau anaknya
+    if ($current_user['role'] == 'admin') {
+        // Ambil id departemen sendiri dan anak-anaknya
+        $departmentIds = [$current_user['department_id']];
+        $childDepartments = Department::where('parent_id', $current_user['department_id'])->pluck('id')->toArray();
+        $departmentIds = array_merge($departmentIds, $childDepartments);
+
+        return $query->whereHas('position', function ($q) {
+                $q->whereDoesntHave('roles', function ($qr) {
+                    $qr->where('name', 'super_admin');
+                });
+            })
+            ->whereIn('department_id', $departmentIds);
+    }
+
+    // Untuk role lain, bisa tambahkan filter sesuai kebutuhan
+    // return $query;
+}
 public function scopeRolePosition($query, $role, $department_id = null)
 {
     if ($department_id) {

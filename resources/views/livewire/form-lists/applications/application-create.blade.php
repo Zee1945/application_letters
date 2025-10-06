@@ -25,21 +25,40 @@
                                         <option value="2">BOPTN</option>
                                     </select>
                                 </div>
-                                <div class="col-md-12">
-                                    <label for="verificator" class="form-label col-sm-4 fw-bold">Verifikator/Penandatangan</label>
-                                    <div class="col-sm-8">
-                                        <ol>
-                                        @foreach ($user_approvers as $key => $user)
-                                            <li class="mb-2">
-                                                {{$user->name}} <br>
-                                                <small class="text-muted text-secondary fw-bold"> {{$user->position->name}} - {{$user->department->name}}</small>
-                                            </li>
-                                            @endforeach
-                                        </ol>
-
-                                    </div>
-
-                                </div>
+<div class="col-md-12">
+    <label class="form-label fw-bold mb-3">Pemroses Dokumen</label>
+    <div class="position-relative" style="margin-left: 30px;">
+        <div class="timeline">
+            @foreach ($user_approvers as $key => $user)
+                @php
+                    $user_text = explode('-', $user['user_text']);
+                @endphp
+                <div class="timeline-item d-flex mb-4">
+                    <div class="timeline-sequence flex-shrink-0 d-flex flex-column align-items-center" style="width: 40px;">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-1" style="width: 32px; height: 32px; font-size: 1rem;">
+                            {{ $user['sequence'] }}
+                        </div>
+                        @if(!$loop->last)
+                            <div class="flex-grow-1 border-start border-2 border-primary" style="min-height: 30px;"></div>
+                        @endif
+                    </div>
+                    <div class="timeline-content ms-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-1">
+                            {{ ucfirst($user['role_text']) }}
+                        </span>
+                        <div class="fw-semibold fs-6">{{ $user_text[0] ?? '-' }}</div>
+                        <div class="small text-muted">
+                            {{ $user_text[1] ?? '-' }}
+                            @if(!empty($user_text[2]))
+                                <span class="mx-1">|</span> {{ $user_text[2] }}
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
 
                                 <div class="col-md-12">
                                     <div class="d-md-flex d-grid justify-content-center align-items-center gap-2">

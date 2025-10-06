@@ -4,8 +4,13 @@
             <!-- Search and Filter Section -->
             <div class="d-lg-flex align-items-center mb-4 gap-3">
                 <div class="position-relative flex-grow-1">
-                    <input type="text" class="form-control ps-5 radius-30" placeholder="Search Order"> 
-                    <span class="position-absolute top-50 product-show translate-middle-y"><i class="bx bx-search"></i></span>
+                    <input type="text"
+                    class="form-control ps-5 radius-30"
+                    placeholder="Cari Nama Kegiatan"
+                    wire:model.debounce.1000ms="search" />
+                <span class="position-absolute top-50 product-show translate-middle-y">
+                    <i class="bx bx-search"></i>
+                </span>
                 </div>
                 <!-- Filter Dropdown (Add more filters as needed) -->
                 <div class="ms-3">
@@ -46,8 +51,21 @@
                             <td>{{$key+1}}</td>
                             <td>{{ $application->activity_name }}</td>
                             <td>{{ $application->funding_source == 1? 'BLU':'BOPTN'}}</td>
-                            <td>{!! viewHelper::statusSubmissionHTML($application->approval_status) !!}</td>
-                            <td>{!! viewHelper::getCurrentUserProcess($application) !!}</td>
+                            <td>{!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}</td>
+                            <td>
+                                @php
+                                    $user_text = viewHelper::getCurrentUserProcess($application);
+                                @endphp
+
+                                    <div class="fw-semibold">{{ $user_text['name'] ?? '-' }}</div>
+                                    <div class="small text-muted">
+                                        {{ $user_text['position'] ?? '-' }}
+                                        @if(!empty($user_text['department']))
+                                            <span class="mx-1">|</span> {{ $user_text['department'] }}
+                                        @endif
+                        </div>
+
+                            </td>
                             <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">
@@ -65,11 +83,15 @@
 
                         <!-- Remaining Submission Opportunities for Department -->
                         <tr>
+                            @if ($department)
                             <td colspan="7" class="">
+                                    
                                 Sisa kesempatan pengajuan proposal Departemen: 
                                 <span class="fw-bold">{{$department->limit_submission - $department->current_limit_submission }}</span> dari <span class="fw-bold">{{$department->limit_submission}}</span>. 
                                 {{viewHelper::actionPermissionButton('create-new-application')? '' : 'Submit LPJ sebelum melakukan pengajuan baru'}}
                             </td>
+                                @endif
+
                         </tr>
                     </tbody>
                 </table>

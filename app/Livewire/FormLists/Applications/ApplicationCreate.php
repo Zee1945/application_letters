@@ -6,6 +6,7 @@ use App\Models\Application;
 use App\Models\User;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
+use App\Services\MasterManagementService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -25,7 +26,7 @@ class ApplicationCreate extends Component
 
     public function render()
     {
-        $user_approvers = User::approvers()->get();
+        $user_approvers = MasterManagementService::generateUserProcessData();
         return view('livewire.form-lists.applications.application-create',compact('user_approvers'))
         ->extends('layouts.main');
     }

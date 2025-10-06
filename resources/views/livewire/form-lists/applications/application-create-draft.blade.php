@@ -37,15 +37,15 @@
                                     </div>
                                     <div class="d-flex align-items-center text-muted">
                                         {{-- <span
-                                            class="badge bg-{{ $this->application->approval_status == 12 ? 'success' : 'warning' }} me-2">
+                                            class="badge bg-{{ $this->application->current_approval_status == 12 ? 'success' : 'warning' }} me-2">
                                             --}}
                                             {{-- {{
-                                            viewHelper::getApprovalStatusText($this->application->approval_status) }}
+                                            viewHelper::getApprovalStatusText($this->application->current_approval_status) }}
                                             --}}
-                                            {!! viewHelper::statusSubmissionHTML($application->approval_status) !!}
+                                            {!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}
                                             {{-- </span> --}}
                                         <small class="ms-1"> Oleh :
-                                            {!! viewHelper::getCurrentUserProcess($application) !!}</small>
+                                            {!! viewHelper::getCurrentUserProcess($application)['name'] !!}</small>
                                     </div>
                                 </div>
                             </div>
@@ -53,7 +53,7 @@
                         <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group-vertical d-md-none d-block mb-2"></div>
                             <div class="btn-group" role="group">
-                                {{-- @if ($application->approval_status == 12)
+                                {{-- @if ($application->current_approval_status == 12)
                                 <button class="btn btn-outline-primary btn-sm" wire:click="downloadDocx">
                                     <i class="fa-solid fa-download me-1"></i>Download Document
                                 </button>
@@ -165,7 +165,7 @@
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-5">
                                         <div class="step-trigger {{$this->step == 5 ? 'active' : ''}} {{count($this->draft_costs) == 0 ? 'disabled' : ''}}"
-                                            role="tab" @if(count($this->draft_costs) > 0 && $this->application->approval_status > 10) wire:click="directStep('5')" @else
+                                            role="tab" @if(count($this->draft_costs) > 0 && $this->application->current_approval_status > 10) wire:click="directStep('5')" @else
                                                 style="cursor: not-allowed; opacity: 0.5;" data-bs-toggle="tooltip"
                                             title="Lengkapi rancangan anggaran biaya terlebih dahulu" @endif
                                             id="stepper1trigger5" aria-controls="test-l-5">
@@ -180,18 +180,18 @@
                             </div>
                             <div class="card-body">
                                 <div
-                                    class="row {{$application->approval_status == 2 || $application->approval_status > 20 ? '' : 'd-none'}}">
-                                    <div class="alert {{$application->approval_status == 2 ? 'alert-warning' : 'alert-danger'}}"
+                                    class="row {{$application->current_approval_status == 2 || $application->current_approval_status > 20 ? '' : 'd-none'}}">
+                                    <div class="alert {{$application->current_approval_status == 2 ? 'alert-warning' : 'alert-danger'}}"
                                         role="alert">
                                         <div class="d-flex">
                                             <div class="icon d-flex align-items-center"
                                                 style="width: calc(100vw - (91rem))">
                                                 <i
-                                                    class="fa-solid {{$application->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                                    class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                             </div>
                                             <div class="description d-flex flex-column">
                                                 <h6 class="title">
-                                                    {{$application->approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
+                                                    {{$application->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
                                                 </h6>
                                                 <div class="d-flex flex-column">
                                                     <div class=>

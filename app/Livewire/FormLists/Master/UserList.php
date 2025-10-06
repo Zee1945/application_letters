@@ -33,7 +33,7 @@ class UserList extends Component
             })
             ->when($this->department, function ($query) {
                 return $query->where('department_id', $this->department);
-            })
+            })->restricted()
             ->paginate(10);
 
         return view('livewire.form-lists.master.user-list', [

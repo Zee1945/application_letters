@@ -14,15 +14,15 @@
                                 <div>
                                     <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
                                     <div class="d-flex align-items-center text-muted">
-                                        {!! viewHelper::statusReportHTML($this->application->report?->approval_status) !!}
-                                        <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application, true) !!}</small>
+                                        {!! viewHelper::statusReportHTML($this->application->current_approval_status) !!}
+                                        <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application, true)['name'] !!}</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4 col-sm-12 text-end">
                             <div class="btn-group" role="group">
-                                {{-- @if ($application->report->approval_status == 11)
+                                {{-- @if ($application->current_approval_status == 11)
                                     <button class="btn btn-outline-secondary btn-sm" wire:click="debug">
                                         <i class="fa-solid fa-bug me-1"></i>Debug
                                     </button>
@@ -49,18 +49,18 @@
                     </div>
                     <hr />
                     <!-- Alert for status -->
-                    <div class="row {{$application->report->approval_status == 2 || $application->report->approval_status > 20 ? '' : 'd-none'}}">
-                        <div class="alert {{$application->report->approval_status == 2 ? 'alert-warning' : 'alert-danger'}}" role="alert">
+                    <div class="row {{$application->current_approval_status == 2 || $application->current_approval_status > 20 ? '' : 'd-none'}}">
+                        <div class="alert {{$application->current_approval_status == 2 ? 'alert-warning' : 'alert-danger'}}" role="alert">
                             <div class="d-flex">
                                 <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
-                                    <i class="fa-solid {{$application->report->approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                    <i class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                 </div>
                                 <div class="description d-flex flex-column">
-                                    <h6 class="title"> {{$application->report->approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}</h6>
+                                    <h6 class="title"> {{$application->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}</h6>
                                     <div class="d-flex flex-column">
                                         <div>
-                                            <span class="fw-bold">{{$application->report->currentUserApproval->user->name}}</span>
-                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->report->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
+                                            <span class="fw-bold">{{$application->currentUserApproval->user->name}}</span>
+                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
                                         </div>
                                         <div class="notes">
                                             "{{$application->report->note}}"
@@ -292,7 +292,7 @@
         @forelse ($old_attendence_files as $photo)
             <tr>
                 <td>
-                    <i class="fa-solid fa-image text-secondary me-1"></i>
+                <i class="bx bxs-file-pdf me-1 font-18 text-danger"></i>
                     {{ $photo['fileName'] }}
                 </td>
                 <td class="text-center">

@@ -33,6 +33,26 @@ class ApplicationService
 
 
 
+    public static function getListApp($search='',$status_approval='',$department_id='')
+    {
+        $qp_search = isset($search)?$search:null; 
+        
+        $applications = Application::with('currentUserApproval')->when($qp_search, function($query) use($qp_search) {
+                            $query->where('activity_name', 'like', '%'.$qp_search.'%');
+                                if (strtolower(trim($qp_search)) === 'blu') {
+                                    $query->orWhere('funding_source', 1);
+                                } elseif (strtolower(trim($qp_search)) === 'boptn') {
+                                    $query->orWhere('funding_source', 2);
+                                }
+                        })->orderBy('created_at', 'desc');
+                        // if ($search || $status_approval || $department_id) {
+                        //     $applications = $applications->get();
+                        // }else{
+                        // }
+                        
+// dd($applications);
+        return $applications;
+    }
     public static function getList($department_id)
     {
         $apps = new Application();
@@ -66,18 +86,18 @@ class ApplicationService
             'approved'=>0,
         ];
        $data['total_application'] = self::getList($department_id)->get()->count();
-       $data['rejected'] = self::getList($department_id)->where('approval_status','>',20)->orWhereHas('report',function($q){
-            return $q->where('approval_status','>',20);
+       $data['rejected'] = self::getList($department_id)->where('current_approval_status','>',20)->orWhereHas('report',function($q){
+            return $q->where('current_approval_status','>',20);
         })->get()->count()??0;
 
-       $data['ongoing'] = self::getList($department_id)->where('approval_status','<',12)->orWhereHas('report',function($q){
-            return $q->where('approval_status','<',11);
+       $data['ongoing'] = self::getList($department_id)->where('current_approval_status','<',12)->orWhereHas('report',function($q){
+            return $q->where('current_approval_status','<',11);
         })->get()->count()??0;
 
 
        $data['approved'] = self::getList($department_id)->whereHas('report', function($q) {
-                $q->where('approval_status', '>', 10)
-                ->where('approval_status', '<', 20);
+                $q->where('current_approval_status', '>', 10)
+                ->where('current_approval_status', '<', 20);
             })->get()->count();
         return $data;
         
@@ -88,48 +108,28 @@ class ApplicationService
         try {
             DB::beginTransaction();
             // Validate the data if necessary
-                $get_verificators = User::approvers()->whereIn('id', $data['verificators'])->get();
-                $get_finance = User::approvers()->rolePosition('finance',AuthService::currentAccess()['department_id'])->first();
-                $get_dekan = User::approvers()->rolePosition('dekan',AuthService::currentAccess()['department_id'])->first();
+                $get_verificators = MasterManagementService::generateUserProcessData();
                 // dd($get_finance);
                 $application = Application::create([
                     'activity_name'        => $data['activity_name'],
                     'funding_source'       => (int)$data['funding_source'],
-                    'approval_status'      => 0, //Draft
-                    'current_user_approval' => $get_finance->id,
-                    'user_approval_ids'    => implode(',', $get_verificators->pluck('id')->toArray()),
+                    'current_approval_status'      => 0,
+                    'current_seq_user_approval' => 1,
                     'department_id'        => AuthService::currentAccess()['department_id'],
                     'created_by'           => AuthService::currentAccess()['id'],
                 ]);
+                
 
                 $application->report()->create([
-                    'current_user_approval'=> $get_dekan->id,
-                    'approval_status'=> 0,
                     'department_id'=> AuthService::currentAccess()['department_id'],
                     'created_by'=> AuthService::currentAccess()['id'],
-
                 ]);
                 // Create ApplicationUserApproval records for each verifier
                 foreach ($get_verificators as $key => $verifier) {
-
-                        if ($verifier->position->hasRole('finance')) {
-                            $sequence = 1;
-                        }else if($verifier->position->hasRole('dekan')){
-                            $sequence = 2;
-                        }
-                    $application->userApprovals()->create([
-                        'user_id' => $verifier->id,
-                        'user_text' => $verifier->name.' - '.$verifier->position->name, // Assuming you want to store the name of the verifier
-                        'sequence' => $sequence, // Assuming sequence starts at 1
-                        'status' => 0, // Assuming 0 means pending
-                        'position_id' => $verifier->position_id, // Assuming 0 means pending
-                        'report_status' => 0, // Assuming 0 means pending
-                        'application_id' => $application->id,
-                        'department_id' => AuthService::currentAccess()['department_id'], // Assuming the department ID is from the current user
-                        'created_by' => Auth::id(), // Assuming you want to store who created this approval
-                    ]);
+                    $verifier['application_id'] = $application->id;
+                    $application->userApprovals()->create($verifier);
                 }
-            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber','materi_narasumber'];
+            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber','materi_narasumber','absensi_kehadiran'];
             $get_file_types = FileType::whereNotIn('code',$exclude)->get();
             foreach ($get_file_types as $ft) {
                 $app_file = [
@@ -185,76 +185,108 @@ class ApplicationService
         $current_user_id = AuthService::currentAccess()['id'];
         switch ($action) {
             case 'submit':
-                    if ($app->created_by == $current_user_id && $app->approval_status < 6) {
-                        $app->approval_status = 6;
+                    if ($app->created_by == $current_user_id && $app->current_approval_status < 6) {
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 5;
+                        $update_current_appr->save();
+
+
+                        $app->current_seq_user_approval = 2;
+                        $app->current_approval_status = 6;
                         $app->save();
+
+                        $update_next_user_appr = $app->currentUserApproval()->first();
+                        $update_next_user_appr->status = 6;
+                        $update_next_user_appr->save();
+
+
                         self::storeLogApproval('approve', $application_id, '');
                         $app_file = $app->applicationFiles()->findCode('draft_tor')->first();
                         TemplateProcessorService::generateDocumentToPDF($app, 'draft_tor',$app);
                     }
                     break;
             case 'submit-report':
-                    if ($app->created_by == $current_user_id && $app->report->approval_status < 6) {
-                        $app->report->approval_status = 6 ;
-                        $app->report->save();
+                    if ($app->created_by == $current_user_id && $app->current_approval_status < 6) {
+
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 5;
+                        $update_current_appr->save();
+
+                        $app->current_seq_user_approval = $app->current_seq_user_approval+1;
+                        $app->current_approval_status = 6;
+                        $app->save();
+
+                        $update_next_user_appr = $app->currentUserApproval()->first();
+                        $update_next_user_appr->status = 6;
+                        $update_next_user_appr->save();
+
                         self::storeLogApproval($action, $application_id, '');
                     }
                     break;
             case 'approve':
-                    if ($current_user_id ==  $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11) {
-
+                    if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
+                        
                         $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
                         $user_approvals->status = 11;
                         $user_approvals->save();
 
-                        $max_seq = $app->userApprovals()->max('sequence');
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 12;
+                        $update_current_appr->save();
+
+
+                        $current_seq =  $app->current_seq_user_approval;
+                        $app->current_seq_user_approval = $current_seq+1;
+                        $app->current_approval_status = 6;
+                        $app->save();
+
+                        // dd($app);
+
+                        $max_seq = $app->userApprovals()->where('trans_type',1)->where('is_verificator',1)->max('sequence');
                         $approval_max_seq = $app->userApprovals()->where('sequence',$max_seq)->first();
-                        if ( $current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
-                            $app->approval_status = 11;
+                        if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
+                         
+                            $app->current_approval_status = 11;
                             $app->save();
+
+                            $next_appr = $app->currentUserApproval()->first();
+                            $next_appr->status = 11;
+                            $next_appr->save();
+
+                            
                             self::storeLogApproval($action,$application_id,'');
                             self::storeListLetterNumber($app);
                             self::storeSuratPermohonanFiles($app);
-                      
-                        }else{
-                            $current_user = $app->userApprovals()->where('user_id',$app->current_user_approval)->first();
-                            $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
-                            $app->current_user_approval = $next_user->user_id;
-                            $app->save();
                         }
 
                     }
                     break;
             case 'approve-report':
-                    if ($current_user_id ==  $app->report->current_user_approval && $app->report->approval_status > 5 && $app->report->approval_status < 11) {
-                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->report_status = 11;
-                        $user_approvals->save();
-
-                        $max_seq = $app->userApprovals()->max('sequence');
+                     if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
+                        $max_seq = $app->userApprovals()->where('trans_type',2)->where('is_verificator',1)->max('sequence');
                         $approval_max_seq = $app->userApprovals()->where('sequence',$max_seq)->first();
-                        if ( $current_user_id == $approval_max_seq->user_id && $approval_max_seq->report_status > 10 && $approval_max_seq->report_status < 21) {
-                            $app->report->approval_status = 11;
-                            $app->report->save();
+                        if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 5 && $approval_max_seq->status < 21) {
+                        // if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
+                            $app->current_approval_status = 13;
+                            $app->save();
 
                             $department = Department::find($app->department_id);
                             $department->current_limit_submission = $department->current_limit_submission-1;
                             $department->save();
+
+                            $next_appr = $app->currentUserApproval()->first();
+                            $next_appr->status = 13;
+                            $next_appr->save();
+
                             self::storeAttendenceToDetailFiles($app);
                             self::storeLogApproval($action, $application_id, '');
                             GenerateReportJob::dispatch($app);
-                        }else{
-                            $current_user = $app->userApprovals()->where('user_id',$app->report->current_user_approval)->first();
-                            $next_user = $app->userApprovals()->where('sequence', $current_user->sequence+1)->first();
-                            $app->report->current_user_approval = $next_user->user_id;
-                            $app->report->save();
                         }
-
                     }
                     break;
             case 'revise':
-                    if ($current_user_id == $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11 ) {
-                        $app->approval_status = 2;
+                    if ($current_user_id == $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11 ) {
+                        $app->current_approval_status = 2;
                         $app->note = $note;
                         $app->updated_at = Carbon::now();
                         $app->save();
@@ -267,28 +299,28 @@ class ApplicationService
                     }
                     break;
             case 'revise-report':
-                    if ($current_user_id == $app->report->current_user_approval && $app->report->approval_status > 5 && $app->report->approval_status < 11 ) {
-                        $app->approval_status = 2;
+                    if ($current_user_id == $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11 ) {
+                        $app->current_approval_status = 2;
                         $app->report()->note = $note;
                         $app->report()->updated_at = Carbon::now();
                         $app->save();
 
                         $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->report_status = 2;
+                        $user_approvals->status = 2;
                         $user_approvals->report_note = $note;
                         $user_approvals->updated_at = Carbon::now();
                         $user_approvals->save();
                     }
                     break;
             case 'reject':
-                    if ($current_user_id ==  $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11) {
-                        $app->report()->approval_status = 21;
+                    if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
+                        $app->report()->current_approval_status = 21;
                         $app->report()->note = $note;
                         $app->save();
 
 
                         $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->report_status = 21;
+                        $user_approvals->status = 21;
                         $user_approvals->report_note = $note;
                         $user_approvals->updated_at = Carbon::now();
                         $user_approvals->save();
@@ -296,8 +328,8 @@ class ApplicationService
 
                     break;
             case 'reject-report':
-                    if ($current_user_id ==  $app->current_user_approval && $app->approval_status > 5 && $app->approval_status < 11) {
-                        $app->approval_status = 21;
+                    if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
+                        $app->current_approval_status = 21;
                         $app->note = $note;
                         $app->save();
 
@@ -319,6 +351,7 @@ class ApplicationService
             return ['status'=>true,'message'=>'success update flow'];
         } catch (\Throwable $th) {
             DB::rollBack();
+            dd($th);
             Log::error($th);
             return ['status' => false, 'message' => 'Failed update flow'];
         }
@@ -512,7 +545,7 @@ class ApplicationService
                 $details = $app->detail()->create($data);
             }
 
-            if ($app && $app->approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+            if ($app && $app->current_approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
                 $files_with_participant = $app->applicationFiles()->whereNotNull('participant_id')->get();
                 if (!empty($files_with_participant)) {
                    foreach ($files_with_participant as $key => $file) {
@@ -544,7 +577,7 @@ class ApplicationService
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
                 }
 
-            if ($app && $app->approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+            if ($app && $app->current_approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
                 self::storeSuratPermohonanFiles($app);
             }
 
@@ -765,11 +798,21 @@ class ApplicationService
                 $field = $app->letterNumbers()->find($value['id'])->update($value);
             }
             if ($is_submit) {
-                $app->update(['approval_status'=>12]);
-                $department = Department::find($app->department_id);
-                $department->current_limit_submission = $department->current_limit_submission+1;
-                $department->save();
-                GenerateApplicationFileJob::dispatch($app);
+                $update_current_seq = $app->currentUserApproval()->first();
+                $update_current_seq->status = 13;
+                $update_current_seq->save();
+
+                $app->update(['current_approval_status'=>1,'current_seq_user_approval'=>($app->current_seq_user_approval+1)]);
+
+
+                $update_next_seq = $app->currentUserApproval()->first();
+                $update_next_seq->status = $app->current_approval_status;
+                $update_next_seq->save();
+
+                // $department = Department::find($app->department_id);
+                // $department->current_limit_submission = $department->current_limit_submission+1;
+                // $department->save();
+                // GenerateApplicationFileJob::dispatch($app);
             }
 
             // TemplateProcessorService::generateApplicationDocument($app);
@@ -784,7 +827,9 @@ class ApplicationService
     }
 
     public static function getListReport(){
-       $list = Application::where('approval_status',12);
+       $list = Application::whereHas('currentUserApproval',function($q){
+        return $q->where('trans_type',2);
+       });
        return $list;
     }
 

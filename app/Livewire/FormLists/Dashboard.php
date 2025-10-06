@@ -29,21 +29,21 @@ class Dashboard extends Component
             }
         }
         $apps = Application::needMyProcess()->get();
-        $reports = Application::whereHas('report', function ($query) {
-            return $query->needMyProcess();
-        })->get();
+        // $reports = Application::whereHas('report', function ($query) {
+        //     return $query->needMyProcess();
+        // })->get();
 
-        $apps = $apps->map(function ($app) {
-            $app->trans_type = 1;
-            return $app;
-        });
-        $reports = $reports->map(function ($app) {
-            $app->trans_type = 2;
-            return $app;
-        });
+        // $apps = $apps->map(function ($app) {
+        //     $app->trans_type = 1;
+        //     return $app;
+        // });
+        // $reports = $reports->map(function ($app) {
+        //     $app->trans_type = 2;
+        //     return $app;
+        // });
 
 
-        $need_process_apps = $apps->merge($reports);
+        $need_process_apps = $apps;
 
         $count = ApplicationService::getDashboardInformation($this->selected_department);
         // dd($count_total_application);

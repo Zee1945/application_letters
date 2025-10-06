@@ -39,7 +39,8 @@ class UserSeeder extends Seeder
                 'department_id' => 2,
             ],
             [
-                'name' => '	Prof. Dr. Dra. Hj. Khurul Wardati, M.Si.',
+                'name' => 'Prof. Dr. Dra. Hj. Khurul Wardati, M.Si.',
+                'name_without_degree' => 'Khurul Wardati',
                 'email' => 'dekansaintek@gmail.com',
                 'password' => Hash::make('admin123'),
                 'position' => 'Dekan',
@@ -79,7 +80,7 @@ class UserSeeder extends Seeder
                 'email' => 'adminzul@gmail.com',
                 'password' => Hash::make('admin123'),
                 'department_id' => null,
-                'position' => 'Admin Super'
+                'position' => 'Super Admin'
             ],
             [
                 'name' => 'Admin Departemen F. Saintek ',

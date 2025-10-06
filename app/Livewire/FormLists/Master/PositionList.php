@@ -12,7 +12,7 @@ class PositionList extends Component
       public $search = '';
     public function render()
     {
-        $positions = Position::
+        $positions = Position::restricted()->
             when($this->search, function($query) {
                 $query->where('name', 'like', '%'.$this->search);
             })

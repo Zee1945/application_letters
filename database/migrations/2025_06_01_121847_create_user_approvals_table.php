@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('sequence')->nullable();
             $table->integer('status')->default(0); // Status persetujuan (0: pending, 1: approved, 2: process 3: rejected)
             $table->text('note')->nullable(); // Catatan persetujuan (jika ada)
-            $table->integer('report_status')->default(0); // Status persetujuan (0: pending, 1: approved, 2: process 3: rejected)
             $table->text('report_note')->nullable(); // Catatan persetujuan (jika ada)
 
             $table->unsignedBigInteger('application_id')->nullable(); 

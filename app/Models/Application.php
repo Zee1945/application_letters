@@ -20,9 +20,8 @@ class Application extends AbstractModel
     protected $fillable = [
         'activity_name',
         'funding_source',
-        'approval_status',
-        'current_user_approval',
-        'user_approval_ids',
+        'current_approval_status',
+        'current_seq_user_approval',
         'draft_step_saved ',
         'note',
         'delete_note',
@@ -63,7 +62,7 @@ class Application extends AbstractModel
 
     public function currentUserApproval()
     {
-        return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
+        return $this->belongsTo(ApplicationUserApproval::class, 'current_seq_user_approval', 'sequence');
     }
     public function department()
     {
@@ -89,18 +88,21 @@ class Application extends AbstractModel
     {
         $user = AuthService::currentAccess();
         return $query->where(function($query)use($user){
-            $q = $query->where('current_user_approval',$user['id'])->where('approval_status','<',12);
+            $q = $query->whereHas('currentUserApproval',function($sub_q)use($user){
+                $sub_q->where('user_id',$user['id']);
+            })
+            ->where('current_approval_status','<',12);
             if ($user['role'] == 'finance') {
-                $q = $q->where('approval_status','>',0);
+                $q = $q->where('current_approval_status','>',0);
             }
             return $q;
         })->orWhere(function($query)use ($user){
             if ($user['role'] == 'kabag') {
-                return $query->where('approval_status',11);
+                return $query->where('current_approval_status',11);
             }
             return $query;
         })->orWhere(function($query) use ($user){
-            $query->where('created_by',$user['id'])->where('approval_status',0);
+            $query->where('created_by',$user['id'])->where('current_approval_status',0);
         });
     }
     public function scopeRejected()

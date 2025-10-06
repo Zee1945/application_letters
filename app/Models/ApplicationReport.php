@@ -26,11 +26,10 @@ class ApplicationReport extends Model
         'background',
         'speaker_material',
         'recommendations',
-        'current_user_approval',
         'total_participants',
         'total_participants_not_present',
         'total_participants_present',
-        'approval_status',
+        'current_approval_status',
         'closing',
         'speaker_material',
         'notulen',
@@ -68,26 +67,22 @@ class ApplicationReport extends Model
 
     public function currentUserApproval()
     {
-        return $this->belongsTo(ApplicationUserApproval::class, 'current_user_approval', 'user_id');
+        return $this->belongsTo(ApplicationUserApproval::class, 'current_seq_user_approval', 'sequence');
     }
     public function attachments()
     {
         return $this->hasMany(ReportAttachment::class, 'application_report_id');
     }
 
-    public function scopeNeedMyProcess(Builder $query)
-    {
-        $user = AuthService::currentAccess();
-        return $query->where(function($q) use ($user) {
-            $q->where(function($sub) use ($user) {
-                $sub->where('current_user_approval', $user['id'])
-                    ->where('approval_status', '<', 11)->whereNot('approval_status',0);
-            })
-            ->orWhere(function($sub) use ($user) {
-                $sub->where('approval_status', 0)->whereHas('application',function($q) use($user){
-                    $q->where('created_by',$user['id'])->where('approval_status',12);
-                });   
-            });
-        });
-    }
+    // public function scopeNeedMyProcess(Builder $query)
+    // {
+    //     $user = AuthService::currentAccess();
+    //     return $query->where(function($q) use ($user) {
+    //         $q->where(function($sub) use ($user) {
+    //             $sub->whereHas('currentUserApproval',function($q) use($user){
+    //                 $q->where('user_id',$user['id']);
+    //             } )->where('current_approval_status', '<', 11)->whereNot('current_approval_status',0);
+    //         });
+    //     });
+    // }
 }

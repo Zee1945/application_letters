@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Position;
+use App\Services\MasterManagementService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -22,7 +23,7 @@ class PositionsController extends Controller
      */
     public function create()
     {
-        $roles = Role::all(); // Fetch all positions
+        $roles = MasterManagementService::getRoleListOptions()->get();
         return view('master.positions.create', compact('roles')); // return the form view with the positions
     }
 
@@ -66,7 +67,7 @@ class PositionsController extends Controller
     public function edit(string $id)
     {
         $position = Position::findOrFail($id);
-        $roles = Role::all();
+        $roles = MasterManagementService::getRoleListOptions()->get();
         return view('master.positions.edit', compact('position', 'roles'));
 
     }
