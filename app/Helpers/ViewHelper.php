@@ -73,7 +73,7 @@ public static function statusSubmissionHTML($status_number)
             $color = 'secondary';
         }elseif ($status_number == 1) {
             $label = 'Unsubmitted Report';
-            $color = 'dangeer';
+            $color = 'danger';
         } elseif ($status_number == 5) {
             $label = 'Submitted';
             $color = 'success';
