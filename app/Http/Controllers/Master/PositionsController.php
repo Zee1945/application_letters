@@ -46,6 +46,8 @@ class PositionsController extends Controller
                // Assign the role
       
         $position->assignRole($request->role);
+        MasterManagementService::storeLogActivity('create-position',$position->id,$position->name);
+
          return redirect()->route('positions.index')->with('success', 'Jabatan berhasil diupdate.');
 
 
@@ -68,6 +70,8 @@ class PositionsController extends Controller
     {
         $position = Position::findOrFail($id);
         $roles = MasterManagementService::getRoleListOptions()->get();
+
+        
         return view('master.positions.edit', compact('position', 'roles'));
 
     }
@@ -88,6 +92,7 @@ class PositionsController extends Controller
 
         // Sync role
         $position->syncRoles([$request->role]);
+        MasterManagementService::storeLogActivity('update-position',$position->id,$position->name);
 
         return redirect()->route('positions.index')->with('success', 'Jabatan berhasil diupdate.');
     }
@@ -96,6 +101,9 @@ class PositionsController extends Controller
     {
         $position = Position::findOrFail($id);
         $position->delete();
+
+        MasterManagementService::storeLogActivity('delete-position',$position->id,$position->name);
+
 
         return redirect()->route('positions.index')->with('success', 'Jabatan berhasil dihapus.');
 

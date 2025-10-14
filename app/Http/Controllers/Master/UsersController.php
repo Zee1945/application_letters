@@ -11,6 +11,7 @@ use App\Services\MasterManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
@@ -60,6 +61,8 @@ class UsersController extends Controller
         $user->position_id = $request->position_id;
         $user->department_id = $request->department_id;
         $user->save();
+        MasterManagementService::storeLogActivity('create-user',$user->id,$user->name);
+        
 
         return redirect()->route('users.index')->with('success', 'User created successfully');
     }
@@ -123,7 +126,7 @@ class UsersController extends Controller
     //    if (!$user) {
     //         return redirect()->back()->withInput()->with('error', 'Gagal update user: ' . $e->getMessage());
     //    }
-
+        MasterManagementService::storeLogActivity('update-user',$user->id,$user->name);
         return redirect()->route('master.users.index')->with('success', 'User updated successfully');
     } catch (\Exception $e) {
         return redirect()->back()->withInput()->with('error', 'Gagal update user: ' . $e->getMessage());
@@ -140,6 +143,7 @@ class UsersController extends Controller
             abort(404);
         }
         $user->delete(); // Delete user
+        MasterManagementService::storeLogActivity('delete-user',$user->id,$user->name);
 
         return redirect()->route('master.users.index')->with('success', 'User deleted successfully');
     }
@@ -177,10 +181,11 @@ class UsersController extends Controller
                 $user->password = Hash::make($request->password);
             }
             $user->save();
+            MasterManagementService::storeLogActivity('update-profile',$user->id,$user->name);
 
             return redirect()->route('profile.edit')->with('success', 'Profile updated successfully');
         } catch (\Exception $e) {
-            dd($e);
+            Log::info($e);
             return redirect()->back()->withInput()->with('error', 'Gagal update profile: ' . $e->getMessage());
         }
     }

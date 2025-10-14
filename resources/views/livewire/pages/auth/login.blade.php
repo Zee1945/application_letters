@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use App\Services\AuthService;
+use App\Services\MasterManagementService;
 
 new #[Layout('layouts.guest')] class extends Component
 {
@@ -27,6 +28,8 @@ new #[Layout('layouts.guest')] class extends Component
         $department = auth()->user()->department()->first()->name ?? '';
         $position = auth()->user()->position()->first()->name ?? '';
         Session::put('user', [...auth()->user()->except('password', 'remember_token'),'role'=> $role,'position'=>$position,'department'=>$department]);
+        MasterManagementService::storeLogActivity('user-login',$user['id'],$user['name']);
+
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>

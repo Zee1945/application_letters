@@ -19,7 +19,7 @@
                             <th>Status LPJ</th>
                             <th>Pemroses Saat ini</th>
                             <th>Departemen</th>
-                            <th>Aksi</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,13 +32,26 @@
                             <td>
                                {!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}
                             </td>
-                            <td>{!! viewHelper::getCurrentUserProcess($application,true)['name'] !!}</td>
+                            <td>
+                                @php
+                                    $user_text = viewHelper::getCurrentUserProcess($application);
+                                @endphp
+
+                                    <div class="fw-semibold">{{ $user_text['name'] ?? '-' }}</div>
+                                    <div class="small text-muted">
+                                        {{ $user_text['position'] ?? '-' }}
+                                        @if(!empty($user_text['department']))
+                                            <span class="mx-1">|</span> {{ $user_text['department'] }}
+                                        @endif
+                        </div>
+
+                            </td>
                             <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">
                                     <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class='bx bx-info-circle'></i></a>
                                     <a href="{{route('reports.create',['application_id'=>$application->id])}}" class=""><i class='bx bxs-edit'></i></a>
-                                    <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a>
+                                    {{-- <a href="javascript:;" class="ms-3"><i class='bx bxs-trash'></i></a> --}}
                                 </div>
                             </td>
                         </tr>

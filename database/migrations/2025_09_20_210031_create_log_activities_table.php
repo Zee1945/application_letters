@@ -16,13 +16,12 @@ return new class extends Migration
             $table->string('activity'); // Nama aktivitas/log
             $table->text('description')->nullable(); // Deskripsi aktivitas
             $table->unsignedBigInteger('user_id')->nullable(); // User yang melakukan aktivitas
-            $table->unsignedBigInteger('application_id')->nullable(); // Relasi ke aplikasi (jika ada)
+            $table->unsignedBigInteger('reference_id')->nullable(); // Relasi ke aplikasi (jika ada)
             // $table->string('ip_address', 45)->nullable(); // IP address user
             // $table->string('user_agent')->nullable(); // User agent browser
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
-            $table->foreign('application_id')->references('id')->on('applications')->nullOnDelete();
         });
     }
 

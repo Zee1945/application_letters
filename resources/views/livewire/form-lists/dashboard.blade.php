@@ -158,8 +158,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge {{ $application->trans_type == 1 ? 'bg-primary' : 'bg-secondary' }}">
-                                            {{ $application->trans_type == 1 ? 'Pengajuan' : 'Laporan' }}
+                                        <span class="badge {{ $application->currentUserApproval->trans_type == 1 ? 'bg-primary' : 'bg-secondary' }}">
+                                            {{ $application->currentUserApproval->trans_type == 1 ? 'Pengajuan' : 'Laporan' }}
                                         </span>
                                     </td>
                                     <td>{!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}</td>

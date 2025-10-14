@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\Department;
+use App\Models\LogActivity;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SessionService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Spatie\Permission\Models\Role;
 
@@ -119,6 +121,59 @@ class MasterManagementService
 
             return $dictionary[$role_transType];
         } 
+
+        public static function storeLogActivity($action,$reference_id,$reference_name=''){
+            try {           
+            $currrent_user = AuthService::currentAccess();
+            $descriptions = [
+                'submit' => 'User '.$currrent_user['name'].' telah mengajukan "'.$reference_name.'"',
+                'submit-report' => 'User '.$currrent_user['name'].' telah mengirim laporan untuk "'.$reference_name.'"',
+                'approve' => 'User '.$currrent_user['name'].' telah menyetujui pengajuan "'.$reference_name.'"',
+                'approve-report' => 'User '.$currrent_user['name'].' telah menyetujui laporan "'.$reference_name.'"',
+                'revise' => 'User '.$currrent_user['name'].' meminta revisi pada pengajuan "'.$reference_name.'"',
+                'revise-report' => 'User '.$currrent_user['name'].' meminta revisi pada laporan "'.$reference_name.'"',
+                'reject' => 'User '.$currrent_user['name'].' menolak pengajuan "'.$reference_name.'"',
+                'reject-report' => 'User '.$currrent_user['name'].' menolak laporan "'.$reference_name.'"',
+                'create-application' => 'User '.$currrent_user['name'].' membuat pengajuan baru "'.$reference_name.'"',
+                'update-letter-number' => 'User '.$currrent_user['name'].' menambahkan nomor surat pada pengajuan "'.$reference_name.'"',
+                'delete-application' => 'User '.$currrent_user['name'].' menghapus pengajuan "'.$reference_name.'"',
+                'save-draft-application' => 'User '.$currrent_user['name'].' menyimpan draft pengajuan "'.$reference_name.'"',
+                'create-user' => 'User '.$currrent_user['name'].' menambahkan user baru pada "'.$reference_name.'"',
+                'create-departement' => 'User '.$currrent_user['name'].' menambahkan departemen baru pada "'.$reference_name.'"',
+                'create-position' => 'User '.$currrent_user['name'].' menambahkan posisi baru pada "'.$reference_name.'"',
+                'update-user' => 'User '.$currrent_user['name'].' memperbarui data user pada "'.$reference_name.'"',
+                'update-departement' => 'User '.$currrent_user['name'].' memperbarui data departemen pada "'.$reference_name.'"',
+                'update-position' => 'User '.$currrent_user['name'].' memperbarui data posisi pada "'.$reference_name.'"',
+                'delete-user' => 'User '.$currrent_user['name'].' menghapus user pada "'.$reference_name.'"',
+                'delete-departement' => 'User '.$currrent_user['name'].' menghapus departemen pada "'.$reference_name.'"',
+                'delete-position' => 'User '.$currrent_user['name'].' menghapus posisi pada "'.$reference_name.'"',
+                'update-manage-template' => 'User '.$currrent_user['name'].' memperbarui template dokumen pada "'.$reference_name.'"',
+                'admin-regenerate-document' => 'User '.$currrent_user['name'].' melakukan regenerasi dokumen pada "'.$reference_name.'"',
+                'admin-update-application' => 'User '.$currrent_user['name'].' memperbarui data pengajuan "'.$reference_name.'"',
+                'user-login' => 'User '.$currrent_user['name'].' login ke aplikasi',
+                'update-profile' => 'User '.$currrent_user['name'].' mengubah profile user "'.$reference_name.'"',
+            ];
+
+            $data = [
+                'activity'=>$action,
+                'user_id'=>$currrent_user['id'],
+                'description'=>$descriptions[$action],
+                'reference_id'=>$reference_id
+            ];
+    LogActivity::create($data);
+
+
+
+             } catch (\Throwable $th) {
+                //throw $th;
+                Log::info($th);
+            }
+
+        }
+
+
+
+        
 
 
 

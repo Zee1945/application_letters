@@ -50,6 +50,9 @@ class DepartmentsController extends Controller
         $department->limit_submission = $request->limit_submission;
         $department->save();
 
+        MasterManagementService::storeLogActivity('create-departement',$department->id,$department->name);
+
+
         return redirect()->route('departments.index')->with('success', 'User created successfully');
 
     }
@@ -98,6 +101,9 @@ public function update(Request $request, string $id)
     $department->approval_by = $request->approval_by;
     $department->save();
 
+        MasterManagementService::storeLogActivity('update-departement',$department->id,$department->name);
+
+
     return redirect()->route('departments.index')->with('success', 'Departemen berhasil diupdate.');
 }
 
@@ -105,6 +111,8 @@ public function destroy(string $id)
 {
     $department = Department::findOrFail($id);
     $department->delete();
+
+        MasterManagementService::storeLogActivity('delete-departement',$department->id,$department->name);
 
     return redirect()->route('departments.index')->with('success', 'Departemen berhasil dihapus.');
 }

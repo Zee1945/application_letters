@@ -97,6 +97,8 @@ services:
       - "8010:80"
     networks:
       - laravel
+    volumes:
+      - ./docker/onlyoffice/fonts:/usr/share/fonts/truetype/custom
 
 volumes:
   db_data:

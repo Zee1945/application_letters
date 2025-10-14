@@ -383,7 +383,9 @@ class ApplicationService
                 # code...
                 break;
         }
+
             DB::commit();
+            MasterManagementService::storeLogActivity($action,$application_id,$app->activity_name);
             return ['status'=>true,'message'=>'success update flow'];
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -848,6 +850,8 @@ class ApplicationService
                 $department->current_limit_submission = $department->current_limit_submission+1;
                 $department->save();
                 GenerateApplicationFileJob::dispatch($app);
+                MasterManagementService::storeLogActivity('submit-letter-number',$app->id,$app->name);
+
             }
 
             // TemplateProcessorService::generateApplicationDocument($app);

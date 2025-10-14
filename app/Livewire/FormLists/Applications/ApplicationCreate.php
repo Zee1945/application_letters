@@ -54,6 +54,7 @@ class ApplicationCreate extends Component
             session()->flash('error', 'Failed to create application.');
             return;
         }
+        MasterManagementService::storeLogActivity('create-application',$application->id,$application->activity_name);
         return redirect()->route('applications.create.draft',['application_id'=>$application->id]);
 
 
