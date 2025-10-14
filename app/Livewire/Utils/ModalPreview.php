@@ -23,7 +23,6 @@ class ModalPreview extends Component
     #[On('open-modal-preview')]
    public function openModal($files) {
         $this->files_preview = $files;
-        // dd($files);
         $this->dispatch('open-modal-preview-js', modalId: $this->modal_id);
     }
 

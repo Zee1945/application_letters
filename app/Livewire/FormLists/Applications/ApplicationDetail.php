@@ -33,12 +33,34 @@ class ApplicationDetail extends Component
     public function downloadFile($path,$filename,$is_upload =0){
 
         $newPath = $is_upload == 1?$path:$path.'/'.$filename;
-        $url = Storage::disk('minio')->temporaryUrl($newPath, now()->addHours(1), [
-                'ResponseContentType' => 'application/octet-stream',
-                'ResponseContentDisposition' => 'attachment; '. $filename,
-                'filename' => $filename,
-            ]);
-            return redirect()->to($url);
+        // $url = Storage::disk('minio')->temporaryUrl($newPath, now()->addHours(1), [
+        //         'ResponseContentType' => 'application/octet-stream',
+        //         'ResponseContentDisposition' => 'attachment; '. $filename,
+        //         'filename' => $filename,
+        //     ]);
+
+            
+            // dd('sini');
+
+            // if (app()->runningInConsole() === false) {
+            //     // replace only for browser access
+            //     $url = str_replace('http://minio:9000', 'http://minio-api.local', $url);
+            // }
+            // return redirect()->to($url);
+
+             $stream = Storage::disk('minio')->readStream($newPath);
+
+    if (!$stream) {
+        abort(404, 'File not found.');
+    }
+
+    return response()->streamDownload(function () use ($stream) {
+        fpassthru($stream);
+    }, $filename, [
+        'Content-Type' => 'application/octet-stream',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ]);
+
     }
 
 

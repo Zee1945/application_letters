@@ -89,6 +89,10 @@
     width: 1.5em;
     text-align: left;
 }
+.breadcrumb-title  {
+    border-right: none !important;
+    font-size:10px;
+}
 .dot-animated::after {
     content: '';
     animation: dots 1.2s steps(3, end) infinite;
@@ -131,6 +135,25 @@
     font-size: 0.95rem;        /* lebih kecil dari sebelumnya */
     line-height: 1.2;
 }
+
+    .template-card {
+        transition: box-shadow 0.2s, transform 0.2s;
+        cursor: pointer;
+    }
+    .template-card:hover {
+        box-shadow: 0 0 0 4px #0d6efd33, 0 4px 24px 0 rgba(0,0,0,0.08);
+        transform: translateY(-4px) scale(1.02);
+        background-color: #eaf2fb;
+    }
+    .template-card:active {
+        box-shadow: 0 0 0 4px #0d6efd55, 0 2px 8px 0 rgba(0,0,0,0.10);
+        transform: scale(0.98);
+    }
+    .template-action-btn:focus, .template-action-btn:hover {
+        background: #0d6efd !important;
+        color: #fff !important;
+        border-color: #0d6efd !important;
+    }
 
 
 

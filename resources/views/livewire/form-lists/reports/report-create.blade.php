@@ -14,7 +14,7 @@
                                 <div>
                                     <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
                                     <div class="d-flex align-items-center text-muted">
-                                        {!! viewHelper::statusReportHTML($this->application->current_approval_status) !!}
+                                        {!! viewHelper::statusSubmissionHTML($this->application->current_approval_status) !!}
                                         <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application, true)['name'] !!}</small>
                                     </div>
                                 </div>
@@ -32,7 +32,7 @@
                                     </a>
                          
                             </div>
-                                   @if (viewHelper::actionPermissionButton('approval_process', $this->application, true))
+                                   @if (viewHelper::actionPermissionButton('approval_process_report', $this->application, true))
                                    <div class="btn-group mt-2 w-100" role="group">
                                     <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
                                         <i class="fa-solid fa-times me-1"></i>Reject

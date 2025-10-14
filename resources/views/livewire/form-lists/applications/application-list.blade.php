@@ -7,20 +7,12 @@
                     <input type="text"
                     class="form-control ps-5 radius-30"
                     placeholder="Cari Nama Kegiatan"
-                    wire:model.debounce.1000ms="search" />
+                    wire:model.live.debounce.1000ms="search" />
                 <span class="position-absolute top-50 product-show translate-middle-y">
                     <i class="bx bx-search"></i>
                 </span>
                 </div>
-                <!-- Filter Dropdown (Add more filters as needed) -->
-                <div class="ms-3">
-                    <select class="form-select radius-30">
-                        <option selected>Filter by Status</option>
-                        <option value="1">Pending</option>
-                        <option value="2">Approved</option>
-                        <option value="3">Rejected</option>
-                    </select>
-                </div>
+                
                 <!-- New Application Button -->
                 <div class="ms-auto">
                     @if (viewHelper::canDo('create_application'))
@@ -30,6 +22,49 @@
                     @endif
                 </div>
             </div>
+           <div class="mb-3 d-flex flex-wrap gap-2">
+                <div style="min-width: 200px;">
+                    <select class="form-select form-select-sm" wire:model.live="status_approval">
+                        <option value="">Filter Status</option>
+                        <option value="need-my-process">Butuh proses saya</option>
+                        <option value="ongoing">Sedang Diproses</option>
+                        <option value="finished">Approved & Finish</option>
+                        <option value="need-revision">Butuh Revisi</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                </div>
+                <div style="min-width: 200px;">
+                    <select class="form-select form-select-sm" wire:model.live="department_id">
+                        <option value="">Filter Departemen</option>
+                        @foreach($department_options as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            {{-- <div class="mb-2 d-flex">
+                <!-- Filter Dropdown (Add more filters as needed) -->
+                <div class="ms-3 me-3">
+                    <div class=""></div>
+                    <select class="form-select">
+                        <option selected>Filter by Status</option>
+                        <option value="1">Sedang Diproses</option>
+                        <option value="2">Approved & Finish</option>
+                        <option value="1">Butuh Revisi</option>
+                        <option value="3">Ditolak</option>
+                    </select>
+                </div>
+                <div class="ms-3">
+                    <div class=""></div>
+                    <select class="form-select">
+                        <option selected>Filter by Status</option>
+                        <option value="1">Sedang Diproses</option>
+                        <option value="2">Approved & Finish</option>
+                        <option value="1">Butuh Revisi</option>
+                        <option value="3">Ditolak</option>
+                    </select>
+                </div>
+            </div> --}}
 
             <!-- Table for Applications -->
             <div class="table-responsive">

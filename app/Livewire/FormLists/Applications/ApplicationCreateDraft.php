@@ -114,7 +114,6 @@ class ApplicationCreateDraft extends AbstractComponent
 
     }
     public function saveDraft($last_saved,$is_submit=false){
-        // dd($this->rundowns);
         $this->step = $last_saved;
 
       $generals = [

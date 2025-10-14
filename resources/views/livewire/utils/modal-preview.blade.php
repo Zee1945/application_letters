@@ -10,16 +10,23 @@
             <div class="modal-body p-0">
                 <div class="row">
                     <div class="d-flex flex-column align-items-center">
+                    
                         {{-- {{count($this->files_preview)}} --}}
                         @if (count($this->files_preview) > 0)
                             @foreach ($this->files_preview as $file)
+                                @php
+                                    $previewUrl = route('file.preview', [
+                                        'disk' => $file['storage_type'],
+                                        'path' => urlencode($file['path'])
+                                    ]);
+                                @endphp
                                 @if ($file['mimetype'] == 'pdf' || $file['mimetype'] == 'application/pdf')
                                     <iframe
-                                        src="{{ Storage::disk($file['storage_type'])->temporaryUrl($file['path'], now()->addHours(1)) }}"
+                                        src="{{$previewUrl}}"
                                         width="100%" height="100%" style="min-height: calc(100vh - (2rem));">
                                     </iframe>
                                 @else
-                                             <img src="{{ Storage::disk($file['storage_type'])->temporaryUrl($file['path'], now()->addHours(1)) }}"
+                                             <img src="{{$previewUrl}}"
          alt="My Image" style="width: 100vw; max-width: 100vw; height: 100vh; object-fit: contain;">
                                 @endif
                             @endforeach
@@ -42,6 +49,8 @@
         let modalInstance = null;
         
         Livewire.on('open-modal-preview-js', (event) => {
+            console.log('masok sini ');
+            
             if (event.modalId === modalId) {
                 // Hapus backdrop yang ada sebelumnya
                 document.querySelectorAll('.modal-backdrop').forEach(backdrop => {

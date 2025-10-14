@@ -48,8 +48,8 @@ return [
         ],
         'minio' => [
             'driver' => 's3',
-            'key'    => env('MINIO_ACCESS_KEY_ID'),
-            'secret' => env('MINIO_SECRET_ACCESS_KEY'),
+            'key'    => env('MINIO_ROOT_USER'),
+            'secret' => env('MINIO_ROOT_PASSWORD'),
             'region' => 'us-east-1', // Tidak terlalu relevan, bisa diabaikan
             'bucket' => env('MINIO_BUCKET'),
             'endpoint' => env('MINIO_ENDPOINT', 'http://127.0.0.1:9000'),

@@ -86,6 +86,20 @@
         </a>
     </li>
     @endif
+    @if(ViewHelper::canDo('read_manage-template'))
+       <li>
+        <a href="{{route('manage-templates.index')}}" >
+            <div class="parent-icon">
+                {{-- <i class='bx bx-archive-alt'></i>  --}}
+                {{-- <i class='bx bx-buildings'></i>  --}}
+                {{-- <i class='bx  bx-file-detail'></i>  --}}
+                <i class='bx bx-file'></i>
+
+            </div>
+            <div class="menu-title">Manage Template</div>
+        </a>
+    </li>
+    @endif
 
 
     {{-- <li>

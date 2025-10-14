@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Trans;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
@@ -61,5 +62,24 @@ class ApplicationController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function preview(Request $request, $disk, $path)
+    {
+        $path = urldecode($path);
+        $stream = Storage::disk($disk)->readStream($path);
+
+        if (!$stream) {
+            abort(404, 'File not found.');
+        }
+
+        $mime = Storage::disk($disk)->mimeType($path);
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+        }, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        ]);
     }
 }

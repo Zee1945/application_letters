@@ -21,6 +21,7 @@ class RoleAndPermissionSeeder extends Seeder
         'position',
         'department',
         'dashboard',
+        'manage-template',
      ];
 
      public $permissions = [

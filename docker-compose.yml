@@ -1,70 +1,107 @@
+version: "3.9"
+
 services:
+  # PHP-FPM + Laravel
   app:
     build:
       context: .
-    container_name: laravel-app
+      dockerfile: docker/php/Dockerfile
+    container_name: laravel_app
+    expose: 
+      - 9000
     volumes:
-      - .:/var/www/html  # Adjust path to your Laravel project
-    ports:
-      - "8000:80"
-    networks:
-      - app-network
+      - .:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
     depends_on:
       - db
-      - onlyoffice
       - minio
+    networks:
+      - laravel
 
+  # Nginx
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    ports:
+      - "80:80"
+      # - "9003:9003"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  # MySQL
   db:
-    image: mysql:5.7
-    platform: linux/amd64
-    container_name: mysql-db
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: application_letters
-      MYSQL_USER: user
-      MYSQL_PASSWORD: user_password
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: sirapel
+      MYSQL_PASSWORD: sirapel123
+    volumes:
+      - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
-    volumes:
-      - db-data:/var/lib/mysql
     networks:
-      - app-network
+      - laravel
 
-  onlyoffice:
-    image: onlyoffice/documentserver
-    container_name: onlyoffice-documentserver
-    environment:
-      JWT_ENABLED: "false"
-    ports:
-      - "8006:80"  # Change to the appropriate port if needed
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
     restart: always
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
     networks:
-      - app-network
+      - laravel
+
+  # MinIO (object storage)
   minio:
     image: minio/minio
-    container_name: minio-storage
+    container_name: minio
+    command: server /data --console-address ":9001"
     environment:
-    #   MINIO_ACCESS_KEY: HDjJbJhvnTiIKUFnL2Xl
-    #   MINIO_SECRET_KEY: 1mQ2sNwk7NMPjVriFJy5K7DyaotSStpb5TIUbH8R
-      MINIO_ACCESS_KEY: 2vDwC5Oq133kni8kR11I
-      MINIO_SECRET_KEY: 4V87CCJYAtE7ZezfhNBM2CEZ3hLGjjDrlA6lkQcd
-      MINIO_ROOT_USER : minioadmin
-      MINIO_ENDPOINT: http://172.18.0.2:9000
+      MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_BUCKET: application-letters
+      MINIO_DEFAULT_BUCKETS: applicationletters
       MINIO_DEFAULT_REGION: us-east-1
-      MINIO_USE_PATH_STYLE_ENDPOINT: false
+      MINIO_USE_PATH_STYLE_ENDPOINT: true
     ports:
-      - "9001:9000"
+      - "9003:9000"
+      - "9004:9001"
     volumes:
       - minio_data:/data
-    command: server /data
+    networks:
+      - laravel
 
-networks:
-  app-network:
-    driver: bridge
+  # OnlyOffice
+  onlyoffice:
+    image: onlyoffice/documentserver
+    container_name: onlyoffice
+    environment:
+      JWT_ENABLED: "false"
+    restart: always
+    ports:
+      - "8010:80"
+    networks:
+      - laravel
 
 volumes:
-  db-data:
+  db_data:
   minio_data:
-    driver: local
+
+networks:
+  laravel:
+    driver: bridge

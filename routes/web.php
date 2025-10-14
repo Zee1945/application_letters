@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ManageTemplateController;
 use App\Http\Controllers\Master\DepartmentsController;
 use App\Http\Controllers\Master\PositionsController;
 use App\Http\Controllers\Master\UsersController;
@@ -10,6 +11,7 @@ use App\Livewire\FormLists\Applications\ApplicationDetail;
 use App\Livewire\FormLists\Applications\ApplicationList;
 use App\Livewire\FormLists\Dashboard;
 use App\Livewire\FormLists\Master\DepartmentList;
+use App\Livewire\FormLists\Master\ManageTemplateList;
 use App\Livewire\FormLists\Master\PosiitionList;
 use App\Livewire\FormLists\Master\PositionList;
 use App\Livewire\FormLists\Master\UserList;
@@ -68,6 +70,14 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 Route::get('departments', DepartmentList::class)->name('departments.index');
                 Route::resource('departments', DepartmentsController::class)->except(['index']);
             });
+            Route::group(['middleware' => ['permissionRole:read_manage-template']], function () {
+                Route::get('manage-templates', ManageTemplateList::class)->name('manage-templates.index');
+                Route::resource('manage-templates', ManageTemplateController::class)->except(['index']);
+            });
+
+            Route::get('/file-preview/{disk}/{path}', [ApplicationController::class, 'preview'])
+                    ->where('path', '.*')
+                    ->name('file.preview');
 
         });
         Route::get('logout', function () {

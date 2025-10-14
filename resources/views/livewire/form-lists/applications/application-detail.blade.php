@@ -124,7 +124,7 @@
                         </div>
                         <hr>
                     </div>
-                <div class="position-relative" style="margin-left: 30px;">
+                <div class="position-relative" style="margin-left: 10px;">
         <div class="timeline">
             @foreach ($user_approvers as $key => $user)
                 @php

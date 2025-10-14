@@ -224,16 +224,16 @@ public static function humanReadableDate($date_time,$is_with_day=true)
         $admin_has_access = $app? AuthService::adminHasAccessToApplication($app->department_id):false;
         switch ($action) {
             case 'approval_process':
-                if (!$is_report) {
-                      if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id']) {
+                      if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id'] && $app->currentUserApproval->trans_type == 1) {
                             return true;
                         }
-                }else{
+                return false;
+            case 'approval_process_report':
+             
 
-                    if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id']) {
+                    if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id'] && $app->currentUserApproval->trans_type == 2) {
                         return true;
                     }
-                }
 
                 return false;
             case 'submit':

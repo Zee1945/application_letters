@@ -44,7 +44,43 @@ class ApplicationService
                                 } elseif (strtolower(trim($qp_search)) === 'boptn') {
                                     $query->orWhere('funding_source', 2);
                                 }
-                        })->orderBy('created_at', 'desc');
+                        })->when($department_id,function($query) use($department_id){
+                            $query->where('department_id',$department_id);
+                        })->when($status_approval,function($query) use($status_approval){
+                        //     <select class="form-select form-select-sm" wire:model.live="status_approval">
+                        // <option value="">Filter Status</option>
+                        // <option value="need-my-process">Butuh proses saya</option>
+                        // <option value="ongoing">Sedang Diproses</option>
+                        // <option value="finished">Approved & Finish</option>
+                        // <option value="need-revision">Butuh Revisi</option>
+                        // <option value="rejected">Ditolak</option>
+                    // </select>
+                    switch ($status_approval) {
+                        case 'need-my-process':
+                            // Contoh: status yang butuh proses user saat ini (misal status 6)
+                            $query->whereNot('current_approval_status', 13)->whereHas('currentUserApproval',function($q){
+                                $q->where('user_id',AuthService::currentAccess()['id']);
+                            }); 
+                            break;
+                        case 'ongoing':
+                            // Contoh: status sedang diproses (misal status 7-10)
+                            $query->whereBetween('current_approval_status', [1, 12]);
+                            break;
+                        case 'finished':
+                            // Contoh: status approved & finish (misal status 11)
+                            $query->where('current_approval_status', 13);
+                            break;
+                        case 'need-revision':
+                            // Contoh: status butuh revisi (misal status 2)
+                            $query->where('current_approval_status', 2);
+                            break;
+                        case 'rejected':
+                            // Contoh: status ditolak (misal status 21)
+                            $query->where('current_approval_status','>', 20);
+                            break;
+                    }
+        })
+        ->orderBy('created_at', 'desc');
                         // if ($search || $status_approval || $department_id) {
                         //     $applications = $applications->get();
                         // }else{
@@ -525,7 +561,6 @@ class ApplicationService
     }
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
     {
-        // dd($rundowns, $participants);
         try {
            
             DB::beginTransaction();
