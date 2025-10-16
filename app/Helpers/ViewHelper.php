@@ -16,6 +16,16 @@ public static function currentAccess()
 {
     return AuthService::currentAccess();
 }
+public static function explodeName($user_text)
+{
+  list($name,$position,$department) = explode('-',$user_text);
+  $data = [
+    'name'=>$name,
+    'position'=>$position??'',
+    'department'=>$department??'',
+  ];
+  return $data;   
+}
 public static function statusReportHTML($status_number)
 {
         $label = '';

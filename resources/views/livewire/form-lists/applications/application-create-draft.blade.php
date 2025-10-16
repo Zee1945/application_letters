@@ -189,22 +189,40 @@
                                                 <i
                                                     class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
                                             </div>
-                                            <div class="description d-flex flex-column">
-                                                <h6 class="title">
+                                            <div class="description d-flex flex-column w-100">
+                                                <div class="d-flex justify-content-between">
+                                                       <h6 class="title">
                                                     {{$application->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
                                                 </h6>
-                                                <div class="d-flex flex-column">
-                                                    <div class=>
-                                                        <span
-                                                            class="fw-bold">{{$application->currentUserApproval->user->name}}</span>
-                                                        <small>
+                                                    <small>
                                                             <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
+                                                </div>
+                                             
+                                                <div class="d-flex flex-column">
+                                                    <div>
+                                                        <span
+                                                            class="fw-bold">{{viewHelper::explodeName(explode('###',$application->note)[0])['name']}}</span>
+
+                                                            (<span
+                                                            >{{viewHelper::explodeName(explode('###',$application->note)[0])['position']}}</span>
+                                                        -<span
+                                                            >{{viewHelper::explodeName(explode('###',$application->note)[0])['department']}}</span>)
+                                                            
+                                                    </div>
+                                                    <div class="" style="font-style: italic">
+                                                        
                                                     </div>
                                                     <div class="notes">
-                                                        "{{$application->note}}"
+                                                        "{{explode('###',$application->note)[1]}}"
                                                     </div>
+                                                    
                                                 </div>
+                                                <div class="d-flex w-100 justify-content-end">
+                                                                             
+                                                    </div>
+
                                             </div>
+                                            
 
                                         </div>
                                     </div>

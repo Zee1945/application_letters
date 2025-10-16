@@ -229,6 +229,7 @@ class ApplicationService
 
                         $app->current_seq_user_approval = 2;
                         $app->current_approval_status = 6;
+                        $app->note = '';
                         $app->save();
 
                         $update_next_user_appr = $app->currentUserApproval()->first();
@@ -322,16 +323,28 @@ class ApplicationService
                     break;
             case 'revise':
                     if ($current_user_id == $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11 ) {
+                                                
+                        foreach ($app->userApprovals()->where('trans_type',1)->where('is_verificator',1)->get() as $key => $approvers) {
+                            $approvers->status = 0;
+                            if ($app->currentUserApproval()->first()->sequence == $approvers->sequence) {
+                                $approvers->note = $note;
+                                $note_for_apps = $approvers->user_text."###".$note;
+                            }
+                            $approvers->updated_at = Carbon::now();
+                            $approvers->save();
+                        }
+                        
                         $app->current_approval_status = 2;
-                        $app->note = $note;
+                        $app->current_seq_user_approval = 1;
+                        $app->note = $note_for_apps;
                         $app->updated_at = Carbon::now();
                         $app->save();
 
-                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->status = 2;
-                        $user_approvals->note = $note;
-                        $user_approvals->updated_at = Carbon::now();
-                        $user_approvals->save();
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 2;
+                        $update_current_appr->updated_at = Carbon::now();
+                        $update_current_appr->save();
+
                     }
                     break;
             case 'revise-report':
