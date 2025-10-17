@@ -328,6 +328,8 @@ public static function humanReadableDate($date_time,$is_with_day=true)
         if ($current_seq == $sequence){
             if ($status == 13) {
                 return 'success';
+            }elseif($status > 20){
+                return 'danger';
             }
             return 'warning';
         }elseif( $current_seq > $sequence){
