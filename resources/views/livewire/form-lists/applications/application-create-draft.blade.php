@@ -218,9 +218,9 @@
                                                     <div class="notes">
                                                         "{{explode('###',$application->note)[1]}}"
                                                     </div>
-                                                    @endif
                                                     
                                                 </div>
+                                                @endif
                                                 <div class="d-flex w-100 justify-content-end">
                                                                              
                                                     </div>
