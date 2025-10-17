@@ -198,7 +198,9 @@
                                                             <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
                                                 </div>
                                              
+                                                @if (!empty($application->note))
                                                 <div class="d-flex flex-column">
+                                                        
                                                     <div>
                                                         <span
                                                             class="fw-bold">{{viewHelper::explodeName(explode('###',$application->note)[0])['name']}}</span>
@@ -209,12 +211,14 @@
                                                             >{{viewHelper::explodeName(explode('###',$application->note)[0])['department']}}</span>)
                                                             
                                                     </div>
+
                                                     <div class="" style="font-style: italic">
                                                         
                                                     </div>
                                                     <div class="notes">
                                                         "{{explode('###',$application->note)[1]}}"
                                                     </div>
+                                                    @endif
                                                     
                                                 </div>
                                                 <div class="d-flex w-100 justify-content-end">
