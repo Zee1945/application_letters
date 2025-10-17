@@ -349,45 +349,55 @@ class ApplicationService
                     break;
             case 'revise-report':
                     if ($current_user_id == $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11 ) {
+                        foreach ($app->userApprovals()->where('trans_type',1)->where('is_verificator',1)->get() as $key => $approvers) {
+                            $approvers->status = 0;
+                            if ($app->currentUserApproval()->first()->sequence == $approvers->sequence) {
+                                $approvers->note = $note;
+                                $note_for_apps = $approvers->user_text."###".$note;
+                            }
+                            $approvers->updated_at = Carbon::now();
+                            $approvers->save();
+                        }
+                        
                         $app->current_approval_status = 2;
-                        $app->report()->note = $note;
-                        $app->report()->updated_at = Carbon::now();
+                        $app->current_seq_user_approval = 5;
+                        $app->note = $note_for_apps;
+                        $app->updated_at = Carbon::now();
                         $app->save();
 
-                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->status = 2;
-                        $user_approvals->report_note = $note;
-                        $user_approvals->updated_at = Carbon::now();
-                        $user_approvals->save();
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 2;
+                        $update_current_appr->updated_at = Carbon::now();
+                        $update_current_appr->save();
                     }
                     break;
             case 'reject':
                     if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
-                        $app->report()->current_approval_status = 21;
-                        $app->report()->note = $note;
+                       
+
+                         $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 21;
+                        $update_current_appr->note = $note;
+                        $update_current_appr->updated_at = Carbon::now();
+                        $update_current_appr->save();
+
+                        $app->current_approval_status = 21;
+                        $app->note = $update_current_appr->user_text."###".$note;
                         $app->save();
-
-
-                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->status = 21;
-                        $user_approvals->report_note = $note;
-                        $user_approvals->updated_at = Carbon::now();
-                        $user_approvals->save();
                     }
 
                     break;
             case 'reject-report':
                     if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
+                        $update_current_appr = $app->currentUserApproval()->first();
+                        $update_current_appr->status = 21;
+                        $update_current_appr->note = $note;
+                        $update_current_appr->updated_at = Carbon::now();
+                        $update_current_appr->save();
+
                         $app->current_approval_status = 21;
-                        $app->note = $note;
+                        $app->note = $update_current_appr->user_text."###".$note;
                         $app->save();
-
-
-                        $user_approvals = $app->userApprovals()->where('user_id', $current_user_id)->first();
-                        $user_approvals->status = 21;
-                        $user_approvals->note = $note;
-                        $user_approvals->updated_at = Carbon::now();
-                        $user_approvals->save();
                     }
 
                     break;
