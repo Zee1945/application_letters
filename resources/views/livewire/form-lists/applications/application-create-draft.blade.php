@@ -195,7 +195,7 @@
                                                     {{$application->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
                                                 </h6>
                                                     <small>
-                                                            <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
+                                                            <i>{!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!}</i></small>
                                                 </div>
                                              
                                                 @if (!empty($application->note))
@@ -205,8 +205,7 @@
                                                         <span
                                                             class="fw-bold">{{viewHelper::explodeName(explode('###',$application->note)[0])['name']}}</span>
 
-                                                            (<span
-                                                            >{{viewHelper::explodeName(explode('###',$application->note)[0])['position']}}</span>
+                                                            (<span>{{viewHelper::explodeName(explode('###',$application->note)[0])['position']}}</span>
                                                         -<span
                                                             >{{viewHelper::explodeName(explode('###',$application->note)[0])['department']}}</span>)
                                                             
