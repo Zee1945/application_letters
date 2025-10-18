@@ -33,6 +33,7 @@ class ApplicationService
 
 
 
+
     public static function getListApp($search='',$status_approval='',$department_id='')
     {
         $qp_search = isset($search)?$search:null; 
@@ -888,12 +889,51 @@ class ApplicationService
 
     }
 
-    public static function getListReport(){
-       $list = Application::whereHas('currentUserApproval',function($q){
-        return $q->where('trans_type',2);
-       });
-       return $list;
-    }
+public static function getListReport($search = '', $status_approval = '', $department_id = '')
+{
+    $qp_search = isset($search) ? $search : null;
+
+    $list = Application::with('currentUserApproval')
+        ->whereHas('currentUserApproval', function ($q) {
+            $q->where('trans_type', 2);
+        })
+        ->when($qp_search, function ($query) use ($qp_search) {
+            $query->where('activity_name', 'like', '%' . $qp_search . '%');
+            if (strtolower(trim($qp_search)) === 'blu') {
+                $query->orWhere('funding_source', 1);
+            } elseif (strtolower(trim($qp_search)) === 'boptn') {
+                $query->orWhere('funding_source', 2);
+            }
+        })
+        ->when($department_id, function ($query) use ($department_id) {
+            $query->where('department_id', $department_id);
+        })
+        ->when($status_approval, function ($query) use ($status_approval) {
+            switch ($status_approval) {
+                case 'need-my-process':
+                    $query->whereNot('current_approval_status', 13)
+                        ->whereHas('currentUserApproval', function ($q) {
+                            $q->where('user_id', AuthService::currentAccess()['id']);
+                        });
+                    break;
+                case 'ongoing':
+                    $query->whereBetween('current_approval_status', [1, 12]);
+                    break;
+                case 'finished':
+                    $query->where('current_approval_status', 13);
+                    break;
+                case 'need-revision':
+                    $query->where('current_approval_status', 2);
+                    break;
+                case 'rejected':
+                    $query->where('current_approval_status', '>', 20);
+                    break;
+            }
+        })
+        ->orderBy('created_at', 'desc');
+
+    return $list;
+}
 
     public static function destroyRecursive($id){
     try {

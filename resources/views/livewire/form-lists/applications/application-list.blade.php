@@ -1,4 +1,7 @@
 <div>
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-2">
+        <div class="breadcrumb-title ">Pengajuan Kegiatan</div>
+    </div>
     <div class="card">
         <div class="card-body">
             <!-- Search and Filter Section -->

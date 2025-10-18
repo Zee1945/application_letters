@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\FileType;
 use App\Models\Position;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -23,11 +24,18 @@ class ManageTemplateList extends Component
 
     public function render()
     {
-        $templates = FileType::where('is_upload',0)
-            ->when($this->search, function($q) {
-                $q->where('name', 'like', '%'.$this->search.'%');
-            })
-            ->get();
+        $templates = FileType::where('is_upload', 0)
+    ->when($this->search, function ($q) {
+        $q->where('name', 'like', '%' . $this->search . '%');
+    }, function ($q) {
+        // Jika search kosong, tambahkan kondisi untuk notulensi
+        $q->orWhere('name', 'notulensi');
+    })
+    ->when($this->search && strtolower($this->search) === 'notulensi', function ($q) {
+        // Jika search berisi "notulensi", pastikan notulensi tetap muncul
+        $q->orWhere('name', 'notulensi');
+    })
+    ->get();
 
         return view('livewire.form-lists.master.manage-template-list', [
             'templates' => $templates,
@@ -37,6 +45,7 @@ class ManageTemplateList extends Component
   public function openModalEdit($item)
     {
         $this->edit_item = $item;
+        
         $this->reset('template_file');
         $this->dispatch('show-edit-modal');
     }

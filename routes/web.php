@@ -73,6 +73,10 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
             Route::group(['middleware' => ['permissionRole:read_manage-template']], function () {
                 Route::get('manage-templates', ManageTemplateList::class)->name('manage-templates.index');
                 Route::resource('manage-templates', ManageTemplateController::class)->except(['index']);
+                Route::get('manage-templates/{code}/download', [ManageTemplateController::class, 'downloadTemplate'])->name('manage-templates.download-template');
+                Route::get('manage-templates/{code}/download-backup', [ManageTemplateController::class, 'downloadTemplateBackup'])->name('manage-templates.download-backup-template');
+
+
             });
 
             Route::get('/file-preview/{disk}/{path}', [ApplicationController::class, 'preview'])

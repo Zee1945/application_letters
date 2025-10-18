@@ -466,11 +466,13 @@
                                                                 <div class="d-flex justify-content-center">
                                                                     <input type="file" wire:model="excel_participant"
                                                                         id="file" class="form-control" accept=".xlsx,.xls">
+
                                                                     <button type="submit"
-                                                                        class="btn btn-sm btn-info text-white w-25 btn-hover fw-bold"
-                                                                        wire:loading.class="opacity-50"> <i
-                                                                            class="fa-solid fa-gears me-2"></i> Generate
-                                                                        File</button>
+    class="btn btn-sm btn-info text-white w-25 btn-hover fw-bold"
+    wire:loading.class="opacity-50"
+    @if(empty($this->excel_participant)) disabled @endif>
+    <i class="fa-solid fa-gears me-2"></i> Generate File
+</button>
                                                                 </div>
                                                             </form>
                                                         </div>

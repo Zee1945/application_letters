@@ -3,13 +3,14 @@
         <div class="col-md-8 col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="mb-2 d-flex justify-content-between">
                             <div>
                                 <span class="fw-bold fs-5">Detail Pengajuan</span>
                             </div>
                             <div class="ms-auto">
-                                <a class="btn btn-sm btn-outline-secondary" href="{{route('applications.create.draft',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i> Lihat Konten</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="{{route('applications.create.draft',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i>Konten Pengajuan</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="{{route('reports.create',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i> Konten Laporan</a>
                     
                         @if (viewHelper::handleFieldDisabled($app) !== 'disabled')
                             <button class="btn btn-sm btn-outline-danger"
@@ -22,9 +23,60 @@
                         </div>
                         <hr>
                     </div>
+                                     <div
+                                    class="row {{$app->current_approval_status == 2 || $app->current_approval_status > 20 ? '' : 'd-none'}}">
+                                    <div class="alert {{$app->current_approval_status == 2 ? 'alert-warning' : 'alert-danger'}}"
+                                        role="alert">
+                                        <div class="d-flex">
+                                            <div class="icon d-flex align-items-center"
+                                                style="width: calc(100vw - (91rem))">
+                                                <i
+                                                    class="fa-solid {{$app->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                            </div>
+                                            <div class="description d-flex flex-column w-100">
+                                                <div class="d-flex justify-content-between">
+                                                       <h6 class="title">
+                                                    {{$app->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
+                                                </h6>
+                                                    <small>
+                                                            <i>{!! viewHelper::formatDateToHumanReadable($app->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!}</i></small>
+                                                </div>
+                                             
+                                                @if (!empty($app->note))
+                                                <div class="d-flex flex-column">
+                                                        
+                                                    <div>
+                                                        <span
+                                                            class="fw-bold">{{viewHelper::explodeName(explode('###',$app->note)[0])['name']}}</span>
+
+                                                            (<span>{{viewHelper::explodeName(explode('###',$app->note)[0])['position']}}</span>
+                                                        -<span
+                                                            >{{viewHelper::explodeName(explode('###',$app->note)[0])['department']}}</span>)
+                                                            
+                                                    </div>
+
+                                                    <div class="" style="font-style: italic">
+                                                        
+                                                    </div>
+                                                    <div class="notes">
+                                                        "{{explode('###',$app->note)[1]}}"
+                                                    </div>
+                                                    
+                                                </div>
+                                                @endif
+                                                <div class="d-flex w-100 justify-content-end">
+                                                                             
+                                                    </div>
+
+                                            </div>
+                                            
+
+                                        </div>
+                                    </div>
+                                </div>
 
                     <!-- Displaying Application Details -->
-                    <div class="row mb-3">
+                    <div class="row mb-3 mt-3">
                         <div class="col-sm-3"><span class="fw-bold">Nama Kegiatan</span></div>
                         <div class="col-sm-9"><span>{{$app->activity_name}}</span></div>
                     </div>
@@ -32,21 +84,6 @@
                         <div class="col-sm-3"><span class="fw-bold">Sumber Pendanaan</span></div>
                         <div class="col-sm-9"><span>{{$app->funding_source == '1' ? 'BLU' : 'BOPTN'}}</span></div>
                     </div>
-                    <div class="row mb-3">
-    {{-- <div class="col-sm-3"><span class="fw-bold">Penandatangan dan Verifikator</span></div>
-    <div class="col-sm-9">
-        <div class="d-flex flex-column gap-1">
-            <div>
-                <span class="badge bg-primary me-2"><i class="fa-solid fa-user-tie me-1"></i> Dekan</span>
-                <span>{{ $app->dean->name ?? '-' }}</span>
-            </div>
-            <div>
-                <span class="badge bg-success me-2"><i class="fa-solid fa-user-check me-1"></i> Ketua Panitia</span>
-                <span>{{ $app->participants()->where('is_signer_commitee',1)->first()->name ?? '-' }}</span>
-            </div>
-        </div>
-    </div> --}}
-</div>
                     <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Status Pengajuan</span></div>
                         <div class="col-sm-9"><span>{!! viewHelper::statusSubmissionHTML($app->current_approval_status) !!}</span></div>

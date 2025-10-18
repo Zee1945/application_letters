@@ -6,8 +6,36 @@
     <div class="card">
         <div class="card-body">
             <div class="d-lg-flex align-items-center mb-4 gap-3">
-                <div class="position-relative">
-                    <input type="text" class="form-control ps-5 radius-30" placeholder="Search Order"> <span class="position-absolute top-50 product-show translate-middle-y"><i class="bx bx-search"></i></span>
+                <div class="position-relative flex-grow-1">
+                    <input type="text"
+                    class="form-control ps-5 radius-30"
+                    placeholder="Cari Nama Kegiatan"
+                    wire:model.live.debounce.1000ms="search" />
+                <span class="position-absolute top-50 product-show translate-middle-y">
+                    <i class="bx bx-search"></i>
+                </span>
+                </div>
+                
+                <!-- New Application Button -->
+            </div>
+                 <div class="mb-3 d-flex flex-wrap gap-2">
+                <div style="min-width: 200px;">
+                    <select class="form-select form-select-sm" wire:model.live="status_approval">
+                        <option value="">Filter Status</option>
+                        <option value="need-my-process">Butuh proses saya</option>
+                        <option value="ongoing">Sedang Diproses</option>
+                        <option value="finished">Approved & Finish</option>
+                        <option value="need-revision">Butuh Revisi</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                </div>
+                <div style="min-width: 200px;">
+                    <select class="form-select form-select-sm" wire:model.live="department_id">
+                        <option value="">Filter Departemen</option>
+                        @foreach($department_options as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
             <div class="table-responsive">

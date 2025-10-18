@@ -154,6 +154,32 @@
         color: #fff !important;
         border-color: #0d6efd !important;
     }
+  .template-edit-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 2;
+  }
+
+.template-card:hover .template-edit-btn {
+    opacity: 1;
+}
+
+.template-card .icon-file{
+  visibility: visible;
+}
+.template-card:hover .icon-file{
+  visibility: hidden;
+}
+
+.template-card .icon-edit{
+  visibility: hidden;
+}
+.template-card:hover .icon-edit{
+  visibility: visible;
+}
 
 
 

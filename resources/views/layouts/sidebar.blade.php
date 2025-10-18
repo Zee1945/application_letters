@@ -26,7 +26,7 @@
             <div class="parent-icon">
                 <i class='bx bx-envelope'></i> 
             </div>
-            <div class="menu-title">Pengajuan Surat</div>
+            <div class="menu-title">Pengajuan Kegiatan</div>
         </a>
 
     </li>
