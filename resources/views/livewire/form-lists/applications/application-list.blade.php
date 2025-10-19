@@ -107,8 +107,8 @@
                             <td>{{$application->department->name}}</td>
                             <td>
                                 <div class="d-flex order-actions">
-                                    <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="me-3"><i class='bx bx-info-circle'></i></a>
-                                    <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}"><i class='bx bxs-edit'></i></a>
+                                    <a href="{{route('applications.detail',['application_id'=>$application->id])}}" class="btn btn-sm btn-outline-info me-3"><i class='bx bx-info-circle me-0 pe-0'></i></a>
+                                    <a href="{{route('applications.create.draft',['application_id'=>$application->id])}}" class="btn btn-sm btn-outline-primary"><i class='bx bxs-edit me-0 pe-0'></i></a>
                                     {{-- <a href="javascript:;" class="ms-3 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class='bx bxs-trash'></i></a> --}}
                                 </div>
                             </td>
