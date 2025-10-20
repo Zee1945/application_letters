@@ -699,29 +699,29 @@ class ApplicationService
 
             }
 
-            foreach ($data['attachments']??[] as $att_type) {
-            //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
-                if (Storage::disk('minio')->exists($att_type['file_path'])) {
-                    $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
-                    foreach ($get_dir_files as $dir_file) {
-                        $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
-                        $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
-                        $file = FileManagementService::storeFiles($get_file_storage,$app,'report', $dir_file);
+            // foreach ($data['attachments']??[] as $att_type) {
+            // //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
+            //     if (Storage::disk('minio')->exists($att_type['file_path'])) {
+            //         $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
+            //         foreach ($get_dir_files as $dir_file) {
+            //             $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
+            //             $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
+            //             $file = FileManagementService::storeFiles($get_file_storage,$app,'report', $dir_file);
                        
-                        if ($file['status']) {
-                            $arr = [
-                                'file_id'=>$file['data']->id,
-                                'reference_id'=>null,
-                                'application_report_id'=>$att_type['application_report_id'],
-                                'type'=>$att_type['type']
-                            ];
-                            $app->report->attachments()->create($arr);
-                        } 
-                    }
-            }
+            //             if ($file['status']) {
+            //                 $arr = [
+            //                     'file_id'=>$file['data']->id,
+            //                     'reference_id'=>null,
+            //                     'application_report_id'=>$att_type['application_report_id'],
+            //                     'type'=>$att_type['type']
+            //                 ];
+            //                 $app->report->attachments()->create($arr);
+            //             } 
+            //         }
+            // }
 
-                # code...
-            }
+            //     # code...
+            // }
 
             // foreach ($speakers_info as $key => $value) {
             //     $new_dir = str_replace('temp/report/', '', $path);
@@ -992,6 +992,61 @@ public static function getListReport($search = '', $status_approval = '', $depar
         return ['status' => false, 'message' => 'Gagal menghapus data: ' . $th->getMessage()];
     }
 }
+    public static function submitReport($metadata_files,$application,$report){
+
+  
+    // Validasi file dengan ukuran maksimal 10MB untuk semua file
+    // $request->validate([
+    //     'spj_file.*' => 'nullable|file|max:10240', // Maksimal 10MB per file
+    //     'minutes_file.*' => 'nullable|file|max:10240', // Maksimal 10MB per file
+    //     'attendence_files.*' => 'nullable|file|max:10240', // Maksimal 10MB per file
+    //     'documentation_photos.*' => 'nullable|file|max:10240', // Maksimal 10MB per file
+    // ], [
+    //     'spj_file.*.max' => 'Setiap file SPJ tidak boleh lebih dari 10MB.',
+    //     'minutes_file.*.max' => 'Setiap file Minutes tidak boleh lebih dari 10MB.',
+    //     'attendence_files.*.max' => 'Setiap file absensi tidak boleh lebih dari 10MB.',
+    //     'documentation_photos.*.max' => 'Setiap foto dokumentasi tidak boleh lebih dari 10MB.',
+    // ]);
+
+    try {
+        // Proses file SPJ
+        DB::beginTransaction();
+              foreach ($metadata_files??[] as $att_type) {
+            //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
+                if (Storage::disk('minio')->exists($att_type['file_path'])) {
+                    $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
+                    foreach ($get_dir_files as $dir_file) {
+                        $new_dir =  $dir_file;
+                        $get_file_storage = FileManagementService::getFileStorage($dir_file,$application,$new_dir,'report');
+                        $file = FileManagementService::storeFiles($get_file_storage,$application,'report', $dir_file);
+                        if ($file['status']) {
+                            $arr = [
+                                'file_id'=>$file['data']->id,
+                                'reference_id'=>null,
+                                'application_report_id'=>$att_type['application_report_id'],
+                                'type'=>$att_type['type']
+                            ];
+                            $report->attachments()->create($arr);
+                        } 
+                    }
+            }
+
+                # code...
+            }
+
+        DB::commit();
+        // Redirect dengan pesan sukses
+        // return redirect()->back()->with('success', 'Laporan berhasil disubmit.');
+        return ['status'=>true,'message'=>'Laporan berhasil disubmit.'];
+    } catch (\Exception $e) {
+        DB::rollback();
+        dd($e);
+        // Tangani error dan log pesan error
+        Log::error('Error saat submit laporan: ' . $e->getMessage());
+        return ['status'=>false,'message'=>'Laporan gagal disubmit.'];
+
+    }
+    }
     public static function hasDepartmentQuota(){
         $department = Department::find(AuthService::currentAccess()['department_id']);
         $quota_remaining = $department->limit_submission - $department->current_limit_submission;

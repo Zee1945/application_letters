@@ -119,7 +119,7 @@ class ReportCreate extends AbstractComponent
         $this->draft_costs = $draft_costs;
     }
 
-    public function store($is_submit=false)
+    public function store($is_submit=false,$goToStep=null)
     {
         $generals = [
             'introduction' => $this->introduction,
@@ -130,15 +130,26 @@ class ReportCreate extends AbstractComponent
             'conclusion' => $this->conclusion, // lom ada
             'recommendations' => $this->recommendations,
             'application_id' => $this->application_id,
-            'attachments' => $this->attachment_files,
+            // 'attachments' => $this->attachment_files,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
         $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info,$is_submit);
         if ($report['status']) {
+        if (empty($goToStep) && $is_submit) {
             $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);
+        }else{
+            $this->step = $goToStep;
+        }
         }
 
     }
+
+    
+    public function storeNext($step=1){
+        $this->store();
+        return $this->directStep($step);
+    }
+
 
 
     public function updatedSpjFile(){

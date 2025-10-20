@@ -79,8 +79,8 @@
                                         <div class="step-trigger {{$this->step == 1 ? 'active' : ''}}" role="tab" wire:click="directStep('1')" id="stepper1trigger1" aria-controls="test-l-1">
                                             <div class="bs-stepper-circle">1</div>
                                             <div>
-                                                <h5 class="mb-0 steper-title">Umum</h5>
-                                                <p class="mb-0 steper-sub-title">Formulir umum</p>
+                                                <h5 class="mb-0 steper-title">Laporan</h5>
+                                                <p class="mb-0 steper-sub-title">Formulir Laporan</p>
                                             </div>
                                         </div>
                                     </div>
@@ -104,14 +104,24 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="bs-stepper-line"></div>
+                                    <div class="step" data-target="#test-l-4">
+                                        <div class="step-trigger {{$this->step == 4 ? 'active' : ''}}" role="tab" wire:click="store(false,'4')" id="stepper1trigger4" aria-controls="test-l-4">
+                                            <div class="bs-stepper-circle">4</div>
+                                            <div>
+                                                <h5 class="mb-0 steper-title">File Pendukung</h5>
+                                                <p class="mb-0 steper-sub-title">Form File Pendukung</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <!-- Step 1 -->
-                                                           <div id="test-l-1" role="tabpanel" class="{{$this->step == '1' ? '' : 'bs-stepper-pane'}}"
+                                <div id="test-l-1" role="tabpanel" class="{{$this->step == '1' ? '' : 'bs-stepper-pane'}}"
                                     aria-labelledby="stepper1trigger1">
-                                    <h5 class="mb-1">Formulir Umum</h5>
-                                    <p class="mb-4">Formulir untuk Gambaran Umum Kesimpulan Acara</p>
+                                    <h5 class="mb-1">Formulir Laporan</h5>
+                                    <p class="mb-4">Formulir untuk Dokumen Laporan Kegiatan</p>
 
                                     <div class="row g-3">
                                         <div class="col-12">
@@ -146,281 +156,6 @@
                                             <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
                                             <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
-                                        </div>
-                                        <div class="col-md-6 col-sm-12 mb-3">
-                                            <div class="d-flex">
-
-                                            <label for="minutes_file" class="form-label fw-bold">File Notulensi
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
-                                            </label>
-                                            <span class=" ms-2 d-flex align-items-center gap-2 mb-2">
-                                                <a wire:click="downloadTemplateMinutes" wire:loading.class="opacity-50" role="button" class="d-flex align-items-baseline" download>
-                                                    <i class="fa-solid fa-download me-1"></i> Download Template
-                                                </a>
-                                            </span>
-                                            </div>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_minutes_file))
-                                <table class="table table-striped mt-2">
-                                    <thead>
-                                        <tr>
-
-                                         <th class="text-center" style="width:40%">Nama File</th>
-                                         <th class="text-center" style="width:20%"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                {{$this->old_minutes_file['fileName']}}
-                                            </td>
-                                            <td class="text-center">
-                                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_minutes_file['file_id']}})">Lihat</button>
-                                                
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('minutes_file') is-invalid @enderror"
-                                                id="minutes_file"
-                                                wire:model="minutes_file"
-                                                accept=".pdf">
-                                            @error('minutes_file')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if ($old_minutes_file)
-                                            @if (is_array($old_minutes_file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-
-                                                
-                                            @endif
-                        @endif
-                                            
-                                        </div>
-                                        <div class="col-sm-12 col-md-6 mb-3">
-                                            <label for="spj_file" class="form-label fw-bold">
-                                           Dokumen SPJ
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
-                                            </label>
-
-                                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_spj_file))
-                                 <table class="table table-striped mt-2">
-                                    <thead>
-                                        <tr>
-
-                                         <th class="text-center" style="width:40%">Nama File</th>
-                                         <th class="text-center" style="width:20%"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                {{$this->old_spj_file['fileName']}}
-                                            </td>
-                                            <td class="text-center">
-                                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_spj_file['file_id']}})">Lihat</button>
-                                                
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            <input type="file"
-                                            {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('spj_file') is-invalid @enderror"
-                                                id="spj_file"
-                                                wire:model="spj_file"
-                                                accept=".pdf">
-                                            @error('spj_file')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if ($old_spj_file)
-                                            @if (is_array($old_spj_file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-
-                                                
-                                            @endif
-                        @endif
-                                        </div>
-
-                                        <div class="col-12 mb-3">
-                                            <label for="attendence_files" class="form-label fw-bold">
-                                                File Absensi Kehadiran
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
-                                            </label>
-                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_attendence_files))
-<table class="table table-striped mt-2">
-    <thead class="table-light">
-        <tr>
-            <th class="text-center" style="width:40%">Nama File</th>
-            <th class="text-center" style="width:20%"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse ($old_attendence_files as $photo)
-            <tr>
-                <td>
-                <i class="bx bxs-file-pdf me-1 font-18 text-danger"></i>
-                    {{ $photo['fileName'] }}
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
-                         Lihat
-                    </button>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2" class="text-center text-muted"><em>Tidak ada file daftar kehadiran</em></td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
-                              
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            
-                                                 <input type="file"
-                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('attendence_files') is-invalid @enderror"
-                                                id="attendence_files"
-                                                wire:model.live="attendence_files"
-                                                accept=".pdf"
-                                                multiple
-                                                >
-                                            @error('attendence_files')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if (count($old_attendence_files) > 0)
-                                            @foreach ($old_attendence_files as $file)
-                                                
-                                            @if (is_array($file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                            @endforeach
-
-
-                                                
-                                            @endif
-                        @endif
-                                        </div>
-                                        <div class="col-12 mb-3">
-                                            <label for="documentation_photos" class="form-label fw-bold">
-                                                Foto Dokumentasi Kegiatan
-                                                <small class="text-muted">(maksimal 5 foto, JPG/JPEG/PNG, maksimal 5MB/foto)</small>
-                                            </label>
-                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_documentation_photos))
-                                    <table class="table table-striped mt-2">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="text-center" style="width:40%">Nama File</th>
-                                                <th class="text-center" style="width:20%"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($old_documentation_photos as $photo)
-                                                <tr>
-                                                    <td>
-                                                        <i class="fa-solid fa-image text-secondary me-1"></i>
-                                                        {{ $photo['fileName'] }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
-                                                            Lihat
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="2" class="text-center text-muted"><em>Tidak ada file dokumentasi</em></td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                              
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            
-                                                 <input type="file"
-                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('documentation_photos') is-invalid @enderror"
-                                                id="documentation_photos"
-                                                wire:model.live="documentation_photos"
-                                                accept=".jpg,.jpeg,.png"
-                                                multiple
-                                                >
-                                            @error('documentation_photos')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if (count($old_documentation_photos) > 0)
-                                            @foreach ($old_documentation_photos as $photo)
-                                                
-                                            @if (is_array($photo))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                            @endforeach
-
-
-                                                
-                                            @endif
-                        @endif
                                         </div>
                                         
                                         <div class="col-12 d-flex justify-content-end">
@@ -490,7 +225,7 @@
 
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
+                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
@@ -506,11 +241,314 @@
                                         Submit LPJ
                             </button> --}}
                              <button type="button"
-                                    class="btn btn-primary px-4 border-none bg-success me-2"
-                                    wire:click="store(true)"
+                                    class="btn btn-primary px-4 border-none bg-primary me-2"
+                                    wire:click="store(false,'4')"
                                     wire:loading.attr="disabled"
-                                    wire:target="store(true)">
-                                    <span wire:loading wire:target="store(true)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    wire:target="store">
+                                    <span wire:loading wire:target="store" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Next <i class='bx bx-right-arrow-alt ms-2'></i>
+                            </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div><!---end row-->
+
+        </div>
+        <div id="test-l-4" role="tabpanel" class="{{$this->step == '4' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
+            <h5 class="mb-1">File Pendukung</h5>
+            <p class="mb-4">Masukkan File Pendukung yang dibutuhkan</p>
+
+            <form method="POST" action="{{ route('applications.submit-attachment-report',['application_id'=>$this->application_id]) }}" enctype="multipart/form-data">
+                @csrf
+            <div class="row g-3">
+                <div class="col-12">
+                   {{-- <livewire:forms.table-realization :draftCost="$this->draft_costs" :application="$this->application"/> --}}
+                </div>
+                 <div class="col-md-6 col-sm-12 mb-3">
+                                            <div class="d-flex">
+
+                                            <label for="minutes_file" class="form-label fw-bold">File Notulensi
+                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
+                                            </label>
+                                            <span class=" ms-2 d-flex align-items-center gap-2 mb-2">
+                                                <a wire:click="downloadTemplateMinutes" wire:loading.class="opacity-50" role="button" class="d-flex align-items-baseline" download>
+                                                    <i class="fa-solid fa-download me-1"></i> Download Template
+                                                </a>
+                                            </span>
+                                            </div>
+                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_minutes_file))
+                                <table class="table table-striped mt-2">
+                                    <thead>
+                                        <tr>
+
+                                         <th class="text-center" style="width:40%">Nama File</th>
+                                         <th class="text-center" style="width:20%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                {{$this->old_minutes_file['fileName']}}
+                                            </td>
+                                            <td class="text-center">
+                                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_minutes_file['file_id']}})">Lihat</button>
+                                                
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('minutes_file') is-invalid @enderror"
+                                                id="minutes_file"
+                                                name="minutes_file[]"
+                                                accept=".pdf" multiple>
+                                            @error('minutes_file')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if ($old_minutes_file)
+                                            @if (is_array($old_minutes_file))
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file->getClientOriginalName() }}
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                                
+                                            @endif
+                        @endif
+                                            
+                                        </div>
+                                        <div class="col-sm-12 col-md-6 mb-3">
+                                            <label for="spj_file" class="form-label fw-bold">
+                                           Dokumen SPJ
+                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
+                                            </label>
+
+                                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_spj_file))
+                                 <table class="table table-striped mt-2">
+                                    <thead>
+                                        <tr>
+
+                                         <th class="text-center" style="width:40%">Nama File</th>
+                                         <th class="text-center" style="width:20%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                {{$this->old_spj_file['fileName']}}
+                                            </td>
+                                            <td class="text-center">
+                                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_spj_file['file_id']}})">Lihat</button>
+                                                
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('spj_file') is-invalid @enderror"
+                                                id="spj_file"
+                                                name="spj_file[]"
+                                                accept=".pdf" multiple>
+                                            @error('spj_file')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if ($old_spj_file)
+                                            @if (is_array($old_spj_file))
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file->getClientOriginalName() }}
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                                
+                                            @endif
+                        @endif
+                                        </div>
+
+                                        <div class="col-12 mb-3">
+                                            <label for="attendence_files" class="form-label fw-bold">
+                                                File Absensi Kehadiran
+                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
+                                            </label>
+                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_attendence_files))
+<table class="table table-striped mt-2">
+    <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width:40%">Nama File</th>
+            <th class="text-center" style="width:20%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($old_attendence_files as $photo)
+            <tr>
+                <td>
+                <i class="bx bxs-file-pdf me-1 font-18 text-danger"></i>
+                    {{ $photo['fileName'] }}
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
+                         Lihat
+                    </button>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="2" class="text-center text-muted"><em>Tidak ada file daftar kehadiran</em></td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+                              
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            
+                                                 <input type="file"
+                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('attendence_files') is-invalid @enderror"
+                                                id="attendence_files"
+                                                name="attendence_files[]"
+                                                accept=".pdf"
+                                                multiple
+                                                >
+                                            @error('attendence_files')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if (count($old_attendence_files) > 0)
+                                            @foreach ($old_attendence_files as $file)
+                                                
+                                            @if (is_array($file))
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file->getClientOriginalName() }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            @endforeach
+
+
+                                                
+                                            @endif
+                        @endif
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label for="documentation_photos" class="form-label fw-bold">
+                                                Foto Dokumentasi Kegiatan
+                                                <small class="text-muted">(maksimal 5 foto, JPG/JPEG/PNG, maksimal 5MB/foto)</small>
+                                            </label>
+                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                @if (!empty($this->old_documentation_photos))
+                                    <table class="table table-striped mt-2">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center" style="width:40%">Nama File</th>
+                                                <th class="text-center" style="width:20%"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($old_documentation_photos as $photo)
+                                                <tr>
+                                                    <td>
+                                                        <i class="fa-solid fa-image text-secondary me-1"></i>
+                                                        {{ $photo['fileName'] }}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
+                                                            Lihat
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2" class="text-center text-muted"><em>Tidak ada file dokumentasi</em></td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                              
+                                @else
+                                    <small><i>File tidak diupload</i></small>
+                                @endif
+                            @else
+                            
+                                                 <input type="file"
+                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                class="form-control @error('documentation_photos') is-invalid @enderror"
+                                                id="documentation_photos"
+                                                name="documentation_photos[]"
+                                                accept=".jpg,.jpeg,.png"
+                                                multiple
+                                                >
+                                            @error('documentation_photos')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            @if (count($old_documentation_photos) > 0)
+                                            @foreach ($old_documentation_photos as $photo)
+                                                
+                                            @if (is_array($photo))
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo['fileName'] }}
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="mt-2">
+                                                    <span class="badge bg-success">
+                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo->getClientOriginalName() }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            @endforeach
+
+
+                                                
+                                            @endif
+                        @endif
+                                        </div>
+
+
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center gap-3 ">
+                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
+                                class='bx bx-left-arrow-alt me-2'></i>Previous</button>
+                        <div class="">
+                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                             <button type="submit" class="btn btn-primary px-4 border-none bg-success me-2">
                                         Submit LPJ
                             </button>
                             @endif
@@ -518,6 +556,8 @@
                     </div>
                 </div>
             </div><!---end row-->
+                </form>
+
 
         </div>
                             </div>

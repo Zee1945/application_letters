@@ -43,6 +43,8 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 ->name('applications.detail');
             Route::get('create/{application_id}/draft', ApplicationCreateDraft::class)
                 ->name('applications.create.draft');
+            Route::post('create/{application_id}/submit-attachment-report', [ApplicationController::class,'submitReport'])
+                ->name('applications.submit-attachment-report');
         });
 
         Route::group(['prefix' => 'profile'], function () {
