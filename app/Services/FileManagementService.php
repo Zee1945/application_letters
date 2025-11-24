@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Storage;
 use Sqids\Sqids;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class FileManagementService
 {
@@ -203,34 +205,71 @@ public static function getFileStorageById($file_id,$with_content=false,$disk='mi
  
 }
 
-    public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
-    {
-        $config = [
-            'fileType' => $from,
-            'outputtype' => $to,
-            'url' => $fileUrl,
-            'key' => $key ?: (string)now()->getTimestampMs()
+public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
+{
+    $jwtSecret = config('onlyoffice.DOC_SERV_JWT_SECRET');
+    $key = $key ?: (string)now()->getTimestampMs();
+    
+    $config = [
+        'fileType' => $from,
+        'outputtype' => $to,
+        'url' => $fileUrl,
+        'key' => $key
+    ];
+
+    // Generate JWT token jika JWT secret tersedia
+    $token = null;
+    if ($jwtSecret) {
+        $token = self::generateJwtToken($config, $jwtSecret);
+    }
+
+    $content = "";
+    if (config('onlyoffice.DOC_SERV_SITE_URL')) {
+        $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'ConvertService.ashx';
+        
+        // Setup headers
+        $headers = [
+            'Accept' => 'application/json',
+            'User-Agent' => 'Thunder Client (https://www.thunderclient.com)',
+            'Content-Type' => 'application/json',
+            'Accept-Encoding' => 'gzip, deflate, br',
+            'Connection' => 'keep-alive',
         ];
 
-        $content = "";
-        if (config('onlyoffice.DOC_SERV_SITE_URL')) {
-            $conversionUrl = config('onlyoffice.DOC_SERV_SITE_URL') . 'ConvertService.ashx';
-            $response = Http::timeout(90)->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'application/json')
-                ->withHeaders([
-                    'Accept' => 'application/json',
-                    'User-Agent' => 'Thunder Client (https://www.thunderclient.com)',
-                    'Content-Type' => 'application/json',
-                    'Accept-Encoding' => 'gzip, deflate, br',
-                    'Connection' => 'keep-alive',
-                ])->withoutVerifying()->post($conversionUrl);
-            $json = $response->json();
-
-            if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
-                $content = file_get_contents($json['fileUrl']);
-            }
+        // Tambahkan Authorization header jika token tersedia
+        if ($token) {
+            $headers['Authorization'] = 'Bearer ' . $token;
         }
-        return $content;
+
+        $response = Http::timeout(90)
+            ->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'application/json')
+            ->withHeaders($headers)
+            ->withoutVerifying()
+            ->post($conversionUrl);
+            
+        $json = $response->json();
+
+        if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
+            $content = file_get_contents($json['fileUrl']);
+        }
     }
+    return $content;
+}
+
+/**
+ * Generate JWT token untuk OnlyOffice
+ */
+private static function generateJwtToken($payload, $secret)
+{
+    try {
+        $token = JWT::encode($payload, $secret, 'HS256');
+        return $token;
+    } catch (\Exception $e) {
+        Log::error('Error generating JWT token: ' . $e->getMessage());
+        return null;
+    }
+}
+
 
 
 

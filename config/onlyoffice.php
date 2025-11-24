@@ -17,7 +17,7 @@ return [
     'DOC_SERV_COMMAND_URL' => "coauthoring/CommandService.ashx",
     'DOC_EXAMPLE_URL' => "http://10.0.14.98/inoffice2_onlyoffice/application/libraries/onlyoffice",
 
-    'DOC_SERV_JWT_SECRET' => "",
+    'DOC_SERV_JWT_SECRET' => env('ONLYOFFICE_JWT_SECRET',''),
     'DOC_SERV_JWT_HEADER' => "Authorization",
 
     'MOBILE_REGEX' => "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino",
