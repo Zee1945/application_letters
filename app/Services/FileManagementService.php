@@ -209,6 +209,26 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 {
     $jwtSecret = config('onlyoffice.DOC_SERV_JWT_SECRET');
     $key = $key ?: (string)now()->getTimestampMs();
+
+
+       // Validasi format file yang didukung
+    $supportedFormats = [
+        'fileType' => ['docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'epub', 'djvu', 'xlsx', 'xls', 'ods', 'csv', 'pptx', 'ppt', 'odp'],
+        'outputtype' => ['pdf', 'docx', 'xlsx', 'pptx']
+    ];
+
+    $from = strtolower($from);
+    $to = strtolower($to);
+
+    if (!in_array($from, $supportedFormats['fileType'])) {
+        Log::error("Unsupported input file format: {$from}");
+        return false;
+    }
+
+    if (!in_array($to, $supportedFormats['outputtype'])) {
+        Log::error("Unsupported output file format: {$to}");
+        return false;
+    }
     
     $config = [
         'fileType' => $from,
