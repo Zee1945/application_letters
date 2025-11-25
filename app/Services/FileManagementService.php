@@ -211,11 +211,13 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     $key = $key ?: (string)now()->getTimestampMs();
     
     $config = [
-        'filetype' => $from,
+        'fileType' => $from,
         'outputtype' => $to,
         'url' => $fileUrl,
         'key' => $key
     ];
+
+    dd($config);
 
     // Generate JWT token jika JWT secret tersedia
     $token = null;
@@ -250,8 +252,6 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
         Log::info('OnlyOffice Response: ', [
             'status' => $response->status(),
             'body' => $response->body(),
-            'config'=>$config,
-            'headers'=>$headers
 
         ]);  
         $json = $response->json();
