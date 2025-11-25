@@ -260,6 +260,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 
         // Tambahkan Authorization header jika token tersedia
         if ($token) {
+            $headers['Authorization'] = 'Bearer ' . $token;
             $config['Authorization'] = 'Bearer ' . $token;
         }
 
