@@ -263,12 +263,18 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
             $headers['Authorization'] = 'Bearer ' . $token;
             $config['Authorization'] = 'Bearer ' . $token;
         }
+        $requestBody = json_encode($config, JSON_UNESCAPED_SLASHES);
+dd('OnlyOffice Request Body (Raw JSON): ', [
+    'body' => $requestBody,
+    'body_decoded' => json_decode($requestBody, true)  // Untuk readability
+]);
 
         $response = Http::timeout(90)
             ->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'application/json')
             ->withHeaders($headers)
             ->withoutVerifying()
             ->post($conversionUrl);
+        
 
         Log::info('OnlyOffice Response: ', [
             'status' => $response->status(),
