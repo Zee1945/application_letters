@@ -216,7 +216,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
         'url' => $fileUrl,
         'key' => $key
     ];
-    dd($config);
+    Log::info('OnlyOffice Conversion Config:', $config);
 
     // Generate JWT token jika JWT secret tersedia
     $token = null;
