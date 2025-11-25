@@ -246,7 +246,11 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
             ->withHeaders($headers)
             ->withoutVerifying()
             ->post($conversionUrl);
-            
+
+        Log::info('OnlyOffice Response: ', [
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]);  
         $json = $response->json();
 
         if ($response->status() == 200 && $json && isset($json['fileUrl'])) {
