@@ -249,7 +249,10 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 
         Log::info('OnlyOffice Response: ', [
             'status' => $response->status(),
-            'body' => $response->body()
+            'body' => $response->body(),
+            'config'=>$config,
+            'headers'=>$headers
+
         ]);  
         $json = $response->json();
 
