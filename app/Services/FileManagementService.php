@@ -213,7 +213,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 
        // Validasi format file yang didukung
     $supportedFormats = [
-        'fileType' => ['docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'epub', 'djvu', 'xlsx', 'xls', 'ods', 'csv', 'pptx', 'ppt', 'odp'],
+        'filetype' => ['docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'epub', 'djvu', 'xlsx', 'xls', 'ods', 'csv', 'pptx', 'ppt', 'odp'],
         'outputtype' => ['pdf', 'docx', 'xlsx', 'pptx']
     ];
 
@@ -231,6 +231,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     }
     
     $config = [
+        "async"=> false,
         'filetype' => $from,
         'outputtype' => $to,
         'url' => $fileUrl,
@@ -259,7 +260,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 
         // Tambahkan Authorization header jika token tersedia
         if ($token) {
-            $headers['Authorization'] = 'Bearer ' . $token;
+            $config['Authorization'] = 'Bearer ' . $token;
         }
 
         $response = Http::timeout(90)
@@ -271,7 +272,6 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
         Log::info('OnlyOffice Response: ', [
             'status' => $response->status(),
             'body' => $response->body(),
-
         ]);  
         $json = $response->json();
 
