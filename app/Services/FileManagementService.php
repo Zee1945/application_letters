@@ -231,8 +231,8 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     }
     
     $config = [
-        'fileType' => $from,
-        'outputType' => $to,
+        'filetype' => $from,
+        'outputtype' => $to,
         'url' => $fileUrl,
         'key' => $key
     ];
