@@ -260,14 +260,14 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
 
         // Tambahkan Authorization header jika token tersedia
         if ($token) {
-            $headers['Authorization'] = 'Bearer ' . $token;
-            $config['Authorization'] = 'Bearer ' . $token;
+            // $headers['Authorization'] = 'Bearer ' . $token;
+            $config['Authorization'] =$token;
         }
-        $requestBody = json_encode($config, JSON_UNESCAPED_SLASHES);
-dd('OnlyOffice Request Body (Raw JSON): ', [
-    'body' => $requestBody,
-    'body_decoded' => json_decode($requestBody, true)  // Untuk readability
-]);
+        // $requestBody = json_encode($config, JSON_UNESCAPED_SLASHES);
+// dd('OnlyOffice Request Body (Raw JSON): ', [
+//     'body' => $requestBody,
+//     'body_decoded' => json_decode($requestBody, true)  // Untuk readability
+// ]);
 
         $response = Http::timeout(90)
             ->withBody(json_encode($config, JSON_UNESCAPED_SLASHES), 'application/json')
