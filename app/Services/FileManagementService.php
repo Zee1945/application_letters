@@ -211,7 +211,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     $key = $key ?: (string)now()->getTimestampMs();
     
     $config = [
-        'fileType' => $from,
+        'filetype' => $from,
         'outputtype' => $to,
         'url' => $fileUrl,
         'key' => $key
