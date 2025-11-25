@@ -261,7 +261,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
         // Tambahkan Authorization header jika token tersedia
         if ($token) {
             // $headers['Authorization'] = 'Bearer ' . $token;
-            $config['Authorization'] =$token;
+            $config['token'] =$token;
         }
         // $requestBody = json_encode($config, JSON_UNESCAPED_SLASHES);
 // dd('OnlyOffice Request Body (Raw JSON): ', [
