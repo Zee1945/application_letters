@@ -220,7 +220,7 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
     $from = strtolower($from);
     $to = strtolower($to);
 
-    if (!in_array($from, $supportedFormats['fileType'])) {
+    if (!in_array($from, $supportedFormats['filetype'])) {
         Log::error("Unsupported input file format: {$from}");
         return false;
     }
