@@ -263,6 +263,7 @@ private static function generateJwtToken($payload, $secret)
 {
     try {
         $token = JWT::encode($payload, $secret, 'HS256');
+        dd($payload,$secret,$token);
         return $token;
     } catch (\Exception $e) {
         Log::error('Error generating JWT token: ' . $e->getMessage());
