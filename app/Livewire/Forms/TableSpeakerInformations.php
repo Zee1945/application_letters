@@ -5,6 +5,7 @@ namespace App\Livewire\Forms;
 use App\Models\ApplicationParticipant;
 use App\Models\Files;
 use App\Models\ParticipantType;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -64,7 +65,7 @@ class TableSpeakerInformations extends Component
     {
         $new_rows = $this->rows;
         return array_map(function($row){
-            dd($row);
+                Log::info('Ambil participant ID => ',['participant' =>$row]);
                 $participant_id = $row['participant_id']; // Ambil ID peserta
 
             // Simpan setiap file ke MinIO
