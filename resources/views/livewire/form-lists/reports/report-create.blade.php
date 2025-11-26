@@ -161,7 +161,7 @@
                                         <div class="col-12 d-flex justify-content-end">
                                             <div class="d-flex">
                                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
 
                                                 <button class="btn btn-primary px-4"
@@ -201,7 +201,7 @@
                                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                                         <div class="d-flex">
                                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'2')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
                                             <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
                                                     class='bx bx-right-arrow-alt ms-2'></i></button>
@@ -229,12 +229,12 @@
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                 {{-- <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button> --}}
 
                              {{-- <button type="button"
                                     class="btn btn-primary px-4 border-none bg-warning me-2"
-                                    wire:click="store"
+                                    wire:click="store(false,'1')"
                                     wire:loading.attr="disabled"
                                     wire:target="store">
                                     <span wire:loading wire:target="store(true)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
@@ -547,7 +547,7 @@
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                              <button type="submit" class="btn btn-primary px-4 border-none bg-success me-2">
                                         Submit LPJ
                             </button>
@@ -556,7 +556,7 @@
                     </div>
                 </div>
             </div><!---end row-->
-                </form>
+                </form> 
 
 
         </div>
