@@ -64,6 +64,7 @@ class TableSpeakerInformations extends Component
     {
         $new_rows = $this->rows;
         return array_map(function($row){
+            dd($row);
                 $participant_id = $row['participant_id']; // Ambil ID peserta
 
             // Simpan setiap file ke MinIO
