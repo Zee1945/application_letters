@@ -324,7 +324,10 @@
                             
                                     @endforeach
                             @else
-                                <small><i>File tidak/belum diupload</i></small>
+                                @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                                                <br>
+                                                                <small><i>File tidak/belum diupload</i></small>
+                                                            @endif
                             @endif
                             @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
                                 @foreach ($this->row_attachments['minutes_file']['elements'] as $item)
@@ -404,7 +407,10 @@
                                                     
                                                             @endforeach
                                                     @else
-                                                        <small><i>File tidak/belum diupload</i></small>
+                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                                                <br>
+                                                                <small><i>File tidak/belum diupload</i></small>
+                                                            @endif
                                                     @endif
                                                     @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
                                                         @foreach ($this->row_attachments['spj_file']['elements'] as $item)
@@ -480,7 +486,10 @@
                                                     
                                                             @endforeach
                                                     @else
-                                                        <small><i>File tidak/belum diupload</i></small>
+                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                                                <br>
+                                                                <small><i>File tidak/belum diupload</i></small>
+                                                            @endif
                                                     @endif
                                                     @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
                                                         @foreach ($this->row_attachments['attendence_files']['elements'] as $item)
@@ -555,10 +564,13 @@
                                                     
                                                             @endforeach
                                                     @else
-                                                        <small><i>File tidak/belum diupload</i></small>
+                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
+                                                                <br>
+                                                                <small><i>File tidak/belum diupload</i></small>
+                                                            @endif
                                                     @endif
                                                     @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
-                                                        @foreach ($this->row_attachments['documentation_photos']['elements'] as $item)
+                                                    @foreach ($this->row_attachments['documentation_photos']['elements'] as $item)
                                                         <div class="d-flex align-items-baseline" id="{{$item}}">
                                                             <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
                                                             class="form-control form-control-sm mb-2 @error('documentation_photos') is-invalid @enderror"

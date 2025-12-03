@@ -409,10 +409,11 @@ public function removeRowAttachment($key, $name)
             $total_oldfile = count($this->{$old});
 
          
-            $compare_limit = ($value['max_file']? ($total_oldfile>0 && $total_oldfile < $value['max_file'] ? ($value['max_file']-$total_oldfile):0) :3);
+            $compare_limit = ($value['max_file']? ($total_oldfile < $value['max_file'] ? ($value['max_file']-$total_oldfile):0) :3);
           if ($compare_limit > 0) {
             for ($i=0; $i < $compare_limit ; $i++) { 
             $this->row_attachments[$key]['elements'][]=$key.'_'.$i;
+
           }
           }
           
