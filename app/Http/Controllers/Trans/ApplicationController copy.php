@@ -93,92 +93,50 @@ class ApplicationController extends Controller
     }
 public function submitReport(Request $request, $application_id)
 {
+    $upload_rules = ApplicationService::$upload_rules;
+    // Validasi request
 
-  
-    
+
+   // Validasi file
+    // $validation_result = $this->validateAttachments($request);
+
+    // if (!$validation_result['status']) {
+    //     // Jika validasi gagal, kembalikan pesan error ke halaman sebelumnya
+    //     return redirect()->back()->withErrors($validation_result['errors'])->withInput();
+    // }
+
+    // Proses file setelah validasi berhasil
     $data = [];
-      $application = Application::find($application_id);
+    $application = Application::find($application_id);
+    $report = $application->report()->first();
 
-          // Validasi file
-    $validation_result = $this->validateAttachments($request);
-    if (!$validation_result['status']) {
-        // Jika validasi gagal, kembalikan pesan error ke halaman sebelumnya
-        return redirect()->back()->withErrors($validation_result['errors'])->withInput();
+    // Proses file sesuai dengan aturan
+    foreach ($upload_rules as $key => $rule) {
+        if ($request->hasFile($key)) {
+            $slug = $rule['name'];
+            $filePath = $application_id . '/' . $slug;
+
+            $data[] = [
+                'dir_path' => $filePath,
+                'type' => $slug,
+                'file_path' => $filePath,
+                'application_report_id' => $report->id,
+            ];
+
+            foreach ($request->file($key) as $file) {
+                $file->storeAs($filePath . '/', $file->getClientOriginalName(), 'minio');
+            }
+        }
     }
 
-     $report = $application->report()->first();
-            if ($request->hasFile('spj_file')) {
-                $slug = 'spj-file';
-                $spjFilePath = $application_id . '/'.$slug;
-                $data[]= [
-                        'dir_path'=>$spjFilePath,
-                        'type'=>$slug,
-                        'file_path'=>$spjFilePath,
-                        'application_report_id'=>$report->id,
-                    ];
-            foreach ($request->file('spj_file') as $spjFile) {
-                $spjFile->storeAs($spjFilePath.'/', $spjFile->getClientOriginalName(), 'minio');
-            }
-        }
+    // Submit laporan
+    $res = ApplicationService::submitReport($data, $application, $report);
 
-        // Proses file Minutes
-        if ($request->hasFile('minutes_file')) {
-              $slug = 'minutes-file';
-                $minutesFilePath = $application_id . '/'.$slug;
+    if ($res['status'] && $request->is_submit == '1') {
+        ApplicationService::updateFlowApprovalStatus('submit-report', $application_id);
+    }
 
-               $data[]= [
-                    'dir_path'=>$minutesFilePath,
-                    'type'=>$slug,
-                    'file_path'=>$minutesFilePath,
-                    'application_report_id'=>$report->id,
-                ];
-                // dd($data);
-            foreach ($request->file('minutes_file') as $minutesFile) {
-                // dd($minutesFile->getClientOriginalName());
-                $minutesFile->storeAs($minutesFilePath.'/', $minutesFile->getClientOriginalName(), 'minio');
-            }
-        }
-
-        // // Proses file Absensi
-        if ($request->hasFile(key: 'attendence_files')) {
-            $slug = 'attendence-files';
-             $attendenceFilePath = $application_id .'/'.$slug;
-            $data[]= [
-                    'dir_path'=>$attendenceFilePath,
-                    'type'=>$slug,
-                    'file_path'=>$attendenceFilePath,
-                    'application_report_id'=>$report->id,
-                ];
-            foreach ($request->file('attendence_files') as $attendenceFile) {
-                $attendenceFile->storeAs($attendenceFilePath.'/',$attendenceFile->getClientOriginalName(), 'minio');
-            }
-        }
-
-        // Proses Foto Dokumentasi
-        if ($request->hasFile('documentation_photos')) {
-            $slug = 'document-photos';
-                $photoPath = $application_id . '/'.$slug;
-                $data[]= [
-                    'dir_path'=>$photoPath,
-                    'type'=>$slug,
-                    'file_path'=>$photoPath,
-                    'application_report_id'=>$report->id,
-                ];
-
-            foreach ($request->file('documentation_photos') as $photo) {
-                $photo->storeAs($photoPath.'/', $photo->getClientOriginalName(), 'minio');
-           
-            }
-        }
-            $res =  ApplicationService::submitReport($data,$application,$report);
-            // GenerateSubmitReportJob::dispatch($request,$application_id);
-            if ($res['status'] && $request->is_submit =='1') {
-                ApplicationService::updateFlowApprovalStatus('submit-report', $application_id);
-            }
-            return redirect()->back()->with($res['status'], $res['message']);
-
-    
-
+    return redirect()->back()->with($res['status'], $res['message']);
 }
 
 public function onAttachmentChanged($files,$type,$application_id)
@@ -215,7 +173,6 @@ public function uploadSpeakerAttachment(Request $request,$application_id)
    
 }
 
-
 public function validateAttachments(Request $request)
 {
     // Ambil aturan validasi dari ApplicationService
@@ -226,23 +183,18 @@ public function validateAttachments(Request $request)
     $validation_messages = [];
 
     foreach ($upload_rules as $key => $rule) {
-        // Konversi MB ke KB untuk validasi Laravel (1 MB = 1024 KB)
-        $max_size_kb = $rule['max_per_filesize'];
-        
-        
         // Aturan untuk setiap file
         $validation_rules["{$key}.*"] = [
             $rule['is_required'] ? 'required' : 'nullable', // Wajib jika is_required = true
             'file', // Harus berupa file
-            'max:' . $max_size_kb, // Ukuran maksimal per file dalam KB
+            'max:' . $rule['max_per_filesize'], // Ukuran maksimal per file
             'mimes:' . str_replace('.', '', $rule['accept']), // Format file yang diterima
         ];
-
-        $filesize_text = ViewHelper::byteToText($rule['max_per_filesize']); 
-        // Pesan error untuk setiap aturan (tampilkan dalam MB untuk user)
+        $conversionFilesize = ViewHelper::byteToText($rule['max_per_filesize']);
+        // Pesan error untuk setiap aturan
         $validation_messages["{$key}.*.required"] = "File {$key} wajib diunggah.";
         $validation_messages["{$key}.*.file"] = "File {$key} harus berupa file yang valid.";
-        $validation_messages["{$key}.*.max"] = "Ukuran file {$key} tidak boleh lebih dari {$filesize_text}.";
+        $validation_messages["{$key}.*.max"] = "Ukuran file {$key} tidak boleh lebih dari {$conversionFilesize} KB.";
         $validation_messages["{$key}.*.mimes"] = "Format file {$key} harus berupa: {$rule['accept']}.";
     }
 

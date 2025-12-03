@@ -33,7 +33,6 @@ class TableRundown extends Component
        if (count($participants)>0) {
             $this->receiveParticipant($participants);
        }
-        
     }
     public function render()
     {
@@ -232,5 +231,16 @@ class TableRundown extends Component
         // Dispatch update
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
+    }
+
+    #[On('resetRundown')]
+    public function resetRundown(){
+        $backup_rundown = [
+            ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
+            ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
+            ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
+            ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => []],
+        ];
+        $this->rundowns = $backup_rundown;
     }
 }

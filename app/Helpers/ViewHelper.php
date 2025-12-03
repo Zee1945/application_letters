@@ -339,6 +339,17 @@ public static function humanReadableDate($date_time,$is_with_day=true)
         }
     }
 
+public static function byteToText($byte = 2048)
+{
+    if ($byte < 1024) {
+        return $byte . ' B'; // Byte
+    } elseif ($byte < 1048576) {
+        return round($byte / 1024, 2) . ' MB'; // Kilobyte
+    } else {
+        return round($byte / 1073741824, 2) . ' GB'; // Gigabyte
+    }
+}
+
 
 
 

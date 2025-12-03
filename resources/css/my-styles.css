@@ -182,4 +182,51 @@
 }
 
 
+/* Style untuk card */
+.card-hover {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card-hover:hover {
+    /* box-shadow: 0 0 0 4px #0d6efd33, 0 4px 24px 0 rgba(0, 0, 0, 0.08); */
+    transform: translateY(-4px) scale(1);
+    background-color: #a1caf8;
+}
+
+/* Icon dan teks preview */
+.card-hover .preview-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card-hover:hover .preview-overlay {
+    opacity: 1;
+}
+
+/* Icon mata */
+.card-hover .preview-overlay i {
+    font-size: 0.8rem;
+    color: #ffffff;
+}
+
+/* Teks preview */
+.card-hover .preview-overlay span {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+
 

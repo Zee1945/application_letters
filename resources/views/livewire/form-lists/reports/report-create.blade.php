@@ -89,8 +89,8 @@
                                         <div class="step-trigger {{$this->step == 2 ? 'active' : ''}}" role="tab" wire:click="directStep('2')" id="stepper1trigger2" aria-controls="test-l-3">
                                             <div class="bs-stepper-circle">2</div>
                                             <div>
-                                                <h5 class="mb-0 steper-title">Informasi Narasumber</h5>
-                                                <p class="mb-0 steper-sub-title">Form Narasumber</p>
+                                                <h5 class="mb-0 steper-title">Data Personal</h5>
+                                                <p class="mb-0 steper-sub-title">Form Data Personal</p>
                                             </div>
                                         </div>
                                     </div>
@@ -180,8 +180,16 @@
 
                                     <div class="d-flex justify-content-between">
                                         <div class="">
-                                            <h5 class="mb-1">Informasi Narasumber</h5>
-                                            <p class="mb-4">Isi Form Informasi Narasumber</p>
+                                            <h5 class="mb-1">Data Personal Narasumber & Moderator</h5>
+                                            <p class="mb-4">Isi Form Data Personal Narasumber</p>
+                                        </div>
+                                        <div class="">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" placeholder="Cari narasumber..." wire:model.live. debounce.500ms="q_inf">
+                                                <button class="btn btn-primary" type="button" wire:click="search">
+                                                    <i class="fa-solid fa-search"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -189,7 +197,7 @@
                                     <div class="row g-3">
                                             <div class="col-12">
                                                 <div class="">
-                                                    <livewire:forms.table-speaker-informations :application="$this->application" :participants="$this->application->participants"/>
+                                                    <livewire:forms.table-speaker-informations :application="$this->application" :participants="$this->application->participants" :selectedInfId="$this->selected_inf"/>
                                                 </div>
                                             </div>
 
@@ -200,9 +208,6 @@
                                         <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                                         <div class="d-flex">
-                                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                            <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'2')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
-                                            @endif
                                             <button class="btn btn-primary px-4" wire:click="nextStep">Next<i
                                                     class='bx bx-right-arrow-alt ms-2'></i></button>
                                         </div>
@@ -229,7 +234,6 @@
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'3')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                 {{-- <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button> --}}
 
                              {{-- <button type="button"
@@ -257,19 +261,27 @@
         </div>
         <div id="test-l-4" role="tabpanel" class="{{$this->step == '4' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">
             <h5 class="mb-1">File Pendukung</h5>
-            <p class="mb-4">Masukkan File Pendukung yang dibutuhkan</p>
+            <p class="mb-4">Masukkan File Pendukung yang dibutuhkan</p> 
 
-            <form method="POST" action="{{ route('applications.submit-attachment-report',['application_id'=>$this->application_id]) }}" enctype="multipart/form-data">
+            <form method="POST" id="formSupportingFiles" action="{{ route('applications.submit-attachment-report',['application_id'=>$this->application_id]) }}" enctype="multipart/form-data">
                 @csrf
             <div class="row g-3">
                 <div class="col-12">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                    {{-- <livewire:forms.table-realization :draftCost="$this->draft_costs" :application="$this->application"/> --}}
                 </div>
                  <div class="col-md-6 col-sm-12 mb-3">
                                             <div class="d-flex">
 
                                             <label for="minutes_file" class="form-label fw-bold">File Notulensi
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
                                             </label>
                                             <span class=" ms-2 d-flex align-items-center gap-2 mb-2">
                                                 <a wire:click="downloadTemplateMinutes" wire:loading.class="opacity-50" role="button" class="d-flex align-items-baseline" download>
@@ -277,277 +289,319 @@
                                                 </a>
                                             </span>
                                             </div>
-                        @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_minutes_file))
-                                <table class="table table-striped mt-2">
-                                    <thead>
-                                        <tr>
 
-                                         <th class="text-center" style="width:40%">Nama File</th>
-                                         <th class="text-center" style="width:20%"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                {{$this->old_minutes_file['fileName']}}
-                                            </td>
-                                            <td class="text-center">
-                                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_minutes_file['file_id']}})">Lihat</button>
-                                                
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
+                        {{-- Start additional file component --}}
+                            @error('minutes_file.*')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            @if (!empty($this->old_minutes_file))
+                                    @foreach ($this->old_minutes_file as $file)
+                                    <div class="row mb-2">
+                                        <div class="d-flex w-100">
+                                        <div class="card d-flex flex-grow-1  card-hover" wire:click="openModalPreview({{$file['file_id']}})">
+                                            <div class="card-body py-2 text-truncate">
+                                                <span>
+                                                    <i class="fa-solid fa-paperclip"></i> {{$file['fileName']}}
+                                                </span>
+                                            </div>
+                                            <!-- Overlay untuk icon mata dan teks preview -->
+                                            <div class="preview-overlay">
+                                                <div class="bg-primary px-2 rounded">
+
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span>Preview</span>
+                                                </div>
+
+                                            </div>
+                                        </div>   
+                                                @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                            <button type="button" wire:click="destroyUploadedAttachment('{{ $file['file_id'] }}',['report_attachments'],'old_minutes_file')" class="btn btn-sm btn-outline-danger ms-1"> 
+                                                <i class="fa-regular fa-trash-can me-0" style="font-size: 0.8rem; "></i>
+                                            </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                            
+                                    @endforeach
                             @else
-                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('minutes_file') is-invalid @enderror"
-                                                id="minutes_file"
-                                                name="minutes_file[]"
-                                                accept=".pdf" multiple>
-                                            @error('minutes_file')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if ($old_minutes_file)
-                                            @if (is_array($old_minutes_file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_minutes_file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
+                                <small><i>File tidak/belum diupload</i></small>
+                            @endif
+                            @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                @foreach ($this->row_attachments['minutes_file']['elements'] as $item)
+                                <div class="d-flex align-items-baseline" id="{{$item}}">
+                                    <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                    class="form-control form-control-sm mb-2 @error('minutes_file') is-invalid @enderror"
+                                    id="minutes_file"
+                                    @if ($this->row_attachments['minutes_file']['is_multiple'] )
+                                        name="{{ $this->row_attachments['minutes_file']['name'] }}[]"
+                                    @else
+                                        name="{{ $this->row_attachments['minutes_file']['name'] }}"
+                                    @endif
+                                    accept="{{ $this->row_attachments['minutes_file']['accept'] }}">
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-1" wire:click="removeRowAttachment('{{$item}}','minutes_file')">
+                                        <i class="fa-solid fa-xmark me-0" style="font-size: 0.8rem; "></i>
+                                    </button>
+                                </div>
+                                @endforeach
 
-                                                
-                                            @endif
-                        @endif
+                                <div class="d-flex justify-content-center mt-1 {{ $this->row_attachments['minutes_file']['max_file'] ? 'd-none' :'' }}">
+                                    <button class="btn btn-sm btn-outline-primary btn-sm px-4 w-100" type="button" wire:click="addRowAttachment('minutes_file')" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}>
+                                        <i class="fa-solid fa-plus me-0" style="font-size: 1rem"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted d-block"><i>Ekstensi Lampiran: {{ $this->row_attachments['minutes_file']['accept']}}</i>
+                                    <br>
+                                    <i>Ukuran Maksimal: {{ viewHelper::byteToText($this->row_attachments['minutes_file']['max_per_filesize'])  }}</i>
+                                    @if ($this->row_attachments['minutes_file']['max_file'])
+                                        <br>
+                                        <i>Maksimal Jumlah Upload : {{ $this->row_attachments['minutes_file']['max_file']  }} File</i>
+                                    @endif
+                                </small>
+                                                    
+                            @endif
+                        {{-- End additional file component --}}
+
                                             
                                         </div>
                                         <div class="col-sm-12 col-md-6 mb-3">
                                             <label for="spj_file" class="form-label fw-bold">
                                            Dokumen SPJ
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
+                                     
                                             </label>
 
-                                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_spj_file))
-                                 <table class="table table-striped mt-2">
-                                    <thead>
-                                        <tr>
 
-                                         <th class="text-center" style="width:40%">Nama File</th>
-                                         <th class="text-center" style="width:20%"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                {{$this->old_spj_file['fileName']}}
-                                            </td>
-                                            <td class="text-center">
-                                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$this->old_spj_file['file_id']}})">Lihat</button>
-                                                
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('spj_file') is-invalid @enderror"
-                                                id="spj_file"
-                                                name="spj_file[]"
-                                                accept=".pdf" multiple>
-                                            @error('spj_file')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if ($old_spj_file)
-                                            @if (is_array($old_spj_file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $old_spj_file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
+                                              {{-- Start additional file component --}}
+                                                    @error('spj_file.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    @if (!empty($this->old_spj_file))
+                                                            @foreach ($this->old_spj_file as $file)
+                                                            <div class="row mb-2">
+                                                                <div class="d-flex w-100">
+                                                                <div class="card d-flex flex-grow-1  card-hover" wire:click="openModalPreview({{$file['file_id']}})">
+                                                                    <div class="card-body py-2 text-truncate">
+                                                                        <span>
+                                                                            <i class="fa-solid fa-paperclip"></i> {{$file['fileName']}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <!-- Overlay untuk icon mata dan teks preview -->
+                                                                    <div class="preview-overlay">
+                                                                        <div class="bg-primary px-2 rounded">
 
-                                                
-                                            @endif
-                        @endif
+                                                                        <i class="fa-solid fa-eye"></i>
+                                                                        <span>Preview</span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>   
+                                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                                    <button type="button" wire:click="destroyUploadedAttachment('{{ $file['file_id'] }}',['report_attachments'],'old_minutes_file')" class="btn btn-sm btn-outline-danger ms-1"> 
+                                                                        <i class="fa-regular fa-trash-can me-0" style="font-size: 0.8rem; "></i>
+                                                                    </button>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            @endforeach
+                                                    @else
+                                                        <small><i>File tidak/belum diupload</i></small>
+                                                    @endif
+                                                    @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                        @foreach ($this->row_attachments['spj_file']['elements'] as $item)
+                                                        <div class="d-flex align-items-baseline" id="{{$item}}">
+                                                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                            class="form-control form-control-sm mb-2 @error('spj_file') is-invalid @enderror"
+                                                            id="minutes_file"
+                                                            @if ($this->row_attachments['spj_file']['is_multiple'] )
+                                                                name="{{ $this->row_attachments['spj_file']['name'] }}[]"
+                                                            @else
+                                                                name="{{ $this->row_attachments['spj_file']['name'] }}"
+                                                            @endif
+                                                            accept="{{ $this->row_attachments['spj_file']['accept'] }}">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger ms-1" wire:click="removeRowAttachment('{{$item}}','spj_file')">
+                                                                <i class="fa-solid fa-xmark me-0" style="font-size: 0.8rem; "></i>
+                                                            </button>
+                                                        </div>
+                                                        @endforeach
+
+                                                        <div class="d-flex justify-content-center mt-1 {{ $this->row_attachments['spj_file']['max_file'] ? 'd-none' :'' }}">
+                                                            <button class="btn btn-sm btn-outline-primary btn-sm px-4 w-100" type="button" wire:click="addRowAttachment('spj_file')" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}>
+                                                                <i class="fa-solid fa-plus me-0" style="font-size: 1rem"></i>
+                                                            </button>
+                                                        </div>
+                                                        <small class="form-text text-muted d-block"><i>Ekstensi Lampiran: {{ $this->row_attachments['spj_file']['accept']}}</i>
+                                                            <br>
+                                                            <i>Ukuran Maksimal: {{ viewHelper::byteToText($this->row_attachments['spj_file']['max_per_filesize'])  }}</i>
+                                                            @if ($this->row_attachments['spj_file']['max_file'])
+                                                                <br>
+                                                                <i>Maksimal Jumlah Upload : {{ $this->row_attachments['spj_file']['max_file']  }} File</i>
+                                                            @endif
+                                                        </small>
+                                                                            
+                                                    @endif
+                                                {{-- End additional file component --}}
                                         </div>
 
                                         <div class="col-12 mb-3">
                                             <label for="attendence_files" class="form-label fw-bold">
                                                 File Absensi Kehadiran
-                                                <small class="text-muted">(PDF, maksimal 5MB)</small>
                                             </label>
-                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_attendence_files))
-<table class="table table-striped mt-2">
-    <thead class="table-light">
-        <tr>
-            <th class="text-center" style="width:40%">Nama File</th>
-            <th class="text-center" style="width:20%"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse ($old_attendence_files as $photo)
-            <tr>
-                <td>
-                <i class="bx bxs-file-pdf me-1 font-18 text-danger"></i>
-                    {{ $photo['fileName'] }}
-                </td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
-                         Lihat
-                    </button>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="2" class="text-center text-muted"><em>Tidak ada file daftar kehadiran</em></td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
-                              
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            
-                                                 <input type="file"
-                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('attendence_files') is-invalid @enderror"
-                                                id="attendence_files"
-                                                name="attendence_files[]"
-                                                accept=".pdf"
-                                                multiple
-                                                >
-                                            @error('attendence_files')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if (count($old_attendence_files) > 0)
-                                            @foreach ($old_attendence_files as $file)
-                                                
-                                            @if (is_array($file))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $file->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                            @endforeach
+                                             {{-- Start additional file component --}}
+                                                    @error('attendence_files.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    @if (!empty($this->old_attendence_files))
+                                                            @foreach ($this->old_attendence_files as $file)
+                                                            <div class="row mb-2">
+                                                                <div class="d-flex w-100">
+                                                                <div class="card d-flex flex-grow-1  card-hover" wire:click="openModalPreview({{$file['file_id']}})">
+                                                                    <div class="card-body py-2 text-truncate">
+                                                                        <span>
+                                                                            <i class="fa-solid fa-paperclip"></i> {{$file['fileName']}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <!-- Overlay untuk icon mata dan teks preview -->
+                                                                    <div class="preview-overlay">
+                                                                        <div class="bg-primary px-2 rounded">
 
+                                                                        <i class="fa-solid fa-eye"></i>
+                                                                        <span>Preview</span>
+                                                                        </div>
 
-                                                
-                                            @endif
-                        @endif
+                                                                    </div>
+                                                                </div>   
+                                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                                    <button type="button" wire:click="destroyUploadedAttachment('{{ $file['file_id'] }}',['report_attachments'],'old_attendence_files')" class="btn btn-sm btn-outline-danger ms-1"> 
+                                                                        <i class="fa-regular fa-trash-can me-0" style="font-size: 0.8rem; "></i>
+                                                                    </button>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            @endforeach
+                                                    @else
+                                                        <small><i>File tidak/belum diupload</i></small>
+                                                    @endif
+                                                    @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                        @foreach ($this->row_attachments['attendence_files']['elements'] as $item)
+                                                        <div class="d-flex align-items-baseline" id="{{$item}}">
+                                                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                            class="form-control form-control-sm mb-2 @error('attendence_files') is-invalid @enderror"
+                                                            id="minutes_file"
+                                                            @if ($this->row_attachments['attendence_files']['is_multiple'] )
+                                                                name="{{ $this->row_attachments['attendence_files']['name'] }}[]"
+                                                            @else
+                                                                name="{{ $this->row_attachments['attendence_files']['name'] }}"
+                                                            @endif
+                                                            accept="{{ $this->row_attachments['attendence_files']['accept'] }}">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger ms-1" wire:click="removeRowAttachment('{{$item}}','attendence_files')">
+                                                                <i class="fa-solid fa-xmark me-0" style="font-size: 0.8rem; "></i>
+                                                            </button>
+                                                        </div>
+                                                        @endforeach
+
+                                                        <div class="d-flex justify-content-center mt-1 {{ $this->row_attachments['attendence_files']['max_file'] ? 'd-none' :'' }}">
+                                                            <button class="btn btn-sm btn-outline-primary btn-sm px-4 w-100" type="button" wire:click="addRowAttachment('attendence_files')" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}>
+                                                                <i class="fa-solid fa-plus me-0" style="font-size: 1rem"></i>
+                                                            </button>
+                                                        </div>
+                                                        <small class="form-text text-muted d-block"><i>Ekstensi Lampiran: {{ $this->row_attachments['attendence_files']['accept']}}</i>
+                                                            <br>
+                                                            <i>Ukuran Maksimal: {{ viewHelper::byteToText($this->row_attachments['attendence_files']['max_per_filesize'])  }}</i>
+                                                            @if ($this->row_attachments['attendence_files']['max_file'])
+                                                                <br>
+                                                                <i>Maksimal Jumlah Upload : {{ $this->row_attachments['attendence_files']['max_file']  }} File</i>
+                                                            @endif
+                                                        </small>
+                                                                            
+                                                    @endif
+                                                {{-- End additional file component --}}
                                         </div>
                                         <div class="col-12 mb-3">
                                             <label for="documentation_photos" class="form-label fw-bold">
                                                 Foto Dokumentasi Kegiatan
-                                                <small class="text-muted">(maksimal 5 foto, JPG/JPEG/PNG, maksimal 5MB/foto)</small>
                                             </label>
-                                             @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                @if (!empty($this->old_documentation_photos))
-                                    <table class="table table-striped mt-2">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="text-center" style="width:40%">Nama File</th>
-                                                <th class="text-center" style="width:20%"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($old_documentation_photos as $photo)
-                                                <tr>
-                                                    <td>
-                                                        <i class="fa-solid fa-image text-secondary me-1"></i>
-                                                        {{ $photo['fileName'] }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{ $photo['file_id'] }})">
-                                                            Lihat
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="2" class="text-center text-muted"><em>Tidak ada file dokumentasi</em></td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                              
-                                @else
-                                    <small><i>File tidak diupload</i></small>
-                                @endif
-                            @else
-                            
-                                                 <input type="file"
-                                                {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
-                                                class="form-control @error('documentation_photos') is-invalid @enderror"
-                                                id="documentation_photos"
-                                                name="documentation_photos[]"
-                                                accept=".jpg,.jpeg,.png"
-                                                multiple
-                                                >
-                                            @error('documentation_photos')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            @if (count($old_documentation_photos) > 0)
-                                            @foreach ($old_documentation_photos as $photo)
-                                                
-                                            @if (is_array($photo))
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo['fileName'] }}
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="mt-2">
-                                                    <span class="badge bg-success">
-                                                        <i class="fa-solid fa-check"></i> File terpilih: {{ $photo->getClientOriginalName() }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                            @endforeach
+                            {{-- Start additional file component --}}
+                                                    @error('documentation_photos.*')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    @if (!empty($this->old_documentation_photos))
+                                                            @foreach ($this->old_documentation_photos as $file)
+                                                            <div class="row mb-2">
+                                                                <div class="d-flex w-100">
+                                                                <div class="card d-flex flex-grow-1  card-hover" wire:click="openModalPreview({{$file['file_id']}})">
+                                                                    <div class="card-body py-2 text-truncate">
+                                                                        <span>
+                                                                            <i class="fa-solid fa-paperclip"></i> {{$file['fileName']}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <!-- Overlay untuk icon mata dan teks preview -->
+                                                                    <div class="preview-overlay">
+                                                                        <div class="bg-primary px-2 rounded">
 
+                                                                        <i class="fa-solid fa-eye"></i>
+                                                                        <span>Preview</span>
+                                                                        </div>
 
-                                                
-                                            @endif
-                        @endif
+                                                                    </div>
+                                                                </div>   
+                                                                        @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                                    <button type="button" wire:click="destroyUploadedAttachment('{{ $file['file_id'] }}',['report_attachments'],'old_documentation_photos')" class="btn btn-sm btn-outline-danger ms-1"> 
+                                                                        <i class="fa-regular fa-trash-can me-0" style="font-size: 0.8rem; "></i>
+                                                                    </button>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                    
+                                                            @endforeach
+                                                    @else
+                                                        <small><i>File tidak/belum diupload</i></small>
+                                                    @endif
+                                                    @if(viewHelper::handleFieldDisabled($this->application,false,true) != 'disabled')
+                                                        @foreach ($this->row_attachments['documentation_photos']['elements'] as $item)
+                                                        <div class="d-flex align-items-baseline" id="{{$item}}">
+                                                            <input type="file" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}
+                                                            class="form-control form-control-sm mb-2 @error('documentation_photos') is-invalid @enderror"
+                                                            id="minutes_file"
+                                                            @if ($this->row_attachments['documentation_photos']['is_multiple'] )
+                                                                name="{{ $this->row_attachments['documentation_photos']['name'] }}[]"
+                                                            @else
+                                                                name="{{ $this->row_attachments['documentation_photos']['name'] }}"
+                                                            @endif
+                                                            accept="{{ $this->row_attachments['documentation_photos']['accept'] }}">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger ms-1" wire:click="removeRowAttachment('{{$item}}','documentation_photos')">
+                                                                <i class="fa-solid fa-xmark me-0" style="font-size: 0.8rem; "></i>
+                                                            </button>
+                                                        </div>
+                                                        @endforeach
+
+                                                        <div class="d-flex justify-content-center mt-1 {{ $this->row_attachments['documentation_photos']['max_file'] ? 'd-none' :'' }}">
+                                                            <button class="btn btn-sm btn-outline-primary btn-sm px-4 w-100" type="button" wire:click="addRowAttachment('documentation_photos')" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!}>
+                                                                <i class="fa-solid fa-plus me-0" style="font-size: 1rem"></i>
+                                                            </button>
+                                                        </div>
+                                                        <small class="form-text text-muted d-block"><i>Ekstensi Lampiran: {{ $this->row_attachments['documentation_photos']['accept']}}</i>
+                                                            <br>
+                                                            <i>Ukuran Maksimal: {{ viewHelper::byteToText($this->row_attachments['documentation_photos']['max_per_filesize'])  }}</i>
+                                                            @if ($this->row_attachments['documentation_photos']['max_file'])
+                                                                <br>
+                                                                <i>Maksimal Jumlah Upload : {{ $this->row_attachments['documentation_photos']['max_file']  }} File</i>
+                                                            @endif
+                                                        </small>
+                                                                            
+                                                    @endif
+                                                {{-- End additional file component --}}
                                         </div>
+                                        <input type="hidden" id="inputIsSubmit" name="is_submit" value="1">
 
 
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-primary px-4" wire:click="prevStep"><i
+                        <button type="button" class="btn btn-primary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'4')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
+                                <button class="btn btn-primary px-4 border-none bg-warning me-2" id="saveDraftSupportingFiles" type="button" onclick="window.saveDraft"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                              <button type="submit" class="btn btn-primary px-4 border-none bg-success me-2">
                                         Submit LPJ
                             </button>
@@ -626,6 +680,20 @@
 
 
 <script type="module">
+
+    $(document).ready(function(){
+        
+           // Fungsi untuk tombol Save Draft
+        $("#saveDraftSupportingFiles").click(function () {
+            // Ubah nilai elemen dengan ID 'inputIsSubmit' menjadi 0
+            $("#inputIsSubmit").val(0);
+
+            // Trigger submit pada form dengan ID 'formSupportingFiles'
+            $("#formSupportingFiles").submit();
+        });
+
+  
+    });
     document.addEventListener('livewire:init', () => {
         Livewire.on('open-modal', (event) => {
             const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
@@ -634,6 +702,17 @@
         Livewire.on('close-modal', (event) => {
             const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirm');
             modal.hide();
+        });
+        Livewire.on('remove-input-element', (event) => {
+            let elemId = event[0];
+            const element = document.getElementById(elemId);
+            if (element) {                
+                element.remove();
+            }else {
+                console.warn(`Element with ID ${elemId} not found.`);
+            }
+
+            
         });
 
     });

@@ -327,8 +327,7 @@ class ApplicationCreateDraft extends AbstractComponent
         $this->participants = [];
         $this->draft_costs = [];
         $this->rundowns = [];
-
-
+        $this->dispatch('resetRundown');
     }
 
 }

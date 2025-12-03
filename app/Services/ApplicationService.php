@@ -12,10 +12,13 @@ use App\Models\ApplicationSchedule;
 use App\Models\Department;
 use App\Models\FileType;
 use App\Models\LogApproval;
+use App\Models\ReportAttachment;
 use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AuthService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +33,53 @@ class ApplicationService
      *
      * @return void
      */
-
+    public static $upload_rules = [
+        'documentation_photos'=>[
+                'old_props'=>'documentation_photos',
+                'name'=>'documentation_photos',
+                'is_required'=>false,
+                'max_per_filesize'=>2048,
+                'max_file'=>5,
+                'accept'=>'.jpg,.jpeg,.png',
+                'max_total_filesize'=>(5*2048),
+                'current_file'=>0,
+                'is_multiple'=>true,
+                'elements'=>[]
+        ],
+        'minutes_file'=>[
+                'name'=>'minutes_file',
+                'is_required'=>false,
+                'max_per_filesize'=>2048,
+                'max_file'=>null,
+                'accept'=>'.pdf',
+                'max_total_filesize'=>(5*2048),
+                'current_file'=>0,
+                'is_multiple'=>true,
+                'elements'=>[]
+        ],
+        'spj_file'=>[
+                'name'=>'spj_file',
+                'is_required'=>false,
+                'max_per_filesize'=>2048,
+                'max_file'=>null,
+                'accept'=>'.pdf',
+                'max_total_filesize'=>(10*2048),
+                'current_file'=>0,
+                'is_multiple'=>true,
+                'elements'=>[]
+        ],
+        'attendence_files'=>[
+                'name'=>'attendence_files',
+                'is_required'=>false,
+                'max_per_filesize'=>1024,
+                'max_file'=>null,
+                'accept'=>'.pdf',
+                'max_total_filesize'=>(10*1024),
+                'current_file'=>0,
+                'is_multiple'=>true,
+                'elements'=>[]
+        ],
+    ];
 
 
 
@@ -663,23 +712,6 @@ class ApplicationService
 
             // dd($data['attachments'],$speakers_info,$realization);
 
-            // store file ke minio dan tambah ke table files
-            foreach ($speakers_info as $key => $spk) {
-                
-                $participant= ApplicationParticipant::find($spk['participant_id']);
-                    $columns = ['cv_file_id','idcard_file_id','npwp_file_id','material_file_id'];
-                    foreach ($columns as $col) {
-                        if ($spk[$col]) {
-                                $new_dir = str_replace('temp/report/', '', $spk[$col]);
-                                $get_file_storage = FileManagementService::getFileStorage($spk[$col],$app,$new_dir,'report');
-                                $files = FileManagementService::storeFiles($get_file_storage,$app,'report',$spk[$col]);
-                               if ($files['status']) {
-                                   $participant->$col = $files['data']?->id;
-                               }
-                            $participant->save();
-                        }
-                    }
-            }
             // dd($reports,$temp,$realization);
             // store file id ke tabel draft_cost_application
             foreach ($realization as $key => $value) {
@@ -748,6 +780,49 @@ class ApplicationService
             throw $th;
         }
 
+    }
+    
+
+    public static function storeDocSpeaker(Request $request){
+         try {
+            DB::beginTransaction();
+            $participant_id = explode('_',$request['participant_data'])[0]; // Ambil ID peserta
+            $participant= ApplicationParticipant::find($participant_id);
+            $app = Application::find($participant->application_id);
+
+            $files = [
+                'cv_file_id' => $request['cv_file_id'],
+                'idcard_file_id' => $request['idcard_file_id'],
+                'npwp_file_id' => $request['npwp_file_id'],
+                'material_file_id' => $request['material_file_id']
+            ];
+            $directory = 'speaker-information/' . $participant_id;
+
+            Log::info('Masok ke fungsi =>',['$key'=>'yessss']);
+            foreach ($files as $key => $file) {
+                Log::info('Masok ke loop fiiles =>',['$key'=>$key]);
+                if ($file instanceof UploadedFile) {
+                        Log::info('Masok ke upload =>',['$key'=>$key]);
+                    $fileName = $file->getClientOriginalName().'-'.$participant_id . '-' . $key . '.' . $file->getClientOriginalExtension();
+                        $path = $directory.'/'.$fileName;
+                        // Simpan file ke MinIO
+                        $file->storeAs($directory, $fileName, 'minio');
+
+                        $get_file_storage = FileManagementService::getFileStorage($path,$app,$path,'report');
+                                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
+                                if ($files['status']) {
+                                    $participant->$key = $files['data']?->id;
+                                }
+                                $participant->save();
+                }
+            }
+        DB::commit();
+        return['status'=>true,'message'=>'Data Personal berhasil ditambahkan'];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::info('Gagal Nambah Data Personel Baru',['err'=>$th]);
+            return['status'=>true,'message'=>'Data Personal berhasil ditambahkan'];
+        }
     }
 
     public static function storeListLetterNumber($app){
@@ -1055,6 +1130,78 @@ public static function getListReport($search = '', $status_approval = '', $depar
         }
         return false;
     }
+
+    
+public static function destroyAttachments($file_id, $related_table = [])
+{
+    try {
+        DB::beginTransaction(); // Mulai transaksi database
+
+        $file = FileManagementService::find($file_id);
+        foreach ($related_table as $key => $table_name) {
+            switch ($table_name) {
+                case 'report_attachments':
+                    $file_item = ReportAttachment::where('file_id', $file_id)->first();
+                        $file_item->delete();
+                    break;
+
+                case 'draft_cost_budget_file':
+                    // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
+                    break;
+                case 'application_participants':
+                    // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
+                    $participant = ApplicationParticipant::where('cv_file_id',$file_id)
+                                                            ->orWhere('npwp_file_id',$file_id)
+                                                            ->orWhere('idcard_file_id',$file_id)
+                                                            ->orWhere('material_file_id',$file_id)
+                                                            ->first();
+                     if ($participant) {
+                            // Array kolom yang akan dicek
+                            $file_columns = ['cv_file_id', 'npwp_file_id', 'idcard_file_id', 'material_file_id'];
+                            
+                            // Cari kolom mana yang berisi file_id yang akan dihapus
+                            foreach ($file_columns as $column) {
+                                if ($participant->$column == $file_id) {
+                                    // Update kolom tersebut menjadi null
+                                    $participant->$column = null;
+                                    $participant->save();
+                                    
+                                    Log::info("Kolom {$column} berhasil diupdate menjadi null untuk participant ID {$participant->id}");
+                                    break; // Keluar dari loop setelah menemukan kolom yang sesuai
+                                }
+                            }
+                        }
+                     
+                    break;
+                default:
+                    // Jika tabel tidak dikenali, tambahkan log atau abaikan
+                    Log::warning("Unknown table name '{$table_name}' in destroyAttachments.");
+                    break;
+            }
+        }
+
+        if (!empty($file)) {
+            $path = $file->path;
+            if ($file->delete()) {
+                Storage::disk('minio')->delete($path);
+                Log::info("File berhasil dihapus dari database dan MinIO.", ['file_path' => $file->path]);
+            } else {
+                Log::warning("File gagal dihapus dari database.", ['file_id' => $file->id]);
+            }
+        }
+
+        DB::commit(); // Commit transaksi jika semua berhasil
+        return ['status' => true, 'message' => 'File berhasil dihapus.'];
+    } catch (\Throwable $th) {
+        DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+        Log::error('Error saat menghapus file dan relasi: ' . $th->getMessage(), [
+            'file_id' => $file_id,
+            'related_table' => $related_table,
+        ]);
+        return ['status' => false, 'message' => 'Gagal menghapus file.'];
+    }
+}
+
 
 
 

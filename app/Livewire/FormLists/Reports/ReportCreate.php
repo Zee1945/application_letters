@@ -12,6 +12,7 @@ use App\Services\FileManagementService;
 use App\Services\TemplateProcessorService;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -19,6 +20,12 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 class ReportCreate extends AbstractComponent
 {
     public $application_id = null;
+
+    #[Url(except: '')]
+    public $q_inf = '';
+
+    #[Url(except: '')]
+    public $selected_inf = '';
 
     public $open_modal_confirm = null;
     public $notes = null;
@@ -33,16 +40,18 @@ class ReportCreate extends AbstractComponent
 
     public $attachment_files = [];
 
+    public $row_attachments = [];
+
 
 
     // Step 2
     public $speakers_info = [];
     public $rundowns = [];
     public $draft_costs = [];
-    public $spj_file = null;
-    public $old_spj_file = null;
-    public $minutes_file = null;
-    public $old_minutes_file = null;
+    public $spj_file = [];
+    public $old_spj_file = []; 
+    public $minutes_file = [];
+    public $old_minutes_file = []; 
     public $documentation_photos = [];
     public $old_documentation_photos = [];
     public $attendence_files = [];
@@ -84,6 +93,9 @@ class ReportCreate extends AbstractComponent
         if ($this->application->report) {
             $this->loadData();
         }
+        $this->row_attachments = ApplicationService::$upload_rules;
+
+        $this->setupElementUpload();
 
         $this->permissionApplication($application_id);
 
@@ -239,18 +251,25 @@ class ReportCreate extends AbstractComponent
             }
         }
 
-        $file_id_minutes =$this->application->report->attachments()->where('type','minutes-file')->first()->file_id??null;
-        $file_id_spj =$this->application->report->attachments()->where('type','spj-file')->first()->file_id??null;
+        $file_id_minutes =$this->application->report->attachments()->where('type','minutes-file')->get()->pluck('file_id');
+        $file_id_spj =$this->application->report->attachments()->where('type','spj-file')->get()->pluck('file_id');
         $documentation_file_ids =$this->application->report->attachments()->where('type','document-photos')->get()->pluck('file_id');
         $attendence_file_ids =$this->application->report->attachments()->where('type','attendence-files')->get()->pluck('file_id');
-        $this->old_minutes_file = FileManagementService::getFileStorageById($file_id_minutes);
-        $this->old_spj_file = FileManagementService::getFileStorageById($file_id_spj);
+        
+        foreach ($file_id_minutes ??[] as $key => $file_id) {
+            $this->old_minutes_file[] = FileManagementService::getFileStorageById($file_id);
+        }
+        foreach ($file_id_spj ??[] as $key => $file_id) {
+            $this->old_spj_file[] = FileManagementService::getFileStorageById($file_id);
+        }
         foreach ($documentation_file_ids ??[] as $key => $file_id) {
             $this->old_documentation_photos[] = FileManagementService::getFileStorageById($file_id);
         }
         foreach ($attendence_file_ids ??[] as $key => $file_id) {
             $this->old_attendence_files[] = FileManagementService::getFileStorageById($file_id);
         }
+        // dd($file_id_minutes,$this->old_minutes_file);
+
     }
 
     public function openModalPreview($file_id)
@@ -262,7 +281,31 @@ class ReportCreate extends AbstractComponent
     }
 
 
+    #[On('on-destroy-attachment')]
+    public function receiveAttachmentToDestroy($params)
+    {
+        $this->destroyUploadedAttachment($params['file_id'],$params['related_table'],$params['props'],$params['is_need_return']);
+    }
 
+    public function destroyUploadedAttachment($file_id,$related_table=[],$props=null,$is_need_return=false)
+    {
+        $res = ApplicationService::destroyAttachments($file_id,$related_table);
+        if ($res['status']) {
+           if ($props && isset($this->{$props})) {
+            // Filter array untuk menghapus elemen dengan file_id yang sesuai
+            $this->{$props} = array_filter($this->{$props}, function ($file) use ($file_id) {
+                return (string)$file['file_id'] !== $file_id;
+            });
+                $this->{$props} = array_values($this->{$props});
+            }
+            if ($is_need_return) {
+                return $res['status'];
+            }
+        }
+
+   
+        // return session()->flash(($res['status']?'success':'error'), $res['message']);
+    }
 
     public function updateLetterNumber()
     {
@@ -310,5 +353,75 @@ class ReportCreate extends AbstractComponent
     public function directStep($step)
     {
         $this->step = $step;
+    }
+
+public function addRowAttachment($name)
+{
+    // Pastikan elemen dengan nama yang sesuai ada di dalam row_attachments
+    if (isset($this->row_attachments[$name]['elements'])) {
+        // Ambil elemen terakhir dari array elements
+        $lastElement = end($this->row_attachments[$name]['elements']);
+
+        // Ekstrak angka terakhir dari elemen terakhir
+        $lastIndex = (int) filter_var($lastElement, FILTER_SANITIZE_NUMBER_INT);
+
+        // Tambahkan elemen baru dengan index yang ditingkatkan
+        $newElement = $name . '_' . ($lastIndex + 1);
+        $this->row_attachments[$name]['elements'][] = $newElement;
+
+        $this->dispatch('add-input-element', [$newElement]);
+    } else {
+        // Jika nama tidak ditemukan di row_attachments
+        logger()->error("Attachment name '{$name}' not found in row_attachments");
+    }
+}
+
+public function removeRowAttachment($key, $name)
+{
+    // Pastikan elemen dengan nama yang sesuai ada di dalam elements
+    if (isset($this->row_attachments[$name]['elements'])) {
+        // Cari index elemen yang sesuai dengan $key
+        $index = array_search($key, $this->row_attachments[$name]['elements']);
+
+        if ($index !== false) {
+            // Hapus elemen dari array elements
+            unset($this->row_attachments[$name]['elements'][$index]);
+
+            // Reindex array untuk menjaga konsistensi
+            $this->row_attachments[$name]['elements'] = array_values($this->row_attachments[$name]['elements']);
+
+            // Emit event untuk menghapus elemen di frontend
+            $this->dispatch('remove-input-element', [$key]);
+        } else {
+            // Jika elemen tidak ditemukan
+            logger()->warning("Element with key '{$key}' not found in row_attachments['{$name}']['elements']");
+        }
+    } else {
+        // Jika nama tidak ditemukan di row_attachments
+        logger()->error("Attachment name '{$name}' not found in row_attachments");
+    }
+}
+
+
+    public function setupElementUpload(){
+        foreach ($this->row_attachments as $key => $value) {
+            $old = 'old_'.$key;
+            $total_oldfile = count($this->{$old});
+
+         
+            $compare_limit = ($value['max_file']? ($total_oldfile>0 && $total_oldfile < $value['max_file'] ? ($value['max_file']-$total_oldfile):0) :3);
+          if ($compare_limit > 0) {
+            for ($i=0; $i < $compare_limit ; $i++) { 
+            $this->row_attachments[$key]['elements'][]=$key.'_'.$i;
+          }
+          }
+          
+        }
+    }
+
+    #[On('set-inf-id')]
+    public function setInfId($params)
+    {
+        $this->selected_inf = $params['id'];
     }
 }

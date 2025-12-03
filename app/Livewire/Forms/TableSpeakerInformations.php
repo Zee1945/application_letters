@@ -20,9 +20,10 @@ class TableSpeakerInformations extends Component
     public $idcard_file_id = [];
     public $npwp_file_id = [];
     public $material_file_id = [];
+    public $selected_inf_id = '';
     public $application;
 
-    public function mount($application = null,$participants=null)
+    public function mount($application = null,$participants=null, $selectedInfId='')
     {
         $this->application = $application;
         $this->filterSpeakers($participants);
@@ -36,6 +37,16 @@ class TableSpeakerInformations extends Component
             $item['material_file_id'] = $speakers[$index]['material_file_id'];  // Pastikan index valid di $speakers
             return $item;
         }, $this->rows, array_keys($this->rows));
+
+
+        if (empty($selectedInfId)) {
+          $this->selected_inf_id = 'part_'.$this->speakers[0]['id'].'_'.$this->speakers[0]['participant_type_id'];
+        }else{
+              $selected = $this->speakers->filter(function ($row) use ($selectedInfId) {
+                    return $row['id'] === $selectedInfId;
+                })->values()[0];
+            $this->selected_inf_id = 'part_'.$selected['id'].'_'.$selected['participant_type_id'];
+        }
     }
 
     public function render()
@@ -56,16 +67,26 @@ class TableSpeakerInformations extends Component
     public function filterSpeakers($participants)
     {
         $speaker_type_id = ParticipantType::whereName('Narasumber')->first()->id;
-        $this->speakers = $participants->filter(function ($item) use ($speaker_type_id) {
-            return $item->participant_type_id == $speaker_type_id;
+        $moderator_type_id = ParticipantType::whereName('Moderator')->first()->id;
+        $this->speakers = $participants->filter(function ($item) use ($speaker_type_id,$moderator_type_id) {
+            return $item->participant_type_id == $speaker_type_id || $item->participant_type_id == $moderator_type_id ;
         });
+    }
+    
+    public function setSelectedInf($id,$type){
+        $this->selected_inf_id = 'part_'.$id.'_'.$type;
+        $this->dispatch('set-inf-id',['id'=>$id]);
+    }
+
+    public function remove($id,$type){
+        $this->selected_inf_id = 'part_'.$id.'_'.$type;
+        $this->dispatch('set-inf-id',['id'=>$id]);
     }
 
     public function normalizeData()
     {
         $new_rows = $this->rows;
         return array_map(function($row){
-                Log::info('Ambil participant ID => ',['participant' =>$row]);
                 $participant_id = $row['participant_id']; // Ambil ID peserta
 
             // Simpan setiap file ke MinIO
@@ -111,6 +132,36 @@ class TableSpeakerInformations extends Component
         // $file_ids = $draft_cost_budget->files()->get()->pluck('id')->toArray();
         $this->dispatch('open-modal-preview', [...$files]);
     }
+
+    public function destroyAttachment($file_id,$index_row,$column)
+    {
+        $res = $this->dispatch('on-destroy-attachment', ['file_id'=>$file_id,'related_table'=>['application_participants'],'props'=>null,'is_need_return'=>true]);
+        if ($res) {
+             // Hapus nilai pada kolom tertentu di baris yang sesuai
+        $this->removeArrayValue($index_row, $column);
+        
+        // Update tampilan
+        $this->syncValueSpeaker();
+        }
+    }
+
+    public function removeArrayValue($index, $column)
+{
+    // Pastikan index valid
+    if (isset($this->rows[$index])) {
+        // Pastikan kolom ada dalam array
+        if (array_key_exists($column, $this->rows[$index])) {
+            // Set nilai kolom menjadi null
+            $this->rows[$index][$column] = null;
+            
+            Log::info("Nilai kolom '{$column}' pada index {$index} berhasil dihapus");
+        } else {
+            Log::warning("Kolom '{$column}' tidak ditemukan pada index {$index}");
+        }
+    } else {
+        Log::warning("Index {$index} tidak valid dalam array rows");
+    }
+}
 
 
 }
