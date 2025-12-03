@@ -352,7 +352,9 @@ class ApplicationService
                      if ($current_user_id ==  $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11) {
                         $max_seq = $app->userApprovals()->where('trans_type',2)->where('is_verificator',1)->max('sequence');
                         $approval_max_seq = $app->userApprovals()->where('sequence',$max_seq)->first();
-                        if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 5 && $approval_max_seq->status < 21) {
+                      
+                        // dd($current_user_id ." == " .$approval_max_seq->user_id ." && ".$approval_max_seq->status ." > 5 && ".$approval_max_seq->status. ' < 21');
+                        if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status < 21) {
                         // if ($current_user_id == $approval_max_seq->user_id && $approval_max_seq->status > 10 && $approval_max_seq->status < 21) {
                             $app->current_approval_status = 13;
                             $app->save();
