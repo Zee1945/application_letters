@@ -5,13 +5,14 @@ namespace App\Models;
 use App\Services\AuthService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles; // Tambahkan ini
 
 
 class Position extends Model
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles,SoftDeletes;
 
     protected $guard_name = 'web';
     protected $fillable = [
