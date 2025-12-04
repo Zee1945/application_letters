@@ -71,10 +71,10 @@ class ApplicationService
         'attendence_files'=>[
                 'name'=>'attendence_files',
                 'is_required'=>false,
-                'max_per_filesize'=>1024,
+                'max_per_filesize'=>2048,
                 'max_file'=>null,
                 'accept'=>'.pdf',
-                'max_total_filesize'=>(10*1024),
+                'max_total_filesize'=>(10*2048),
                 'current_file'=>0,
                 'is_multiple'=>true,
                 'elements'=>[]
