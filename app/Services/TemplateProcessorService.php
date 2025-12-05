@@ -39,6 +39,28 @@ class TemplateProcessorService
     public static $application = null;
     public static $dump = [];
 
+    /**
+     * Sanitize string untuk XML dengan mengubah karakter berbahaya menjadi entitas HTML
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function sanitizeForXml($value)
+    {
+        if (is_null($value)) {
+            return '';
+        }
+
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        // Konversi karakter berbahaya ke entitas HTML
+        $value = htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+
+        return $value;
+    }
+
     public static function generateApplicationDocument($application){
         $application_files = $application->applicationFiles()->whereHas('fileType',function($q){
             return $q->where('trans_type',1);
@@ -263,16 +285,16 @@ case 'surat_permohonan_moderator':
                 switch ($key) {
                     case 'activity_name':
                         # code...
-                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                        $templateProcessor->setValue($key, ucwords($value));
+                        $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
+                        $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                     case 'funding_source':
                         $value = $value==1? 'BLU':'BOPTN';
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
 
                     default:
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                 }
             }
@@ -290,27 +312,27 @@ case 'surat_permohonan_moderator':
                                 return ViewHelper::humanReadableDate($converted).' ';
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
         // tables
             $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
@@ -372,17 +394,17 @@ case 'surat_permohonan_moderator':
                     $value = $value==1? 'BLU':'BOPTN';
                 }
                 if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                    $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
                 }
                 $temp[$key] = $value;
 
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
 
             $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
                 $temp_detail[$key]=$value;
                         if ($key == 'activity_dates') {
                 // Pisahkan tanggal berdasarkan koma
@@ -401,8 +423,8 @@ case 'surat_permohonan_moderator':
                 }
 
                 // Gabungkan hasil menjadi string
-                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                $templateProcessor->setValue($key.'_formatted', self::sanitizeForXml(implode(',', $formatted_dates)));
+                $templateProcessor->setValue($key.'_days', self::sanitizeForXml(implode(',', $days)));
             }
 
             }
@@ -410,18 +432,18 @@ case 'surat_permohonan_moderator':
 
 
         // Inject variabel
-        $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
-        $templateProcessor->setValue('nomor_surat_undangan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('nomor_surat_undangan', self::sanitizeForXml(ucwords($get_nomor_surat->letter_number)));
+        $templateProcessor->setValue('nomor_surat_undangan_formatted_date', self::sanitizeForXml(ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y'))));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
         // tables
             if ($file_type == 'surat_undangan_panitia') {
@@ -474,15 +496,15 @@ case 'surat_permohonan_moderator':
                 switch ($key) {
                     case 'activity_name':
                         # code...
-                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                        $templateProcessor->setValue($key, ucwords($value));
+                        $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
+                        $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                     case 'funding_source':
                         $value = $value==1? 'BLU':'BOPTN';
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                     default:
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                 }
             }
@@ -491,7 +513,7 @@ case 'surat_permohonan_moderator':
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_location':
-                            $templateProcessor->setValue($key, ucwords($value));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                         case 'activity_dates':
                              // Pisahkan tanggal berdasarkan koma
@@ -510,26 +532,26 @@ case 'surat_permohonan_moderator':
                                 }
 
                                 // Gabungkan hasil menjadi string
-                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                                $templateProcessor->setValue($key.'_formatted', self::sanitizeForXml(implode(',', $formatted_dates)));
+                                $templateProcessor->setValue($key.'_days', self::sanitizeForXml(implode(',', $days)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         // tables
             $templateProcessor->cloneRowAndSetValues($participant_type.'_name', $table_participants);
 
@@ -566,15 +588,15 @@ case 'surat_permohonan_moderator':
                 switch ($key) {
                     case 'activity_name':
                         # code...
-                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                        $templateProcessor->setValue($key, ucwords($value));
+                        $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
+                        $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                     case 'funding_source':
                         $value = $value==1? 'BLU':'BOPTN';
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                     default:
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                 }
             }
@@ -583,7 +605,7 @@ case 'surat_permohonan_moderator':
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_location':
-                            $templateProcessor->setValue($key, ucwords($value));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                         case 'activity_dates':
                              // Pisahkan tanggal berdasarkan koma
@@ -602,11 +624,11 @@ case 'surat_permohonan_moderator':
                                 }
 
                                 // Gabungkan hasil menjadi string
-                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                                $templateProcessor->setValue($key.'_formatted', self::sanitizeForXml(implode(',', $formatted_dates)));
+                                $templateProcessor->setValue($key.'_days', self::sanitizeForXml(implode(',', $days)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
@@ -642,23 +664,23 @@ case 'surat_permohonan_moderator':
         }
 
         // Inject variabel
-        $templateProcessor->setValue('session_lenght_hours', $converted_session['time']);
-        $templateProcessor->setValue('session_lenght_dates', $converted_session['date']);
-        $templateProcessor->setValue('recipient_name', ucwords($get_recipient->name));
-        $templateProcessor->setValue('recipient_institution', ucwords($get_recipient->institution));
-        $templateProcessor->setValue('nomor_surat_permohonan', ucwords($get_nomor_surat->letter_number));
-        $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y')));
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
+        $templateProcessor->setValue('session_lenght_hours', self::sanitizeForXml($converted_session['time']));
+        $templateProcessor->setValue('session_lenght_dates', self::sanitizeForXml($converted_session['date']));
+        $templateProcessor->setValue('recipient_name', self::sanitizeForXml(ucwords($get_recipient->name)));
+        $templateProcessor->setValue('recipient_institution', self::sanitizeForXml(ucwords($get_recipient->institution)));
+        $templateProcessor->setValue('nomor_surat_permohonan', self::sanitizeForXml(ucwords($get_nomor_surat->letter_number)));
+        $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', self::sanitizeForXml(ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y'))));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
         // tables
 
@@ -713,17 +735,17 @@ case 'surat_permohonan_moderator':
                     $value = $value==1? 'BLU':'BOPTN';
                 }
                 if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                    $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
                 }
                 // $temp[$key] = $value;
 
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
 
             $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
                 $temp_detail[$key]=$value;
                      if ($key == 'activity_dates') {
                 // Pisahkan tanggal berdasarkan koma
@@ -742,38 +764,38 @@ case 'surat_permohonan_moderator':
                 }
 
                 // Gabungkan hasil menjadi string
-                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                $templateProcessor->setValue($key.'_formatted', self::sanitizeForXml(implode(',', $formatted_dates)));
+                $templateProcessor->setValue($key.'_days', self::sanitizeForXml(implode(',', $days)));
             }
 
             }
         $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
         $get_nomor_surat_tugas_peserta = $application->letterNumbers()->where('letter_name','nomor_surat_tugas_peserta')->first();
-        
+
         // Inject variabel
-        $templateProcessor->setValue('nomor_surat_tugas_uppercase', strtoupper($get_nomor_surat_tugas->letter_number));
-        $templateProcessor->setValue('nomor_surat_tugas_peserta_uppercase', strtoupper($get_nomor_surat_tugas_peserta->letter_number));
-        $templateProcessor->setValue('nomor_surat_tugas', ucwords($get_nomor_surat_tugas->letter_number));
-        $templateProcessor->setValue('participant_type', ucwords($participant_type == 'speaker'?'narasumber':'moderator'));
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('nomor_surat_tugas_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas->letter_number)));
+        $templateProcessor->setValue('nomor_surat_tugas_peserta_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas_peserta->letter_number)));
+        $templateProcessor->setValue('nomor_surat_tugas', self::sanitizeForXml(ucwords($get_nomor_surat_tugas->letter_number)));
+        $templateProcessor->setValue('participant_type', self::sanitizeForXml(ucwords($participant_type == 'speaker'?'narasumber':'moderator')));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
         // tables
 
 $mapped_data = array_map(function($item) use($participant_type){
-    $new_name = $item[$participant_type.'_no'].'. '.$item[$participant_type.'_name'];
+    $new_name = self::sanitizeForXml($item[$participant_type.'_no'].'. '.$item[$participant_type.'_name']);
     $item[$participant_type.'_name'] = $new_name;
-    $item['nip'] = '   NIP. '.$item[$participant_type.'_nip'];
-    $item['rank'] = $item[$participant_type.'_rank'];
-    $item['functional_position'] = $item[$participant_type.'_functional_position'];
+    $item['nip'] = self::sanitizeForXml('   NIP. '.$item[$participant_type.'_nip']);
+    $item['rank'] = self::sanitizeForXml($item[$participant_type.'_rank']);
+    $item['functional_position'] = self::sanitizeForXml($item[$participant_type.'_functional_position']);
     $item['space'] = '.';
     unset($item[$participant_type.'_no']);
     unset($item[$participant_type.'_institution']);
@@ -845,32 +867,32 @@ foreach ($new_data as $index => $item) {
                     $value = $value==1? 'BLU':'BOPTN';
                 }
                 if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                    $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
                 }
                 $temp[$key] = $value;
 
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
 
             $temp_detail = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
                 $temp_detail[$key]=$value;
 
             }
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
 
 
@@ -921,17 +943,17 @@ foreach ($new_data as $index => $item) {
                     $value = $value==1? 'BLU':'BOPTN';
                 }
                 if ($key == 'activity_name') {
-                    $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
+                    $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
                 }
                 $temp[$key] = $value;
 
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_location':
-                            $templateProcessor->setValue($key, ucwords($value));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                         case 'activity_dates':
                              // Pisahkan tanggal berdasarkan koma
@@ -950,35 +972,35 @@ foreach ($new_data as $index => $item) {
                                 }
 
                                 // Gabungkan hasil menjadi string
-                                $templateProcessor->setValue($key.'_formatted', implode(',', $formatted_dates));
-                                $templateProcessor->setValue($key.'_days', implode(',', $days));
+                                $templateProcessor->setValue($key.'_formatted', self::sanitizeForXml(implode(',', $formatted_dates)));
+                                $templateProcessor->setValue($key.'_days', self::sanitizeForXml(implode(',', $days)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
             }
              foreach ($application->report->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
 
         $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
 
         // Inject variabel
-        $templateProcessor->setValue('nomor_surat_undangan', ucwords($get_nomor_surat->letter_number));
+        $templateProcessor->setValue('nomor_surat_undangan', self::sanitizeForXml(ucwords($get_nomor_surat->letter_number)));
         // Inject variabel
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
 
 
@@ -1036,15 +1058,15 @@ foreach ($new_data as $index => $item) {
                 switch ($key) {
                     case 'activity_name':
                         # code...
-                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                        $templateProcessor->setValue($key, ucwords($value));
+                        $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
+                        $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                     case 'funding_source':
                         $value = $value==1? 'BLU':'BOPTN';
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                     default:
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                 }
             }
@@ -1060,10 +1082,10 @@ foreach ($new_data as $index => $item) {
                                 return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
@@ -1073,26 +1095,26 @@ foreach ($new_data as $index => $item) {
         $file_type_first = FileType::whereCode($file_type)->first();
         $getSigner = LogApproval::getSigner($file_type_first->signed_role_id, $application->department_id,$file_type_first->trans_type, $application->id)->first();
         $department_to_show = ViewHelper::departmentToShow($application->department);
-        $templateProcessor->setValue('department_name', $department_to_show->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($department_to_show->name));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($department_to_show->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($department_to_show->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signer_name_without_degree', strtoupper($getSigner->user->name_without_degree));
-        $templateProcessor->setValue('signer_position_uppercase', strtoupper($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name_uppercase', strtoupper($metadata_signer['Nama']));
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name_without_degree', self::sanitizeForXml(strtoupper($getSigner->user->name_without_degree)));
+        $templateProcessor->setValue('signer_position_uppercase', self::sanitizeForXml(strtoupper($metadata_signer['Jabatan'])));
+        $templateProcessor->setValue('signer_name_uppercase', self::sanitizeForXml(strtoupper($metadata_signer['Nama'])));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
-        $templateProcessor->setValue('nomor_mak', strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number));
-        $templateProcessor->setValue('keterangan_mak', ucwords($application->letterNumbers()->where('letter_name','keterangan_mak')->first()->letter_number));
-        $templateProcessor->setValue('nomor_sk_uppercase', strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number));
-        $templateProcessor->setValue('tanggal_sk', strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date,false)));
-        $templateProcessor->setValue('tanggal_berlaku_sk', ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number,false)));
+        $templateProcessor->setValue('nomor_mak', self::sanitizeForXml(strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number)));
+        $templateProcessor->setValue('keterangan_mak', self::sanitizeForXml(ucwords($application->letterNumbers()->where('letter_name','keterangan_mak')->first()->letter_number)));
+        $templateProcessor->setValue('nomor_sk_uppercase', self::sanitizeForXml(strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number)));
+        $templateProcessor->setValue('tanggal_sk', self::sanitizeForXml(strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date,false))));
+        $templateProcessor->setValue('tanggal_berlaku_sk', self::sanitizeForXml(ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number,false))));
 
 
 
@@ -1157,16 +1179,16 @@ foreach ($new_data as $index => $item) {
                 switch ($key) {
                     case 'activity_name':
                         # code...
-                        $templateProcessor->setValue($key.'_uppercase', strtoupper($value));
-                        $templateProcessor->setValue($key, ucwords($value));
+                        $templateProcessor->setValue($key.'_uppercase', self::sanitizeForXml(strtoupper($value)));
+                        $templateProcessor->setValue($key, self::sanitizeForXml(ucwords($value)));
                         break;
                     case 'funding_source':
                         $value = $value==1? 'BLU':'BOPTN';
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
 
                     default:
-                        $templateProcessor->setValue($key, $value);
+                        $templateProcessor->setValue($key, self::sanitizeForXml($value));
                         break;
                 }
             }
@@ -1182,16 +1204,16 @@ foreach ($new_data as $index => $item) {
                                 return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, implode($human_readable_dates));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
                             break;
                         default:
-                            $templateProcessor->setValue($key, $value);
+                            $templateProcessor->setValue($key, self::sanitizeForXml($value));
                             break;
                     }
 
             }
             foreach ($application->report->getAttributes() as $key => $value) {
-                $templateProcessor->setValue($key, $value);
+                $templateProcessor->setValue($key, self::sanitizeForXml($value));
             }
 
             // $documentation_photos = $application->report->attachments;
@@ -1222,18 +1244,18 @@ foreach ($new_data as $index => $item) {
 
 
         // Inject variabel
-        $templateProcessor->setValue('department_name', $application->department->approvalDepartment()->first()?->name);
-        $templateProcessor->setValue('department_name_uppercase', strtoupper($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
+        $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
 
-        $templateProcessor->setValue('signed_location', $metadata_signer['Lokasi']);
-        $templateProcessor->setValue('signed_date', $metadata_signer['Tgl_cetak']);
-        $templateProcessor->setValue('signer_position', $metadata_signer['Jabatan']);
-        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
-        $templateProcessor->setValue('signed_status', $metadata_signer['status_surat']);
-        $templateProcessor->setValue('total_all', $get_draft_cost['total_all']);
-        $templateProcessor->setValue('rs_total_all', $get_realization['rs_total_all']);
-        $templateProcessor->setValue('activity_lenght_hours', self::getRundownTimeRanges($application->schedules));
+        $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
+        $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
+        $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
+        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
+        $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
+        $templateProcessor->setValue('rs_total_all', self::sanitizeForXml($get_realization['rs_total_all']));
+        $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
         // tables
             $templateProcessor->cloneRowAndSetValues('commitee_position', $commitee_participant);
@@ -1346,12 +1368,12 @@ foreach ($new_data as $index => $item) {
 
             $rows[] = [
                 $participantType.'_no'      => $number,
-                $participantType .'_name'    => $row['name'],
-                $participantType .'_institution' => $jabatan,
-                $participantType .'_nip' => $row['nip'],
-                $participantType .'_rank' => $row['rank'],
-                $participantType .'_functional_position' => $row['functional_position'],
-                $participantType .'_position'   => $peran,
+                $participantType .'_name'    => self::sanitizeForXml($row['name']),
+                $participantType .'_institution' => self::sanitizeForXml($jabatan),
+                $participantType .'_nip' => self::sanitizeForXml($row['nip']),
+                $participantType .'_rank' => self::sanitizeForXml($row['rank']),
+                $participantType .'_functional_position' => self::sanitizeForXml($row['functional_position']),
+                $participantType .'_position'   => self::sanitizeForXml($peran),
             ];
             $number++;
         }
@@ -1364,9 +1386,9 @@ foreach ($new_data as $index => $item) {
         foreach ($rundowns as $index => $row) {
             $rows[] = [
                 'rd_no'      => $number,
-                'rd_start_date'    => ViewHelper::humanReadableDate($row->date),
-                'rd_start_end_time' => ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i'),
-                'rd_name'   => ucwords($row->name),
+                'rd_start_date'    => self::sanitizeForXml(ViewHelper::humanReadableDate($row->date)),
+                'rd_start_end_time' => self::sanitizeForXml(ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i')),
+                'rd_name'   => self::sanitizeForXml(ucwords($row->name)),
                 'rd_moderator_label'=> (!empty($row->moderator_text) ? 'Moderator' : ''),
                 'rd_speaker_label'=> (!empty($row->speaker_text) ? 'Narasumber' : ''),
                 'rd_speaker_list'   => self::speakerListToUnorderedString($row->speaker_text),
@@ -1383,11 +1405,11 @@ foreach ($new_data as $index => $item) {
         foreach ($minutes as $index => $row) {
             $rows[] = [
                 'mn_no'      => $number,
-                'mn_topic'    => $row->topic,
-                'mn_explanation'    => $row->explanation,
-                'mn_deadline'    => ViewHelper::humanReadableDate($row->deadline),
-                'mn_follow_up'=> $row->follow_up,
-                'mn_assignee'=> $row->assignee,
+                'mn_topic'    => self::sanitizeForXml($row->topic),
+                'mn_explanation'    => self::sanitizeForXml($row->explanation),
+                'mn_deadline'    => self::sanitizeForXml(ViewHelper::humanReadableDate($row->deadline)),
+                'mn_follow_up'=> self::sanitizeForXml($row->follow_up),
+                'mn_assignee'=> self::sanitizeForXml($row->assignee),
             ];
             $number++;
         }
@@ -1399,13 +1421,13 @@ foreach ($new_data as $index => $item) {
         $total_all = 0;
         foreach ($draft_costs as $index => $row) {
             $rows['data'][] = [
-                'dc_code'      => $row->code,
-                'dc_item'    => $row->item,
-                'dc_sub_item'    => $row->sub_item,
-                'dc_unit'   => $row->unit,
-                'dc_cost_per_unit' => ViewHelper::currencyFormat($row->cost_per_unit),
-                'dc_volume'   => $row->volume,
-                'dc_total'   => ViewHelper::currencyFormat($row->total)
+                'dc_code'      => self::sanitizeForXml($row->code),
+                'dc_item'    => self::sanitizeForXml($row->item),
+                'dc_sub_item'    => self::sanitizeForXml($row->sub_item),
+                'dc_unit'   => self::sanitizeForXml($row->unit),
+                'dc_cost_per_unit' => self::sanitizeForXml(ViewHelper::currencyFormat($row->cost_per_unit)),
+                'dc_volume'   => self::sanitizeForXml($row->volume),
+                'dc_total'   => self::sanitizeForXml(ViewHelper::currencyFormat($row->total))
             ];
             $total_all+=$row->total;
             $number++;
@@ -1419,13 +1441,13 @@ foreach ($new_data as $index => $item) {
         $total_all = 0;
         foreach ($draft_costs as $index => $row) {
             $rows['data'][] = [
-                'rs_code'      => $row->code,
-                'rs_item'    => $row->item,
-                'rs_sub_item'    => $row->sub_item,
-                'rs_unit'   => $row->unit,
-                'rs_cost_per_unit' => ViewHelper::currencyFormat($row->unit_cost_realization),
-                'rs_volume'   => $row->volume_realization,
-                'rs_total'   => ViewHelper::currencyFormat($row->realization)
+                'rs_code'      => self::sanitizeForXml($row->code),
+                'rs_item'    => self::sanitizeForXml($row->item),
+                'rs_sub_item'    => self::sanitizeForXml($row->sub_item),
+                'rs_unit'   => self::sanitizeForXml($row->unit),
+                'rs_cost_per_unit' => self::sanitizeForXml(ViewHelper::currencyFormat($row->unit_cost_realization)),
+                'rs_volume'   => self::sanitizeForXml($row->volume_realization),
+                'rs_total'   => self::sanitizeForXml(ViewHelper::currencyFormat($row->realization))
             ];
             $total_all+=$row->realization;
             $number++;
@@ -1445,13 +1467,13 @@ foreach ($new_data as $index => $item) {
     {
     $speakers = self::generateSpeakerList($speaker_text);
         if (empty($speakers)) return '';
-        
+
         $result = '';
         foreach ($speakers as $speaker) {
             if (trim($speaker) !== '') {
                 list($name,$institution) = explode('-',$speaker);
                 // $result .= '• '. trim($speaker).'<w:br/>';
-                $result .= '• '. trim($name).'<w:br/> ('.trim($institution).')<w:br/>';
+                $result .= '• '. self::sanitizeForXml(trim($name)).'<w:br/> ('.self::sanitizeForXml(trim($institution)).')<w:br/>';
             }
         }
         // $result = '<ol>';
