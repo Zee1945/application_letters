@@ -30,7 +30,7 @@ class GenerateReportJob implements ShouldQueue
     {
         $app_file = $this->application->applicationFiles()->findCode('laporan_kegiatan')->first();
         TemplateProcessorService::generateDocumentToPDF($this->application, 'laporan_kegiatan',$app_file);
-        ApplicationService::storeAttachmentToDetails($this->application);
+         ApplicationService::storeAttachmentToDetails($this->application);
     }
 
     public function failed(\Throwable $exception): void

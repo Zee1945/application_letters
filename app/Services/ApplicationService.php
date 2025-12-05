@@ -215,7 +215,7 @@ class ApplicationService
                     $verifier['application_id'] = $application->id;
                     $application->userApprovals()->create($verifier);
                 }
-            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber','materi_narasumber','absensi_kehadiran'];
+            $exclude = ['surat_permohonan_moderator','surat_permohonan_narasumber','materi_narasumber','absensi_kehadiran','file_spj','notulensi'];
             $get_file_types = FileType::whereNotIn('code',$exclude)->get();
             foreach ($get_file_types as $ft) {
                 $app_file = [
@@ -367,7 +367,6 @@ class ApplicationService
                             $next_appr->status = 13;
                             $next_appr->save();
 
-                            self::storeAttendenceToDetailFiles($app);
                             self::storeLogApproval($action, $application_id, '');
                             GenerateReportJob::dispatch($app);
                         }
@@ -471,11 +470,24 @@ class ApplicationService
     }
 
 
-    public static function storeAttendenceToDetailFiles($app){
-        $get_attendence_file = $app->report->attachments()->where('type', 'attendence-files')->get();
-        $ft = FileType::whereCode('absensi_kehadiran')->first();
-        foreach ($get_attendence_file ?? [] as $key => $attachment) {
-            $new_file_name = $ft->name.'-'.$app->activity_name.'-'.$attachment->file->filename;
+    public static function storeAttachmentToDetails($app){
+        $get_multiple_file = $app->report->attachments()->whereIn('type', ['attendence-files','spj-file','minutes-file'])->get();
+        $attendance_type = FileType::whereCode('absensi_kehadiran')->first();
+        $spj_type = FileType::whereCode('file_spj')->first();
+        $minutes_type = FileType::whereCode('notulensi')->first();
+        $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
+        foreach ($get_multiple_file ?? [] as $key => $attachment) {
+            $ft = null;
+            if ($attachment->type == 'attendence-files') {
+                $ft = $attendance_type;
+            }elseif ($attachment->type == 'spj-file') {
+                $ft = $spj_type;
+            }elseif ($attachment->type == 'minutes-file') {
+                $ft = $minutes_type;
+            }
+            // Sanitasi dan limit panjang filename
+            $raw_filename = $ft->name.' - '.$attachment->file->filename;
+            $new_file_name = self::sanitizeFilename($raw_filename, 200);
              $data = [
                             'display_name'=> $new_file_name,
                             'file_id'=> $attachment->file_id,
@@ -511,10 +523,16 @@ class ApplicationService
             // start dari sini 
         }
 
+        if (count($participant_speakers) > 0) {
+            foreach ($participant_speakers as $key => $par) {
+                self::updateApplicationFilesReport($app,'materi_narasumber',$par->material_file_id,$par->id);
+            }
+        }
+
         return true;
 
     }
-    public static function storeAttachmentToDetails($app)
+    public static function storeAttachmentToDetailsClose($app)
     {
         $attachments = $app->report->attachments()->whereIn('type', ['spj-file', 'minutes-file'])->get();
         $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
@@ -534,9 +552,7 @@ class ApplicationService
                         $code = 'none';
                         break;
                 }
-
-        
-                self::updateApplicationFilesReport($app,$code,$attachment->file_id);
+                self::updateApplicationFilesReport($app,$code,$attachment->file_id,);
             }
         }
 
@@ -634,12 +650,127 @@ class ApplicationService
                 foreach ($materi_narasumbers as $key => $app_file_materi) {
                     $app->applicationFiles()->create($app_file_materi);
                 }
-        return true; 
+        return true;
     }
+
+    /**
+     * Validasi format activity_dates
+     * Format yang valid: "01-10-2025" atau "01-10-2025, 02-10-2025"
+     */
+    private static function validateActivityDates($activity_dates)
+    {
+        if (empty($activity_dates)) {
+            return ['valid' => false, 'message' => 'Tanggal kegiatan tidak boleh kosong'];
+        }
+
+        // Split berdasarkan koma untuk multiple dates
+        $dates = explode(',', $activity_dates);
+
+        // Pattern untuk format dd-mm-yyyy
+        $pattern = '/^\d{2}-\d{2}-\d{4}$/';
+
+        foreach ($dates as $date) {
+            $date = trim($date);
+
+            // Cek format menggunakan regex
+            if (!preg_match($pattern, $date)) {
+                return [
+                    'valid' => false,
+                    'message' => "Format tanggal kegiatan tidak valid. Gunakan format dd-mm-yyyy (contoh: 01-10-2025). Tanggal yang salah: {$date}"
+                ];
+            }
+
+            // Validasi apakah tanggal valid (bukan 32-13-2025, dll)
+            list($day, $month, $year) = explode('-', $date);
+            if (!checkdate((int)$month, (int)$day, (int)$year)) {
+                return [
+                    'valid' => false,
+                    'message' => "Tanggal tidak valid: {$date}. Pastikan tanggal sesuai dengan kalender"
+                ];
+            }
+        }
+
+        return ['valid' => true, 'message' => ''];
+    }
+
+    /**
+     * Validasi timeline rundowns
+     * - start_date harus sebelum atau sama dengan end_date untuk setiap item
+     * - Rundowns tidak boleh bentrok antara satu dengan lainnya
+     * - Rundowns harus urut berdasarkan waktu
+     */
+    private static function validateRundownsTimeline($rundowns)
+    {
+        if (empty($rundowns)) {
+            return ['valid' => true, 'message' => ''];
+        }
+
+        $sortedRundowns = [];
+
+        foreach ($rundowns as $index => $rundown) {
+            // Pastikan start_date dan end_date ada
+            if (empty($rundown['start_date']) || empty($rundown['end_date'])) {
+                return [
+                    'valid' => false,
+                    'message' => "Rundown jadwal " . ($rundown['name']) . " harus memiliki tanggal mulai dan tanggal selesai"
+                ];
+            }
+
+            try {
+                $startDate = Carbon::parse($rundown['start_date']);
+                $endDate = Carbon::parse($rundown['end_date']);
+
+                // Validasi: start_date harus <= end_date
+                if ($startDate->greaterThan($endDate)) {
+                    return [
+                        'valid' => false,
+                        'message' => "Rundown jadwal " . ($rundown['name']) . ": Tanggal mulai ({$startDate->format('d-m-Y H:i')}) tidak boleh lebih besar dari tanggal selesai ({$endDate->format('d-m-Y H:i')})"
+                    ];
+                }
+
+                $sortedRundowns[] = [
+                    'index' => $index + 1,
+                    'start' => $startDate,
+                    'end' => $endDate,
+                    'title' => $rundown['name'] ?? 'Tanpa judul'
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'valid' => false,
+                    'message' => "Format tanggal tidak valid pada rundown item #" . ($index + 1)
+                ];
+            }
+        }
+
+        // Sort berdasarkan start_date
+        usort($sortedRundowns, function($a, $b) {
+            return $a['start']->timestamp <=> $b['start']->timestamp;
+        });
+
+        // Validasi tidak ada bentrok antar rundowns
+        for ($i = 0; $i < count($sortedRundowns) - 1; $i++) {
+            $current = $sortedRundowns[$i];
+            $next = $sortedRundowns[$i + 1];
+
+            // Cek apakah rundown saat ini bentrok dengan rundown berikutnya
+            // Bentrok jika: current.end > next.start
+            if ($current['end']->greaterThan($next['start'])) {
+                return [
+                    'valid' => false,
+                    'message' => "Rundown item #{$current['index']} ({$current['title']}) bentrok dengan item #{$next['index']} ({$next['title']}). " .
+                                 "Item #{$current['index']} selesai pada {$current['end']->format('d-m-Y H:i')}, " .
+                                 "sementara item #{$next['index']} dimulai pada {$next['start']->format('d-m-Y H:i')}"
+                ];
+            }
+        }
+
+        return ['valid' => true, 'message' => ''];
+    }
+
     public static function storeApplicationDetails($data,$participants=[],$rundowns=[], $draft_costs=[],$is_submit=false)
     {
         try {
-           
+
             DB::beginTransaction();
             $app = Application::find($data['application_id']);
 
@@ -647,10 +778,30 @@ class ApplicationService
             $app->save();
 
             unset($data['draft_step_saved']);
-            // cleaning tanggal 
+            // cleaning tanggal
             $data['activity_dates'] = !empty($data['activity_dates'])
                                     ? preg_replace('/\s*,\s*/', ',', trim($data['activity_dates']))
                                     : $data['activity_dates'];
+
+            // Validasi jika is_submit true
+            if ($is_submit) {
+                // Validasi format activity_dates
+                $dateValidation = self::validateActivityDates($data['activity_dates']);
+                if (!$dateValidation['valid']) {
+                    $is_submit = false;
+                    DB::commit();
+                    return ['status' => false, 'message' => $dateValidation['message']];
+                }
+
+                // Validasi rundowns timeline
+                $rundownValidation = self::validateRundownsTimeline($rundowns);
+                if (!$rundownValidation['valid']) {
+                    $is_submit = false;
+                    DB::commit();
+                    return ['status' => false, 'message' => $rundownValidation['message']];
+                }
+            }
+
             if ($app->detail?->exists) {
                 $details = $app->detail()->update($data);
             }else{
@@ -662,7 +813,7 @@ class ApplicationService
                 if (!empty($files_with_participant)) {
                    foreach ($files_with_participant as $key => $file) {
                        $file->delete();
-                   } 
+                   }
                 }
             }
 
@@ -1133,88 +1284,108 @@ public static function getListReport($search = '', $status_approval = '', $depar
         return false;
     }
 
-    
-public static function destroyAttachments($file_id, $related_table = [])
-{
-    try {
-        DB::beginTransaction(); // Mulai transaksi database
+    public static function destroyAttachments($file_id, $related_table = [])
+    {
+        try {
+            DB::beginTransaction(); // Mulai transaksi database
 
-        $file = FileManagementService::find($file_id);
-        foreach ($related_table as $key => $table_name) {
-            switch ($table_name) {
-                case 'report_attachments':
-                    $file_item = ReportAttachment::where('file_id', $file_id)->first();
-                        $file_item->delete();
-                    break;
+            $file = FileManagementService::find($file_id);
+            foreach ($related_table as $key => $table_name) {
+                switch ($table_name) {
+                    case 'report_attachments':
+                        $file_item = ReportAttachment::where('file_id', $file_id)->first();
+                            $file_item->delete();
+                        break;
 
-                case 'draft_cost_budget_file':
-                    // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
-                    break;
-                case 'application_participants':
-                    // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
-                    $participant = ApplicationParticipant::where('cv_file_id',$file_id)
-                                                            ->orWhere('npwp_file_id',$file_id)
-                                                            ->orWhere('idcard_file_id',$file_id)
-                                                            ->orWhere('material_file_id',$file_id)
-                                                            ->first();
-                     if ($participant) {
-                            // Array kolom yang akan dicek
-                            $file_columns = ['cv_file_id', 'npwp_file_id', 'idcard_file_id', 'material_file_id'];
-                            
-                            // Cari kolom mana yang berisi file_id yang akan dihapus
-                            foreach ($file_columns as $column) {
-                                if ($participant->$column == $file_id) {
-                                    // Update kolom tersebut menjadi null
-                                    $participant->$column = null;
-                                    $participant->save();
-                                    
-                                    Log::info("Kolom {$column} berhasil diupdate menjadi null untuk participant ID {$participant->id}");
-                                    break; // Keluar dari loop setelah menemukan kolom yang sesuai
+                    case 'draft_cost_budget_file':
+                        // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
+                        break;
+                    case 'application_participants':
+                        // Tambahkan logika untuk draft_cost_budget_file jika diperlukan
+                        $participant = ApplicationParticipant::where('cv_file_id',$file_id)
+                                                                ->orWhere('npwp_file_id',$file_id)
+                                                                ->orWhere('idcard_file_id',$file_id)
+                                                                ->orWhere('material_file_id',$file_id)
+                                                                ->first();
+                         if ($participant) {
+                                // Array kolom yang akan dicek
+                                $file_columns = ['cv_file_id', 'npwp_file_id', 'idcard_file_id', 'material_file_id'];
+
+                                // Cari kolom mana yang berisi file_id yang akan dihapus
+                                foreach ($file_columns as $column) {
+                                    if ($participant->$column == $file_id) {
+                                        // Update kolom tersebut menjadi null
+                                        $participant->$column = null;
+                                        $participant->save();
+
+                                        Log::info("Kolom {$column} berhasil diupdate menjadi null untuk participant ID {$participant->id}");
+                                        break; // Keluar dari loop setelah menemukan kolom yang sesuai
+                                    }
                                 }
                             }
-                        }
-                     
-                    break;
-                default:
-                    // Jika tabel tidak dikenali, tambahkan log atau abaikan
-                    Log::warning("Unknown table name '{$table_name}' in destroyAttachments.");
-                    break;
-            }
-        }
 
-        if (!empty($file)) {
-            $path = $file->path;
-            if ($file->delete()) {
-                Storage::disk('minio')->delete($path);
-                Log::info("File berhasil dihapus dari database dan MinIO.", ['file_path' => $file->path]);
-            } else {
-                Log::warning("File gagal dihapus dari database.", ['file_id' => $file->id]);
+                        break;
+                    default:
+                        // Jika tabel tidak dikenali, tambahkan log atau abaikan
+                        Log::warning("Unknown table name '{$table_name}' in destroyAttachments.");
+                        break;
+                }
             }
-        }
 
-        DB::commit(); // Commit transaksi jika semua berhasil
-        return ['status' => true, 'message' => 'File berhasil dihapus.'];
-    } catch (\Throwable $th) {
-        DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
-        Log::error('Error saat menghapus file dan relasi: ' . $th->getMessage(), [
-            'file_id' => $file_id,
-            'related_table' => $related_table,
-        ]);
-        return ['status' => false, 'message' => 'Gagal menghapus file.'];
+            if (!empty($file)) {
+                $path = $file->path;
+                if ($file->delete()) {
+                    Storage::disk('minio')->delete($path);
+                    Log::info("File berhasil dihapus dari database dan MinIO.", ['file_path' => $file->path]);
+                } else {
+                    Log::warning("File gagal dihapus dari database.", ['file_id' => $file->id]);
+                }
+            }
+
+            DB::commit(); // Commit transaksi jika semua berhasil
+            return ['status' => true, 'message' => 'File berhasil dihapus.'];
+        } catch (\Throwable $th) {
+            DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+            Log::error('Error saat menghapus file dan relasi: ' . $th->getMessage(), [
+                'file_id' => $file_id,
+                'related_table' => $related_table,
+            ]);
+            return ['status' => false, 'message' => 'Gagal menghapus file.'];
+        }
     }
-}
-
-
-
-
 
     /**
-     * Bootstrap services.
+     * Sanitize filename untuk menghindari karakter ilegal dan limit panjang
      *
-     * @return void
+     * @param string $filename
+     * @param int $maxLength
+     * @return string
      */
-    public function boot()
+    private static function sanitizeFilename($filename, $maxLength = 200)
     {
+        // Karakter ilegal untuk filename di Windows dan Linux
+        $illegalChars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
 
+        // Replace karakter ilegal dengan underscore
+        $sanitized = str_replace($illegalChars, '_', $filename);
+
+        // Remove multiple spaces dan trim
+        $sanitized = preg_replace('/\s+/', ' ', $sanitized);
+        $sanitized = trim($sanitized);
+
+        // Pisahkan nama file dan ekstensi
+        $pathInfo = pathinfo($sanitized);
+        $extension = isset($pathInfo['extension']) ? '.' . $pathInfo['extension'] : '';
+        $nameOnly = $pathInfo['filename'];
+
+        // Hitung panjang maksimal untuk nama file (tanpa ekstensi)
+        $maxNameLength = $maxLength - strlen($extension);
+
+        // Trim nama file jika terlalu panjang
+        if (strlen($nameOnly) > $maxNameLength) {
+            $nameOnly = substr($nameOnly, 0, $maxNameLength);
+        }
+
+        return $nameOnly . $extension;
     }
 }

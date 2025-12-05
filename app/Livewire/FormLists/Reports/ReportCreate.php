@@ -265,9 +265,12 @@ class ReportCreate extends AbstractComponent
         foreach ($documentation_file_ids ??[] as $key => $file_id) {
             $this->old_documentation_photos[] = FileManagementService::getFileStorageById($file_id);
         }
+        
         foreach ($attendence_file_ids ??[] as $key => $file_id) {
-            $this->old_attendence_files[] = FileManagementService::getFileStorageById($file_id);
+            $tes = FileManagementService::getFileStorageById($file_id);
+            $this->old_attendence_files[] = $tes;
         }
+        // dd($this->old_attendence_files);
         // dd($file_id_minutes,$this->old_minutes_file);
 
     }

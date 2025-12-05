@@ -146,7 +146,7 @@ public function scopeRestricted($query)
 
         return $query->whereHas('position', function ($q) {
                 $q->whereDoesntHave('roles', function ($qr) {
-                    $qr->where('name', 'super_admin');
+                    $qr->whereIn('name', ['super_admin']);
                 });
             })
             ->whereIn('department_id', $departmentIds);

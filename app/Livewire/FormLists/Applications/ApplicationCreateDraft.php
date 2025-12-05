@@ -135,8 +135,13 @@ class ApplicationCreateDraft extends AbstractComponent
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
         $application = ApplicationService::storeApplicationDetails($generals,$this->participants,$this->rundowns,$this->draft_costs,$is_submit);
-
-        $this->redirectRoute('applications.create.draft',['application_id'=> $this->application_id],false,true);
+if (!$application['status']) {
+    # code...
+        //  return redirect()->back()->withInput()->with('error', $application['message']);
+         return redirect()->route('applications.create.draft',['application_id'=> $this->application_id])->with('error', $application['message']);
+}else{
+    $this->redirectRoute('applications.create.draft',['application_id'=> $this->application_id],false,true);
+}
     }
 
 

@@ -52,10 +52,10 @@
                     <select class="form-select @error('approval_by') is-invalid @enderror" id="approval_by" name="approval_by" required>
                         <option value="">-- Pilih  Approval --</option>
                             <option value="self" {{ old('approval_by') == $dept->id ? 'selected' : '' }}>
-                                Departemen sendiri
+                                Departemen <span id="selfDepartment"></span>
                             </option>
                             <option value="parent" {{ old('approval_by') == 'parent' ? 'selected' : '' }}>
-                                Department Parent
+                                Department <span id="parentDepartment"></span>
                             </option>
                             <option value="central" {{ old('approval_by') == 'central' ? 'selected' : '' }}>
                                 Departemen Rektorat
@@ -76,4 +76,26 @@
         </div>
     </div>
 </div>
+
+
+<script type="module">
+    $(document).ready(function(){
+        var self= 'Sendiri';
+        var parent= 'Parent';
+        $('#selfDepartment').html(self);
+        $('#parentDepartment').html(parent);
+        
+        $('#name').change(function(){
+            $('#selfDepartment').html($(this).val());
+        });
+        $('#parent_id').change(function(){
+             var selectedText = $(this).find('option:selected').text();              
+            $('#parentDepartment').html(selectedText);
+
+
+            
+        });
+        
+    });
+</script>
 @endsection

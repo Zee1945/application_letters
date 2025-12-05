@@ -189,8 +189,10 @@ class FileManagementService
 
 public static function getFileStorageById($file_id,$with_content=false,$disk='minio'){
     $file = Files::find($file_id)??null;
+
     if (!empty($file)) {
-        if (Storage::disk($disk)->exists($file->path)) {
+        // if ($file_id === 188) dd(Storage::disk($disk)->exists($file->path));
+        // if (Storage::disk($disk)->exists($file->path)) {
             $data = [
                 'file_id'=>$file_id,
                 'fileName'=>basename($file->path),
@@ -204,7 +206,7 @@ public static function getFileStorageById($file_id,$with_content=false,$disk='mi
                 ];
             }
             return $data;
-        }
+        // }
     }
      return [];
  

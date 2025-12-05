@@ -165,7 +165,7 @@
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-5">
                                         <div class="step-trigger {{$this->step == 5 ? 'active' : ''}} {{count($this->draft_costs) == 0 ? 'disabled' : ''}}"
-                                            role="tab" @if(count($this->draft_costs) > 0 && $this->application->current_approval_status > 10) wire:click="directStep('5')" @else
+                                            role="tab" @if(count($this->draft_costs) > 0 && $this->application->current_seq_user_approval > 3) wire:click="directStep('5')" @else
                                                 style="cursor: not-allowed; opacity: 0.5;" data-bs-toggle="tooltip"
                                             title="Lengkapi rancangan anggaran biaya terlebih dahulu" @endif
                                             id="stepper1trigger5" aria-controls="test-l-5">
@@ -235,6 +235,28 @@
                                         <div id="test-l-1" role="tabpanel"
                                             class="{{$this->step == '1' ? '' : 'bs-stepper-pane'}}"
                                             aria-labelledby="stepper1trigger1">
+
+
+                                            {{-- Session Error Messages --}}
+                                            @if (session('error'))
+                                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                    <strong>Error!</strong> {{ session('error') }}
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            @endif
+
+                                            @if ($errors->any())
+                                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                    <strong>Terdapat kesalahan:</strong>
+                                                    <ul class="mb-0">
+                                                        @foreach ($errors->all() as $error)
+                                                            <li>{{ $error }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            @endif
+
                                             <h5 class="mb-1">Formulir Umum</h5>
                                             <p class="mb-4">Formulir untuk Gambaran Umum Maksud dan Tujuan Acara</p>
 
