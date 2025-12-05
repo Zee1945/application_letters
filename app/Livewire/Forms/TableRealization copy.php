@@ -7,7 +7,6 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class TableRealization extends Component
@@ -34,7 +33,7 @@ class TableRealization extends Component
     public function denormalizeData($draftCosts)
 {
     $data = $this->getDistinctDataByCodeAndItem($draftCosts);
-
+    
     foreach ($data as &$item) {
         foreach ($item['children'] as &$child) {
             // Set default values untuk realization form
@@ -42,17 +41,9 @@ class TableRealization extends Component
             $child['unit_cost_realization'] = $child['unit_cost_realization'];
             $child['realization'] = $child['realization'];
             $child['file_id'] = null;
-
-            // Load files relationship
-            $draftCostBudget = ApplicationDraftCostBudget::find($child['id']);
-            if ($draftCostBudget) {
-                $child['files'] = $draftCostBudget->files()->get()->toArray();
-            } else {
-                $child['files'] = [];
-            }
         }
     }
-
+    
     return $data;
 }
 
@@ -109,36 +100,6 @@ class TableRealization extends Component
         $files = $draft_cost_budget->files()->get()->toArray();
         // $file_ids = $draft_cost_budget->files()->get()->pluck('id')->toArray();
         $this->dispatch('open-modal-preview',[...$files]);
-    }
-
-    public function deleteFile($file_id, $draft_cost_id)
-    {
-        try {
-            $draftCostBudget = ApplicationDraftCostBudget::find($draft_cost_id);
-
-            if ($draftCostBudget) {
-                // Detach file from pivot table
-                $draftCostBudget->files()->detach($file_id);
-
-                // Get file info and delete from storage
-                $file = \App\Models\Files::find($file_id);
-                if ($file) {
-                    if (Storage::disk('minio')->exists($file->path)) {
-                        Storage::disk('minio')->delete($file->path);
-                    }
-                    // Delete file record
-                    $file->delete();
-                }
-
-                // Refresh realizations data
-                $this->realizations = $this->denormalizeData($this->draft_costs);
-
-                session()->flash('success', 'File berhasil dihapus');
-            }
-        } catch (\Exception $e) {
-            Log::error('Error delete file: ' . $e->getMessage());
-            session()->flash('error', 'Terjadi kesalahan saat menghapus file');
-        }
     }
     public function getDistinctDataByCodeAndItem($data)
     {

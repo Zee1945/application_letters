@@ -45,8 +45,10 @@ Route::middleware(['auth', 'verified']) // Menambahkan middleware untuk rute ini
                 ->name('applications.create.draft');
             Route::post('create/{application_id}/submit-attachment-report', [ApplicationController::class,'submitReport'])
                 ->name('applications.submit-attachment-report');
-            Route::post('store{application_id}/docs-speaker', [ApplicationController::class,'uploadSpeakerAttachment'])
+            Route::post('store/{application_id}/docs-speaker', [ApplicationController::class,'uploadSpeakerAttachment'])
                 ->name('applications.submit-doc-speaker');
+            Route::post('store/{application_id}/realization', [ApplicationController::class,'submitRealization'])
+                ->name('applications.store-realization');
         });
 
         Route::group(['prefix' => 'profile'], function () {

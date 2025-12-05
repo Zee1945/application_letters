@@ -223,6 +223,8 @@
             <h5 class="mb-1">Realisasi Anggaran</h5>
             <p class="mb-4">Tabel Realisasi Anggaran Biaya Kegiatan</p>
 
+            <form method="POST" id="formRealization" action="{{ route('applications.store-realization',['application_id'=>$this->application_id]) }}" enctype="multipart/form-data">
+                @csrf
             <div class="row g-3">
                 <div class="col-12">
                    <livewire:forms.table-realization :draftCost="$this->draft_costs" :application="$this->application"/>
@@ -230,20 +232,13 @@
 
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center gap-3 ">
-                        <button class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
+                        <button type="button" class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
-                                {{-- <button class="btn btn-primary px-4 border-none bg-success me-2" wire:click="store(true)">Submit LPJ</button> --}}
-
-                             {{-- <button type="button"
-                                    class="btn btn-primary px-4 border-none bg-warning me-2"
-                                    wire:click="store(false,'1')"
-                                    wire:loading.attr="disabled"
-                                    wire:target="store">
-                                    <span wire:loading wire:target="store(true)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                        Submit LPJ
-                            </button> --}}
+                                <button type="submit" class="btn btn-primary px-4 border-none bg-warning me-2">
+                                    <i class="fa-solid fa-save"></i> Simpan Realisasi
+                                </button>
                              <button type="button"
                                     class="btn btn-primary px-4 border-none bg-primary me-2"
                                     wire:click="store(false,'4')"
@@ -257,6 +252,7 @@
                     </div>
                 </div>
             </div><!---end row-->
+            </form>
 
         </div>
         <div id="test-l-4" role="tabpanel" class="{{$this->step == '4' ? '' : 'bs-stepper-pane'}}" aria-labelledby="stepper1trigger4">

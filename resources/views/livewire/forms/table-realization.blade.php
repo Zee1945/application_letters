@@ -36,9 +36,10 @@
                             <span class="fw-bold">Vol:</span>
                             <span class="d-flex align-items-baseline">
                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                {{$this->realizations[$index]['children'][$index_child]['volume_realization']}}
+                                {{$child['volume_realization']}}
                                 @else
-                                <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.volume_realization'> <span> {{$child['unit']}}</span>
+                                <input type="number" class="form-control form-control-sm w-50" name="realizations[{{$child['id']}}][volume_realization]" value="{{$child['volume_realization']}}"> <span> {{$child['unit']}}</span>
+                                <input type="hidden" name="realizations[{{$child['id']}}][draft_cost_id]" value="{{$child['id']}}">
                                 @endif
                             </span>
                         </div>
@@ -46,9 +47,9 @@
                             <span class="fw-bold">Harga Satuan :</span>
                             <span class="d-flex align-items-baseline">
                                  @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                                    {{viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['unit_cost_realization'])}}
+                                    {{viewHelper::currencyFormat($child['unit_cost_realization'])}}
                                 @else
-                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" id="numberInput" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.unit_cost_realization'>
+                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" name="realizations[{{$child['id']}}][unit_cost_realization]" value="{{$child['unit_cost_realization']}}">
                                 @endif
                             </span>
                         </div>
@@ -59,10 +60,10 @@
                     <td>{{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
                     <td>
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
-                            <span class="d-flex text-nowrap">{{ viewHelper::currencyFormat($this->realizations[$index]['children'][$index_child]['realization']??0) }}</span>
+                            <span class="d-flex text-nowrap">{{ viewHelper::currencyFormat($child['realization']??0) }}</span>
                         @else
                         <div class="d-flex align-items-baseline">
-                           <span> Rp.</span> <input type="number" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.realization' class="form-control w-100" id="inputcurrency"
+                           <span> Rp.</span> <input type="number" name="realizations[{{$child['id']}}][realization]" value="{{$child['realization']}}" class="form-control w-100"
                             aria-label="Biaya Realisasi">
                         </div>
 
@@ -76,17 +77,54 @@
 
                             {{-- Untuk menampilkan PDF (embedded) --}}
 
-
                             {{-- Atau download link --}}
-                        @if (!empty($child->files))
-                        <button class="btn btn-xs btn-outline-success" wire:click="openModalPreview({{$child['id']}})">Lihat</button>
+                        @if (!empty($child['files']) && count($child['files']) > 0)
+                        <button class="btn btn-xs btn-outline-success" type="button" wire:click="openModalPreview({{$child['id']}})">Lihat</button>
                             @else
                             <small><i>File tidak diupload</i></small>
                         @endif
 
                         @else
-                            <input type="file" class="form-control w-100" wire:change="syncRealization" wire:model.live='realizations.{{$index}}.children.{{$index_child}}.file_id'
-                            aria-label="Gambar Nota" accept=".jpg,.jpeg,.png,.pdf">
+                            {{-- Display existing files if any --}}
+                            @if (!empty($child['files']) && count($child['files']) > 0)
+                                <div class="mb-2">
+                                    @foreach ($child['files'] as $file)
+                                    <div class="row">
+                                          {{-- <div class="d-flex w-100"> --}}
+                                               <div class="d-flex align-items-center mb-1" style="max-width: 350px">
+                                                        <div class="card d-flex flex-grow-1  card-hover" wire:click="openModalPreview({{$child['id']}})">
+                                                                    <div class="card-body py-2 text-truncate">
+                                                                        <span>
+                                                                            <i class="fa-solid fa-paperclip"></i> {{$file['filename']}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <!-- Overlay untuk icon mata dan teks preview -->
+                                                                    <div class="preview-overlay">
+                                                                        <div class="bg-primary px-2 rounded">
+
+                                                                        <i class="fa-solid fa-eye"></i>
+                                                                        <span>Preview</span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div> 
+                                            {{-- <button class="btn btn-xs btn-outline-success me-2" type="button" wire:click="openModalPreview({{$child['id']}})">
+                                                <i class="fa-solid fa-eye"></i> {{$file['filename']}}
+                                            </button> --}}
+                                            <button class="btn btn-xs btn-outline-danger" type="button" wire:click="deleteFile({{$file['id']}}, {{$child['id']}})">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    {{-- </div> --}}
+                                    </div>
+                                  
+                                     
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- Input for new file upload --}}
+                            <input type="file" class="form-control w-100" name="realizations[{{$child['id']}}][file_bukti]" aria-label="Gambar Nota" accept=".jpg,.jpeg,.png,.pdf">
                         @endif
                     </td>
                 </tr>

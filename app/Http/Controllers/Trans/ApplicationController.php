@@ -215,6 +215,78 @@ public function uploadSpeakerAttachment(Request $request,$application_id)
    
 }
 
+public function submitRealization(Request $request, $application_id)
+{
+    try {
+        $application = Application::find($application_id);
+
+        if (!$application) {
+            return redirect()->back()->with('error', 'Aplikasi tidak ditemukan');
+        }
+
+        $realizations = $request->input('realizations', []);
+
+        // Process realization data
+        foreach ($realizations as $draft_cost_id => $realization_data) {
+            $draftCostBudget = \App\Models\ApplicationDraftCostBudget::find($draft_cost_id);
+
+            if (!$draftCostBudget) {
+                continue;
+            }
+
+            // Update realization data
+            $draftCostBudget->volume_realization = $realization_data['volume_realization'] ?? 0;
+            $draftCostBudget->unit_cost_realization = $realization_data['unit_cost_realization'] ?? 0;
+            $draftCostBudget->realization = $realization_data['realization'] ?? 0;
+            $draftCostBudget->save();
+
+            // Handle file upload for bukti bayar
+            if ($request->hasFile("realizations.{$draft_cost_id}.file_bukti")) {
+                $file = $request->file("realizations.{$draft_cost_id}.file_bukti");
+                $path = $application_id . '/realization/' . $draft_cost_id;
+
+                // Delete old files if exists
+                if (Storage::disk('minio')->exists($path)) {
+                    $files = Storage::disk('minio')->files($path);
+                    foreach ($files as $oldFile) {
+                        Storage::disk('minio')->delete($oldFile);
+                    }
+                }
+
+                // Store new file
+                $filePath = $file->storeAs($path, $file->getClientOriginalName(), 'minio');
+                $mimeType = Storage::disk('minio')->mimeType($filePath);
+                $fileSize = Storage::disk('minio')->size($filePath);
+
+                // Save file reference to database
+                $fileRecord = \App\Models\Files::create([
+                    'filename' => $file->getClientOriginalName(),
+                    'encrypted_filename' => \Illuminate\Support\Facades\Crypt::encryptString($file->getClientOriginalName()),
+                    'mimetype' => $mimeType,
+                    'belongs_to' => 'realization',
+                    'path' => $filePath,
+                    'storage_type' => 'minio',
+                    'filesize' => $fileSize,
+                    'application_id' => $application->id,
+                    'department_id' => $application->department_id,
+                    'created_by' => auth()->id(),
+                    'updated_by' => auth()->id()
+                ]);
+
+                // Attach file to draft cost budget using pivot table
+                $draftCostBudget->files()->attach($fileRecord->id);
+            }
+        }
+
+        return redirect('/report/create/'.$application_id.'?step=3')
+            ->with('success', 'Data realisasi berhasil disimpan');
+
+    } catch (\Exception $e) {
+        Log::error('Error submit realization: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data realisasi: ' . $e->getMessage());
+    }
+}
+
 
 public function validateAttachments(Request $request)
 {
