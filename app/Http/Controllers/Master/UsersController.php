@@ -22,7 +22,7 @@ class UsersController extends Controller
     public function index()
     {
         $users = User::all(); // Fetch all users
-        return view('users.index', compact('users')); // return a view to display the users
+        return view('master.users.index', compact('users')); // return a view to display the users
     }
 
     /**
@@ -30,10 +30,10 @@ class UsersController extends Controller
      */
     public function create()
     {
-        
+
         $positions = Position::restricted()->get(); // Fetch all positions
         $department = MasterManagementService::getDepartmentListOptions()->get();
-        return view('users.create', compact('positions','department')); // return the form view with the positions
+        return view('master.users.create', compact('positions','department')); // return the form view with the positions
     }
 
     /**
@@ -77,7 +77,7 @@ class UsersController extends Controller
         if (!$user) {
             abort(404);
         }
-        return view('users.show', compact('user')); // Return view to display user details
+        return view('master.users.show', compact('user')); // Return view to display user details
     }
 
     /**
@@ -91,7 +91,7 @@ class UsersController extends Controller
         }
         $positions = Position::restricted()->get(); // Gunakan scope restricted
         $department = MasterManagementService::getDepartmentListOptions()->get();
-        return view('users.edit', compact('user', 'positions','department')); // Return form view with user and positions
+        return view('master.users.edit', compact('user', 'positions','department')); // Return form view with user and positions
     }
 
     /**
@@ -158,7 +158,7 @@ class UsersController extends Controller
         $user = User::find(AuthService::currentAccess()['id']);
         $positions = Position::all();
         $department = Department::all();
-        return view('users.edit-profile', compact('user', 'positions', 'department'));
+        return view('master.users.edit-profile', compact('user', 'positions', 'department'));
     }
 
     /**
