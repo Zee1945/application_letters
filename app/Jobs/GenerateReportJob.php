@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Models\ApplicationDetail;
+use App\Models\ApplicationFile;
 use App\Services\ApplicationService;
 use App\Services\TemplateProcessorService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,10 +18,12 @@ class GenerateReportJob implements ShouldQueue
      * Create a new job instance.
      */
     protected $application;
-    public function __construct($application)
+    protected $is_regenerate;
+    public function __construct($application,$is_regenerate = false)
     {
 
          $this->application = $application;
+         $this->is_regenerate = $is_regenerate;
     
     }
 
@@ -28,9 +32,9 @@ class GenerateReportJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $app_file = $this->application->applicationFiles()->findCode('laporan_kegiatan')->first();
-        TemplateProcessorService::generateDocumentToPDF($this->application, 'laporan_kegiatan',$app_file);
-         ApplicationService::storeAttachmentToDetails($this->application);
+         $app_file = $this->application->applicationFiles()->findCode('laporan_kegiatan')->first();
+         TemplateProcessorService::generateDocumentToPDF($this->application, 'laporan_kegiatan',$app_file);
+         ApplicationService::storeAttachmentToDetails($this->application,$this->is_regenerate);
     }
 
     public function failed(\Throwable $exception): void

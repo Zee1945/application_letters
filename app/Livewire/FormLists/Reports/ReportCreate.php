@@ -338,6 +338,10 @@ class ReportCreate extends AbstractComponent
         return response()->download($savePath);
     }
 
+     public function regenerateDocument(){
+        ApplicationService::regenerateReport($this->application);
+    }
+
     public function debug()
     {
         $app_file = $this->application->applicationFiles()->findCode('notulensi')->first();

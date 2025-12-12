@@ -470,66 +470,84 @@ class ApplicationService
     }
 
 
-    public static function storeAttachmentToDetails($app){
-        $get_multiple_file = $app->report->attachments()->whereIn('type', ['attendence-files','spj-file','minutes-file'])->get();
-        $attendance_type = FileType::whereCode('absensi_kehadiran')->first();
-        $spj_type = FileType::whereCode('file_spj')->first();
-        $minutes_type = FileType::whereCode('notulensi')->first();
-        $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
-        foreach ($get_multiple_file ?? [] as $key => $attachment) {
-            $ft = null;
-            if ($attachment->type == 'attendence-files') {
-                $ft = $attendance_type;
-            }elseif ($attachment->type == 'spj-file') {
-                $ft = $spj_type;
-            }elseif ($attachment->type == 'minutes-file') {
-                $ft = $minutes_type;
-            }
-            // Sanitasi dan limit panjang filename
-            $raw_filename = $ft->name.' - '.$attachment->file->filename;
-            $new_file_name = self::sanitizeFilename($raw_filename, 200);
-             $data = [
-                            'display_name'=> $new_file_name,
-                            'file_id'=> $attachment->file_id,
-                            'order'=> $ft->order,
-                            'status_ready'=> 3,
-                            'participant_id'=> null,
-                            'file_type_id'    => $ft->id,
-                            'department_id' => $app->department_id,
-                        ];
-                 $app_file = $app->applicationFiles()->create($data);
+    public static function storeAttachmentToDetails($app,$is_regenerate=false){
 
-                // start dari sini 
+        try {
+    DB::beginTransaction(); // Mulai transaksi database
 
-                $file = $app_file->file()->first();
-                $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
-                $fileContent = Storage::disk('minio')->get($oldPath);
-                
-                // Path baru, tetap di folder yang sama, hanya nama file diganti
-                $newPath = dirname($oldPath) . '/' . $new_file_name; // hasil: 2025-9/2/report/spj-file/nama_baru.png
-            if ($file->filename !== $new_file_name || $file->path !== dirname($oldPath)) {
-                // Simpan file ke path baru
-                Storage::disk('minio')->put($newPath, $fileContent);
+    if ($is_regenerate) {
+        $attachment_details = $app->applicationFiles()->whereHas('fileType', function ($q) {
+            return $q->whereIn('code', ['absensi_kehadiran', 'file_spj', 'notulensi']);
+        })->get();
+        foreach ($attachment_details as $key => $detail) {
+            $detail->delete();
+        }
+    }
 
-                // Hapus file lama
-                Storage::disk('minio')->delete($oldPath);
+    $get_multiple_file = $app->report->attachments()->whereIn('type', ['attendence-files', 'spj-file', 'minutes-file'])->get();
+    $attendance_type = FileType::whereCode('absensi_kehadiran')->first();
+    $spj_type = FileType::whereCode('file_spj')->first();
+    $minutes_type = FileType::whereCode('notulensi')->first();
+    $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
 
-                // Update path di database
-                $file->filename = $new_file_name;
-                $file->path = $newPath;
-                // $file->path = dirname($oldPath);
-                $file->save();
-            }
-            // start dari sini 
+    foreach ($get_multiple_file ?? [] as $key => $attachment) {
+        $ft = null;
+        if ($attachment->type == 'attendence-files') {
+            $ft = $attendance_type;
+        } elseif ($attachment->type == 'spj-file') {
+            $ft = $spj_type;
+        } elseif ($attachment->type == 'minutes-file') {
+            $ft = $minutes_type;
         }
 
-        if (count($participant_speakers) > 0) {
-            foreach ($participant_speakers as $key => $par) {
-                self::updateApplicationFilesReport($app,'materi_narasumber',$par->material_file_id,$par->id);
-            }
-        }
+        // Sanitasi dan limit panjang filename
+        $raw_filename = $ft->name . ' - ' . $attachment->file->filename;
+        $new_file_name = self::sanitizeFilename($raw_filename, 200);
+        $data = [
+            'display_name' => $new_file_name,
+            'file_id' => $attachment->file_id,
+            'order' => $ft->order,
+            'status_ready' => 3,
+            'participant_id' => null,
+            'file_type_id' => $ft->id,
+            'department_id' => $app->department_id,
+        ];
+        $app_file = $app->applicationFiles()->create($data);
 
-        return true;
+        // start dari sini
+        $file = $app_file->file()->first();
+        $oldPath = $file->path; // contoh: 2025-9/2/report/spj-file/Ryu3aoEQUNFoFJMcF2SQKhHviz2Ac3doGtMC6TVY.png
+        $fileContent = Storage::disk('minio')->get($oldPath);
+
+        // Path baru, tetap di folder yang sama, hanya nama file diganti
+        $newPath = dirname($oldPath) . '/' . $new_file_name; // hasil: 2025-9/2/report/spj-file/nama_baru.png
+        if ($file->filename !== $new_file_name || $file->path !== dirname($oldPath)) {
+            // Simpan file ke path baru
+            Storage::disk('minio')->put($newPath, $fileContent);
+
+            // Hapus file lama
+            Storage::disk('minio')->delete($oldPath);
+
+            // Update path di database
+            $file->filename = $new_file_name;
+            $file->path = $newPath;
+            $file->save();
+        }
+    }
+
+    if (count($participant_speakers) > 0) {
+        foreach ($participant_speakers as $key => $par) {
+            self::updateApplicationFilesReport($app, 'materi_narasumber', $par->material_file_id, $par->id);
+        }
+    }
+
+    DB::commit(); // Commit transaksi jika semua berhasil
+    return true;
+} catch (\Throwable $th) {
+    DB::rollBack(); // Rollback transaksi jika terjadi kesalahan
+    Log::error('Error saat memproses attachment: ' . $th->getMessage(), ['exception' => $th]);
+    throw $th; // Lempar ulang exception agar bisa ditangani di level yang lebih tinggi
+}
 
     }
     public static function storeAttachmentToDetailsClose($app)
@@ -808,7 +826,7 @@ class ApplicationService
                 $details = $app->detail()->create($data);
             }
 
-            if ($app && $app->current_approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+            if ($app && $app->current_seq_user_approval > 3  && AuthService::currentAccess()['role']=='admin') {
                 $files_with_participant = $app->applicationFiles()->whereNotNull('participant_id')->get();
                 if (!empty($files_with_participant)) {
                    foreach ($files_with_participant as $key => $file) {
@@ -840,7 +858,7 @@ class ApplicationService
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
                 }
 
-            if ($app && $app->current_approval_status == 12 && AuthService::currentAccess()['role']=='admin') {
+            if ($app && $app->current_seq_user_approval > 3 && AuthService::currentAccess()['role']=='admin') {
                 self::storeSuratPermohonanFiles($app);
             }
 
@@ -1283,6 +1301,14 @@ public static function getListReport($search = '', $status_approval = '', $depar
         }
         return false;
     }
+    public static function regenerateReport($app){
+         // $attachment_details = ApplicationFile::whereHas('fileType',function($q){
+            //     return $q->whereIn('code',['absensi_kehadiran','file_spj','notulensi']);
+            // })->get();
+        GenerateReportJob::dispatch($app,true);
+    }
+
+    
 
     public static function destroyAttachments($file_id, $related_table = [])
     {

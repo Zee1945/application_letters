@@ -30,8 +30,24 @@
                                     <a href="{{route('applications.detail', ['application_id' => $this->application->id])}}" class="btn btn-outline-secondary btn-sm" >
                                         <i class='bx bx-info-circle'></i> Detail
                                     </a>
+                                    
                          
                             </div>
+                                 @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary px-4 me-2"
+                                            wire:click="regenerateDocument" wire:loading.attr="disabled"
+                                            wire:target="regenerateDocument">
+                                            <span wire:loading.remove wire:target="regenerateDocument">
+                                                <i class="fa-solid fa-rotate-right me-1"></i> Regenerate Document
+                                            </span>
+                                            <span wire:loading wire:target="regenerateDocument">
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                                Memproses...
+                                            </span>
+                                        </button>
+                                    </div>
+                                    @endif
                                    @if (viewHelper::actionPermissionButton('approval_process_report', $this->application, true))
                                    <div class="btn-group mt-2 w-100" role="group">
                                     <button class="btn btn-danger btn-sm" wire:click="openModalConfirm('reject-report')">
@@ -163,6 +179,20 @@
                                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
                                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
+                                             @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                                                <button class="btn btn-success text-white px-4 me-2"
+                                                                    wire:click="store(false,'1')" wire:loading.attr="disabled"
+                                                                    wire:target="store">
+                                                                    <span wire:loading.remove wire:target="store">
+                                                                        <i class="fa-solid fa-floppy-disk me-1"></i> Update Data
+                                                                    </span>
+                                                                    <span wire:loading wire:target="store">
+                                                                        <span
+                                                                            class="spinner-border spinner-border-sm me-2"></span>
+                                                                        Menyimpan...
+                                                                    </span>
+                                                                </button>
+                                                            @endif
 
                                                 <button class="btn btn-primary px-4"
                                                     wire:click="nextStep">Next<i
@@ -184,12 +214,12 @@
                                             <p class="mb-4">Isi Form Data Personal Narasumber</p>
                                         </div>
                                         <div class="">
-                                            <div class="input-group">
+                                            {{-- <div class="input-group">
                                                 <input type="text" class="form-control" placeholder="Cari narasumber..." wire:model.live. debounce.500ms="q_inf">
                                                 <button class="btn btn-primary" type="button" wire:click="search">
                                                     <i class="fa-solid fa-search"></i>
                                                 </button>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
 
@@ -235,19 +265,21 @@
                         <button type="button" class="btn btn-outline-secondary px-4" wire:click="prevStep"><i
                                 class='bx bx-left-arrow-alt me-2'></i>Previous</button>
                         <div class="">
-                            @if (viewHelper::actionPermissionButton('submit-report', $this->application))
+                            @if (viewHelper::actionPermissionButton('submit-report', $this->application) || viewHelper::actionPermissionButton('admin-submit', $this->application))
                                 <button type="submit" class="btn btn-primary px-4 border-none bg-warning me-2">
                                     <i class="fa-solid fa-save"></i> Simpan Realisasi
                                 </button>
-                             <button type="button"
+                            @endif
+                                <button type="button"
                                     class="btn btn-primary px-4 border-none bg-primary me-2"
-                                    wire:click="store(false,'4')"
+                                    wire:click="nextStep"
                                     wire:loading.attr="disabled"
-                                    wire:target="store">
-                                    <span wire:loading wire:target="store" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    wire:target="nextStep">
+                                    <span wire:loading wire:target="nextStep" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                                         Next <i class='bx bx-right-arrow-alt ms-2'></i>
                             </button>
-                            @endif
+                            
+                            
                         </div>
                     </div>
                 </div>
@@ -613,6 +645,10 @@
                              <button type="submit" class="btn btn-primary px-4 border-none bg-success me-2">
                                         Submit LPJ
                             </button>
+                            @endif
+
+                            @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                <button class="btn btn-success px-4 border-none me-2 bg-success" id="saveDraftSupportingFiles" type="button" onclick="window.saveDraft"><i class="fa-solid fa-floppy-disk me-1"></i> Update Data</button>
                             @endif
                         </div>
                     </div>
