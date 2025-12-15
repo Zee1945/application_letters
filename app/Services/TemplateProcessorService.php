@@ -772,11 +772,17 @@ case 'surat_permohonan_moderator':
         $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
         $get_nomor_surat_tugas_peserta = $application->letterNumbers()->where('letter_name','nomor_surat_tugas_peserta')->first();
 
+        $trnaslated_part = [
+            "speaker"=>"narasumber",
+             "moderator"=>"moderator", 
+             "participant"=> "peserta",
+            "commitee"=>"panitia"
+        ];
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_tugas_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas->letter_number)));
         $templateProcessor->setValue('nomor_surat_tugas_peserta_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas_peserta->letter_number)));
         $templateProcessor->setValue('nomor_surat_tugas', self::sanitizeForXml(ucwords($get_nomor_surat_tugas->letter_number)));
-        $templateProcessor->setValue('participant_type', self::sanitizeForXml(ucwords($participant_type == 'speaker'?'narasumber':'moderator')));
+        $templateProcessor->setValue('participant_type', self::sanitizeForXml(ucwords($trnaslated_part[$participant_type])));
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('current_year', date("Y"));
