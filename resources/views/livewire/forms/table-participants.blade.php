@@ -19,10 +19,16 @@
             
             </tr>
         </thead>
+        @php
+            $no = 0;
+        @endphp
         <tbody id="table-body-{{$participantType}}">
             @foreach ($filteredParticipants as $index => $row)
+            @php
+                $no++;
+            @endphp
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $no }}</td>
                     <td>{{$row['name']}}</td>
                     <td>{{$row['nip']}}</td>
                     <td>{{$row['rank']}}</td>
