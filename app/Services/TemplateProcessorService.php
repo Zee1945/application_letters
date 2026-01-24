@@ -159,7 +159,7 @@ case 'surat_permohonan_moderator':
                     self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'moderator');
                 break; 
             case 'surat_tugas_narasumber':
-                    self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
+                self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'speaker');
                 break;
             case 'surat_tugas_panitia':
                 self::generateSuratTugas($application, $templatePath, $directory_temp, $file_type,'commitee');
@@ -225,7 +225,7 @@ case 'surat_permohonan_moderator':
         return ['status' => false, 'message' => 'Gagal generate ke pdf '.$file_type];
     }
 
-    public static function getSignerMetadata($application, $file_type)
+    public static function getSignerMetadata($application, $file_type,$letter_date=null)
     {
         $file_type = FileType::whereCode($file_type)->first();
         $role = Role::find($file_type->signed_role_id);
@@ -236,7 +236,35 @@ case 'surat_permohonan_moderator':
         }else{
             $log_approval = LogApproval::getSigner($file_type->signed_role_id, $application->department_id,$file_type->trans_type, $application->id)->first();
         }
-        
+        $array_type_printed_date = [
+            '10_days_before' => ['draft_tor', 'tor']
+        ];
+
+        $type_printed_date = array_filter($array_type_printed_date, function ($item) use ($file_type) {
+            return in_array($file_type->code, $item);
+        });
+
+        // Ambil key dari hasil filter, gunakan fallback jika tidak ditemukan
+        $key_printed_date = array_keys($type_printed_date)[0] ?? 'approval_date';
+
+        $key_printed_date = $letter_date?'letter_date':$key_printed_date;
+
+        switch ($key_printed_date) {
+            case '10_days_before':
+                $activity_dates = explode(',', $application->detail->activity_dates); // Pecah string tanggal
+                $first_date = Carbon::createFromFormat('d-m-Y', trim($activity_dates[0])); // Ambil tanggal pertama
+                $printed_date = $first_date->subDays(11)->format('d-m-Y'); // Kurangi 10 hari
+                break;
+            case 'letter_date':
+                $printed_date = $letter_date ? Carbon::parse($letter_date)->format('d-m-Y') : null;
+                break;
+            case 'approval_date':
+                $printed_date = Carbon::parse($log_approval->updated_at)->format('d-m-Y');
+                break;
+            default:
+                $printed_date = null;
+                break;
+        }
         $signer_position = $log_approval->position->name;
         $signer_name = $log_approval->user->name;
         if ($role->name !== 'dekan') {
@@ -246,7 +274,7 @@ case 'surat_permohonan_moderator':
             // $signer_position = $get_chief_commitee->commitee_position;
         }
         $meta = [
-            'Tgl_cetak'   => ViewHelper::humanReadableDate($log_approval->updated_at,false),
+            'Tgl_cetak'   => $printed_date? ViewHelper::humanReadableDate($printed_date,false):'Invalid Date',
             'Jabatan'     => ucwords($signer_position),
             'Lokasi'     => $log_approval->location_city,
             'Nama'     => ucwords($signer_name),
@@ -382,8 +410,9 @@ case 'surat_permohonan_moderator':
             $get_rundowns = self::generateTableRundown($application->schedules);
 
             $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
-
-            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
+            $letter_date = $get_nomor_surat->letter_date;
+            $metadata_signer = self::getSignerMetadata($application,$file_type,$letter_date);
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -428,7 +457,6 @@ case 'surat_permohonan_moderator':
             }
 
             }
-        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
 
 
         // Inject variabel
@@ -722,9 +750,14 @@ case 'surat_permohonan_moderator':
             // $moderator_participant = self::generateTableParticipant('moderator', $get_moderator);
 
             // $get_rundowns = self::generateTableRundown($application->schedules);
-
-
-            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
+            $get_nomor_surat_tugas_peserta = $application->letterNumbers()->where('letter_name','nomor_surat_tugas_peserta')->first();
+            if ($file_type == 'surat_tugas_peserta') {
+                $letter_date = $get_nomor_surat_tugas_peserta->letter_date;
+            }else{   
+                $letter_date = $get_nomor_surat_tugas->letter_date;
+            }
+            $metadata_signer = self::getSignerMetadata($application,$file_type,$letter_date);
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -769,8 +802,7 @@ case 'surat_permohonan_moderator':
             }
 
             }
-        $get_nomor_surat_tugas = $application->letterNumbers()->where('letter_name','nomor_surat_tugas')->first();
-        $get_nomor_surat_tugas_peserta = $application->letterNumbers()->where('letter_name','nomor_surat_tugas_peserta')->first();
+
 
         $trnaslated_part = [
             "speaker"=>"narasumber",
@@ -1054,8 +1086,8 @@ foreach ($new_data as $index => $item) {
             $participant_participant = self::generateTableParticipant('participant', $get_participant);
 
             $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
-
-            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $letter_date = $application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date;
+            $metadata_signer = self::getSignerMetadata($application,$file_type,$letter_date);
             $qrPath = self::generateQrCode($metadata_signer,null,600);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -1119,7 +1151,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('nomor_mak', self::sanitizeForXml(strtoupper($application->letterNumbers()->where('letter_name','mak')->first()->letter_number)));
         $templateProcessor->setValue('keterangan_mak', self::sanitizeForXml(ucwords($application->letterNumbers()->where('letter_name','keterangan_mak')->first()->letter_number)));
         $templateProcessor->setValue('nomor_sk_uppercase', self::sanitizeForXml(strtoupper($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_number)));
-        $templateProcessor->setValue('tanggal_sk', self::sanitizeForXml(strtoupper(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date,false))));
+        $templateProcessor->setValue('tanggal_sk', self::sanitizeForXml(strtoupper(ViewHelper::humanReadableDate($letter_date,false))));
         $templateProcessor->setValue('tanggal_berlaku_sk', self::sanitizeForXml(ucwords(ViewHelper::humanReadableDate($application->letterNumbers()->where('letter_name','tanggal_berlaku_sk')->first()->letter_number,false))));
 
 
