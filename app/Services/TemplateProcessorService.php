@@ -606,8 +606,8 @@ case 'surat_permohonan_moderator':
 
 
             $get_draft_cost = self::generateTableDraftCost($application->draftCostBudgets);
-
-            $metadata_signer = self::getSignerMetadata($application,$file_type);
+            $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_permohonan')->first();
+            $metadata_signer = self::getSignerMetadata($application,$file_type,$get_nomor_surat->letter_date);
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -666,7 +666,7 @@ case 'surat_permohonan_moderator':
         // End Get All schedule speaker/moderator
 
 
-        $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_permohonan')->first();
+   
         $get_recipient = $application->participants()->where('id',$app_file->participant_id)->first();
         $participant_type_name = $get_recipient->participantType->name ?? '';
         $get_session_schedule = collect();
