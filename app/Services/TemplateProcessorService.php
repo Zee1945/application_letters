@@ -1279,12 +1279,16 @@ foreach ($new_data as $index => $item) {
                 $temp[]=$i;
                 $templateProcessor->setValue('documentation_photo_' . $i, ' ');
             }
-
+            
+        //ambil tahun
+        $year_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date->format('Y');
+            
 
         // Inject variabel
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
+        // $templateProcessor->setValue('current_year', date("Y"));
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
