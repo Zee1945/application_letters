@@ -1281,7 +1281,8 @@ foreach ($new_data as $index => $item) {
             }
             
         //ambil tahun
-        $year_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first()->letter_date->format('Y');
+        $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk?->letter_date?->format('Y') ?? date('Y');
             
 
         // Inject variabel
