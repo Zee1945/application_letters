@@ -349,8 +349,11 @@ case 'surat_permohonan_moderator':
                     }
 
             } 
-        $year_sk = explode("-",$get_year[0])[0];
-
+            $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();            
+            $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
+        
         // Inject variabel
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
