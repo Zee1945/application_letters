@@ -152,6 +152,7 @@ class MasterManagementService
                 'admin-update-application' => 'User '.$currrent_user['name'].' memperbarui data pengajuan "'.$reference_name.'"',
                 'user-login' => 'User '.$currrent_user['name'].' login ke aplikasi',
                 'update-profile' => 'User '.$currrent_user['name'].' mengubah profile user "'.$reference_name.'"',
+                'edit-detail' => 'User '.$currrent_user['name'].' mengubah detail "'.$reference_name.'"',
             ];
 
             $data = [

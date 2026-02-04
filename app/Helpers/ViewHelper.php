@@ -138,9 +138,8 @@ public static function getCurrentUserProcess($app,$is_report=false){
 }
 
 
-public static function humanReadableDate($date_time,$is_with_day=true)
+public static function humanReadableDate($date_time, $is_with_day = true, $is_short_month = false)
 {
-
     // Cek jika $date_time null atau kosong
     if (empty($date_time)) {
         return '-';
@@ -149,10 +148,14 @@ public static function humanReadableDate($date_time,$is_with_day=true)
     try {
         $date = Carbon::parse($date_time);
         $date->locale('id');
-        if (!$is_with_day) {
-            return $date->isoFormat('D MMMM YYYY');
+
+        if ($is_short_month) {
+            $month_format = $is_with_day ? 'dddd, D MMM YYYY' : 'D MMM YYYY';
+        } else {
+            $month_format = $is_with_day ? 'dddd, D MMMM YYYY' : 'D MMMM YYYY';
         }
-        return $date->isoFormat('dddd, D MMMM YYYY');
+
+        return $date->isoFormat($month_format);
     } catch (\Exception $e) {
         return '-';
     }
@@ -291,6 +294,18 @@ public static function humanReadableDate($date_time,$is_with_day=true)
                     }
                     return true;
                 } 
+                return false;
+            case 'edit-detail':
+                if ($admin_has_access){
+                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 11) {
+                        return false;
+                    }
+                    return true;
+                } 
+                $kabag_user_id_kabag = User::rolePosition('kabag',$app->department_id)->first()->id;
+                 if($kabag_user_id_kabag == AuthService::currentAccess()['id']){
+                    return true;
+                 }
                 return false;
             default:
             

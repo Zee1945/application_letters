@@ -74,9 +74,9 @@
                 <table class="table mb-0 table-striped">
                     <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th class="text-center">No</th>
                             <th>Kegiatan</th>
-                            <th>Sumber Pendanaan</th>
+                            <th>Tanggal Kegiatan</th>
                             <th>Status Pengajuan</th>
                             <th>Pemroses Saat ini</th>
                             <th>Departemen</th>
@@ -86,9 +86,29 @@
                     <tbody>
                         @forelse ($applications as $key => $application)
                         <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{ $application->activity_name }}</td>
-                            <td>{{ $application->funding_source == 1? 'BLU':'BOPTN'}}</td>
+                            <td class="text-center">{{$key+1}}.</td>
+                            <td>
+                                <div class="">
+                                    {{ $application->activity_name }}
+                                </div>
+                                {{-- <div class="small text-muted mt">
+                                    Sumber Pendanaan : {{ $application->funding_source == 1? 'BLU':'BOPTN'}}
+                                </div> --}}
+                            </td>
+                            <td>
+                                    @if (!empty($application->detail?->activity_dates))
+                                        @php
+                                            $dates = explode(',', $application->detail->activity_dates);
+                                            $formattedDates = array_map(function($date) {
+                                                return '<span class="text-muted text-nowrap">'.ViewHelper::humanReadableDate($date, true,true).'</span>';
+                                            }, $dates);
+                                        @endphp
+                                        {!!   implode('<br><hr class="my-1">', $formattedDates) !!}
+                                    @else
+                                        <span class="text-muted">Belum Ditetapkan</span>
+                                    @endif
+
+                            </td>
                             <td>{!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}</td>
                             <td>
                                 @php

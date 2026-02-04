@@ -78,11 +78,61 @@
                     <!-- Displaying Application Details -->
                     <div class="row mb-3 mt-3">
                         <div class="col-sm-3"><span class="fw-bold">Nama Kegiatan</span></div>
-                        <div class="col-sm-9"><span>{{$app->activity_name}}</span></div>
+                        <div class="col-sm-9">
+                            @if ($editable['activity_name']['is_edit'])
+                                <div class="d-flex align-items-center">
+                                    <input type="text" class="form-control form-control-sm me-2" wire:model="editable.activity_name.value">
+                                    {{-- <button class="btn btn-outline-success btn-sm me-1" wire:click="submitEdit('activity_name')" title="Simpan"> --}}
+                                    <button class="btn btn-outline-success btn-sm me-1" wire:click="openModalConfirm" title="Simpan">
+                                        <i class="fa-solid fa-floppy-disk me-0"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" wire:click="cancelEdit('activity_name')" title="Batal">
+                                        <i class="bx bx-x me-0"></i>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">{{ $editable['activity_name']['value'] }}</span>
+    @if (viewHelper::actionPermissionButton('edit-detail', $app))
+
+                                    <button class="btn btn-outline-primary btn-xs rounded-circle" wire:click="enableEdit('activity_name')" title="Edit">
+                                        <i class='bx bxs-edit me-0' style="font-size: 0.9rem"></i>
+                                    </button>
+                                    @endif
+                                </div>
+                            @endif
+
+                        </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Sumber Pendanaan</span></div>
-                        <div class="col-sm-9"><span>{{$app->funding_source == '1' ? 'BLU' : 'BOPTN'}}</span></div>
+                        <div class="col-sm-9">
+                            
+                            @if ($editable['funding_source']['is_edit'])
+    <div class="d-flex align-items-center">
+        <select class="form-select form-select-sm me-2" wire:model="editable.funding_source.value">
+            <option value="1">BLU</option>
+            <option value="2">BOPTN</option>
+        </select>
+        <button class="btn btn-outline-success btn-sm me-1" wire:click="openModalConfirm" title="Simpan">
+            <i class="fa-solid fa-floppy-disk me-0"></i>
+        </button>
+        <button class="btn btn-outline-danger btn-sm" wire:click="cancelEdit('funding_source')" title="Batal">
+            <i class="bx bx-x me-0"></i>
+        </button>
+    </div>
+@else
+    <div class="d-flex align-items-center">
+        <span class="me-2">{{ $editable['funding_source']['value'] == 1 ? 'BLU' : 'BOPTN' }}</span>
+    @if (viewHelper::actionPermissionButton('edit-detail', $app))
+        <button class="btn btn-outline-primary btn-xs rounded-circle" wire:click="enableEdit('funding_source')" title="Edit">
+            <i class='bx bxs-edit me-0' style="font-size: 0.9rem"></i>
+        </button>
+    @endif
+    </div>
+@endif
+                        
+                        </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-3"><span class="fw-bold">Status Pengajuan</span></div>
@@ -197,4 +247,59 @@
         </div>
     </div>
     <!--end row-->
+              {{-- Modal Confirm Submit --}}
+            <div class="modal fade" id="modalConfirmSubmit" tabindex="-1" aria-labelledby="modalConfirmSubmitLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-md">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header bg-light border-0">
+                            {{-- <h1 class="modal-title fs-5 fw-bold text-dark" id="modalConfirmSubmitLabel">
+                                <i class="fa-solid fa-circle-question text-warning me-2"></i> Konfirmasi Perubahan
+                            </h1> --}}
+                            <button type="button" class="btn-close" wire:click="closeModalConfirm"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-4">
+                            <div class="d-flex flex-column align-items-center gap-3">
+                                <div class="rounded-circle bg-info bg-opacity-10 d-flex align-items-center justify-content-center"
+    style="width: 70px; height: 70px;">
+    <i class="fa-solid fa-circle-question fs-1 text-info"></i>
 </div>
+                                <h4 class="text-center fw-semibold mb-2">Apakah Anda Yakin Ingin Mengubah Data?</h4>
+                            </div>
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <button type="button" class="btn btn-outline-secondary px-4"
+                                    wire:click="closeModalConfirm">
+                                    <i class="fa-solid fa-times me-1"></i> Batal
+                                </button>
+      
+                                    <button type="button" class="btn btn-success px-4" wire:click="submitEdit('1','true')"
+                                        wire:loading.attr="disabled" wire:target="submitEdit">
+                                        <span wire:loading.remove wire:target="submitEdit">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> Ya
+                                        </span>
+                                        <span wire:loading wire:target="submitEdit">
+                                            <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+                                        </span>
+                                    </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- Modal Confirm Submit --}}
+</div>
+
+
+                   <script type="module">
+                document.addEventListener('livewire:init', () => {
+                    Livewire.on('open-modal-confirm-submit', (event) => {
+                        const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirmSubmit');
+                        modal.show();
+                    });
+                    Livewire.on('close-modal-confirm-submit', (event) => {
+                        const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirmSubmit');
+                        modal.hide();
+                    });
+                });
+            </script>
