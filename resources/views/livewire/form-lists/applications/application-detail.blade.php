@@ -93,7 +93,7 @@
                             @else
                                 <div class="d-flex align-items-center">
                                     <span class="me-2">{{ $editable['activity_name']['value'] }}</span>
-    @if (viewHelper::actionPermissionButton('edit-detail', $app))
+    @if (viewHelper::actionPermissionButton('edit-detail', $app) && !$this->is_editable_opened)
 
                                     <button class="btn btn-outline-primary btn-xs rounded-circle" wire:click="enableEdit('activity_name')" title="Edit">
                                         <i class='bx bxs-edit me-0' style="font-size: 0.9rem"></i>
@@ -124,7 +124,7 @@
 @else
     <div class="d-flex align-items-center">
         <span class="me-2">{{ $editable['funding_source']['value'] == 1 ? 'BLU' : 'BOPTN' }}</span>
-    @if (viewHelper::actionPermissionButton('edit-detail', $app))
+    @if (viewHelper::actionPermissionButton('edit-detail', $app) && !$this->is_editable_opened)
         <button class="btn btn-outline-primary btn-xs rounded-circle" wire:click="enableEdit('funding_source')" title="Edit">
             <i class='bx bxs-edit me-0' style="font-size: 0.9rem"></i>
         </button>

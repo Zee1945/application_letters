@@ -31,6 +31,8 @@ class ApplicationDetail extends Component
         ],
     ];
 
+    public $is_editable_opened = false;
+
     public $modal_confirm =false;
     public function mount($application_id){
         $this->application_id = $application_id;
@@ -100,6 +102,7 @@ class ApplicationDetail extends Component
 
     public function enableEdit($field)
 {
+    $this->is_editable_opened =true;
     $this->editable[$field]['is_edit'] = true;
 }
 
@@ -108,6 +111,8 @@ public function cancelEdit($field)
     $app = Application::find($this->application_id);
     $this->editable[$field]['value'] = $app->$field; // Kembalikan nilai dari database
     $this->editable[$field]['is_edit'] = false;
+    $this->is_editable_opened =false;
+
 }
 
 public function openModalConfirm(){
@@ -146,6 +151,8 @@ public function submitEdit()
         // Tampilkan pesan sukses
         session()->flash('success', ucfirst($this->editable[$field]['label']) . ' berhasil diperbarui.');
         $this->editable[$field]['is_edit'] = false;
+        $this->is_editable_opened =false;
+
 
 
         // Redirect dengan pesan sukses
