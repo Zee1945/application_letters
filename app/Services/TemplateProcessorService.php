@@ -327,16 +327,17 @@ case 'surat_permohonan_moderator':
                 }
             }
 
-
+            $get_year = [];
             foreach ($application->detail->getAttributes() as $key => $value) {
                     switch ($key) {
                         case 'activity_dates':
                             # code...
                             $split_dates = explode(',',$value);
-                            $human_readable_dates = array_map(function($date){
+                            $human_readable_dates = array_map(function($date) use ($get_year){
                                 // tambahkan trim untuk hilangkan spasi
                                 // $date = trim($date); // HILANGKAN SPASI DI SINI
                                 $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                                $get_year[]=$converted;
                                 return ViewHelper::humanReadableDate($converted).' ';
                             },$split_dates);
 
@@ -347,12 +348,13 @@ case 'surat_permohonan_moderator':
                             break;
                     }
 
-            }
+            } 
+        $year_sk = explode("-",$get_year[0])[0];
 
         // Inject variabel
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -442,7 +444,7 @@ case 'surat_permohonan_moderator':
                 // Variabel untuk menyimpan hasil parsing
                 $formatted_dates = [];
                 $days = [];
-                 Carbon::setLocale('id');
+                Carbon::setLocale('id');
                 foreach ($dates as $date) {
                     // Format tanggal menjadi "20 Mei 2025"
                     $formatted_dates[] = Carbon::parse($date)->translatedFormat('d F Y');
@@ -458,12 +460,15 @@ case 'surat_permohonan_moderator':
 
             }
 
-
+        $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_undangan', self::sanitizeForXml(ucwords($get_nomor_surat->letter_number)));
         $templateProcessor->setValue('nomor_surat_undangan_formatted_date', self::sanitizeForXml(ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y'))));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -569,11 +574,14 @@ case 'surat_permohonan_moderator':
                     }
 
             }
-
+    $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
         // Inject variabel
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -691,6 +699,10 @@ case 'surat_permohonan_moderator':
             $converted_session['date'] .= ($converted_session['date'] ? ', ' : '') . ViewHelper::humanReadableDate($date);
         }
 
+            $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
         // Inject variabel
         $templateProcessor->setValue('session_lenght_hours', self::sanitizeForXml($converted_session['time']));
         $templateProcessor->setValue('session_lenght_dates', self::sanitizeForXml($converted_session['date']));
@@ -700,7 +712,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('nomor_surat_permohonan_formatted_date', self::sanitizeForXml(ucwords(Carbon::parse($get_nomor_surat->letter_date)->format('d M Y'))));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -810,6 +822,10 @@ case 'surat_permohonan_moderator':
              "participant"=> "peserta",
             "commitee"=>"panitia"
         ];
+            $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_tugas_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas->letter_number)));
         $templateProcessor->setValue('nomor_surat_tugas_peserta_uppercase', self::sanitizeForXml(strtoupper($get_nomor_surat_tugas_peserta->letter_number)));
@@ -817,7 +833,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('participant_type', self::sanitizeForXml(ucwords($trnaslated_part[$participant_type])));
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -919,11 +935,15 @@ foreach ($new_data as $index => $item) {
                 $temp_detail[$key]=$value;
 
             }
+    $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
 
         // Inject variabel
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -1025,13 +1045,17 @@ foreach ($new_data as $index => $item) {
 
 
         $get_nomor_surat = $application->letterNumbers()->where('letter_name','nomor_surat_undangan_peserta')->first();
+    $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
 
         // Inject variabel
         $templateProcessor->setValue('nomor_surat_undangan', self::sanitizeForXml(ucwords($get_nomor_surat->letter_number)));
         // Inject variabel
         $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($application->department->approvalDepartment()->first()?->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -1128,6 +1152,10 @@ foreach ($new_data as $index => $item) {
                     }
 
             }
+        $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
 
         // Inject variabel
         $file_type_first = FileType::whereCode($file_type)->first();
@@ -1135,7 +1163,7 @@ foreach ($new_data as $index => $item) {
         $department_to_show = ViewHelper::departmentToShow($application->department);
         $templateProcessor->setValue('department_name', self::sanitizeForXml($department_to_show->name));
         $templateProcessor->setValue('department_name_uppercase', self::sanitizeForXml(strtoupper($department_to_show->name)));
-        $templateProcessor->setValue('current_year', date("Y"));
+        $templateProcessor->setValue('current_year', $year_sk);
 
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
@@ -1282,7 +1310,9 @@ foreach ($new_data as $index => $item) {
             
         //ambil tahun
         $letter_sk = $application->letterNumbers()->where('letter_name','nomor_sk')->first();
-        $year_sk = $letter_sk?->letter_date?->format('Y') ?? date('Y');
+        $year_sk = $letter_sk && !empty($letter_sk->letter_date) 
+            ? Carbon::parse($letter_sk->letter_date)->format('Y') 
+            : date('Y');
             
 
         // Inject variabel
