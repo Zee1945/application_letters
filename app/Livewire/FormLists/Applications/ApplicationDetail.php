@@ -101,10 +101,10 @@ class ApplicationDetail extends Component
     }
 
     public function enableEdit($field)
-{
-    $this->is_editable_opened =true;
-    $this->editable[$field]['is_edit'] = true;
-}
+    {
+        $this->is_editable_opened =true;
+        $this->editable[$field]['is_edit'] = true;
+    }
 
 public function cancelEdit($field)
 {
