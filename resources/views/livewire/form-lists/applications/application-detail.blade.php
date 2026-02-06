@@ -36,7 +36,7 @@
                                             <div class="description d-flex flex-column w-100">
                                                 <div class="d-flex justify-content-between">
                                                        <h6 class="title">
-                                                    {{$app->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}
+                                                      {{$app->current_approval_status == 2 ? $title_alert.' Butuh Untuk Direvisi !' : $title_alert.' Ditolak !'}}
                                                 </h6>
                                                     <small>
                                                             <i>{!! viewHelper::formatDateToHumanReadable($app->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!}</i></small>

@@ -25,6 +25,7 @@ class ApplicationCreateDraft extends AbstractComponent
 
     public $open_modal_confirm=null;
     public $notes = null;
+    public $alert_title = null;
     // step 1
     public $activity_output;
     public $activity_outcome;
@@ -70,6 +71,7 @@ class ApplicationCreateDraft extends AbstractComponent
        $this->participants = $this->application->participants->toArray();
        $this->rundowns = $this->application->schedules->toArray();
     //    dd($this->application->schedules);
+       $this->alert_title = $this->application->current_seq_user_approval > 4? "Laporan":"Pengajuan";
        $this->draft_costs = $this->application->draftCostBudgets->toArray();
     //    dd($this->draft_costs);
        $this->application_id = $application_id;

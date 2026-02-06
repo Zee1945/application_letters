@@ -48,8 +48,9 @@ class ApplicationDetail extends Component
     {
         $app = Application::find($this->application_id);
         $user_approvers = $app->userApprovals;
+        $title_alert = $app->current_seq_user_approval > 4? "Laporan":"Pengajuan";
         $application_files = $app->applicationFiles()->with('fileType')->orderBy('order','asc')->get();
-        return view('livewire.form-lists.applications.application-detail', compact('app','application_files','user_approvers'))
+        return view('livewire.form-lists.applications.application-detail', compact('app','application_files','user_approvers','title_alert'))
             ->extends('layouts.main');
     }
 

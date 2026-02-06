@@ -65,27 +65,57 @@
                     </div>
                     <hr />
                     <!-- Alert for status -->
-                    <div class="row {{$application->current_approval_status == 2 || $application->current_approval_status > 20 ? '' : 'd-none'}}">
-                        <div class="alert {{$application->current_approval_status == 2 ? 'alert-warning' : 'alert-danger'}}" role="alert">
-                            <div class="d-flex">
-                                <div class="icon d-flex align-items-center" style="width: calc(100vw - (91rem))">
-                                    <i class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
-                                </div>
-                                <div class="description d-flex flex-column">
-                                    <h6 class="title"> {{$application->current_approval_status == 2 ? 'Formulir Butuh Untuk Direvisi !' : 'Formulir Ditolak !'}}</h6>
-                                    <div class="d-flex flex-column">
-                                        <div>
-                                            <span class="fw-bold">{{$application->currentUserApproval->user->name}}</span>
-                                            <small> <i>({!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!})</i></small>
-                                        </div>
-                                        <div class="notes">
-                                            "{{$application->report->note}}"
+                         <div
+                                    class="row {{$application->current_approval_status == 2 || $application->current_approval_status > 20 ? '' : 'd-none'}}">
+                                    <div class="alert {{$application->current_approval_status == 2 ? 'alert-warning' : 'alert-danger'}}"
+                                        role="alert">
+                                        <div class="d-flex">
+                                            <div class="icon d-flex align-items-center"
+                                                style="width: calc(100vw - (91rem))">
+                                                <i
+                                                    class="fa-solid {{$application->current_approval_status == 2 ? 'fa-triangle-exclamation' : 'fa-circle-xmark'}} fw-3 ms-1 fs-2"></i>
+                                            </div>
+                                            <div class="description d-flex flex-column w-100">
+                                                <div class="d-flex justify-content-between">
+                                                       <h6 class="title">
+                                                    {{$application->current_approval_status == 2 ? 'Laporan Butuh Untuk Direvisi !' : 'Laporan Ditolak !'}}
+                                                </h6>
+                                                    <small>
+                                                            <i>{!! viewHelper::formatDateToHumanReadable($application->currentUserApproval->updated_at, 'd-m-Y H:i:s') !!}</i></small>
+                                                </div>
+                                             
+                                                @if (!empty($application->note))
+                                                <div class="d-flex flex-column">
+                                                        
+                                                    <div>
+                                                        <span
+                                                            class="fw-bold">{{viewHelper::explodeName(explode('###',$application->note)[0])['name']}}</span>
+
+                                                            (<span>{{viewHelper::explodeName(explode('###',$application->note)[0])['position']}}</span>
+                                                        -<span
+                                                            >{{viewHelper::explodeName(explode('###',$application->note)[0])['department']}}</span>)
+                                                            
+                                                    </div>
+
+                                                    <div class="" style="font-style: italic">
+                                                        
+                                                    </div>
+                                                    <div class="notes">
+                                                        "{{explode('###',$application->note)[1]}}"
+                                                    </div>
+                                                    
+                                                </div>
+                                                @endif
+                                                <div class="d-flex w-100 justify-content-end">
+                                                                             
+                                                    </div>
+
+                                            </div>
+                                            
+
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
                     <!-- Stepper -->
                     <div id="stepper2" class="bs-stepper">
                         <div class="card">

@@ -400,7 +400,7 @@ class ApplicationService
                     break;
             case 'revise-report':
                     if ($current_user_id == $app->currentUserApproval->user_id && $app->current_approval_status > 5 && $app->current_approval_status < 11 ) {
-                        foreach ($app->userApprovals()->where('trans_type',1)->where('is_verificator',1)->get() as $key => $approvers) {
+                        foreach ($app->userApprovals()->where('trans_type',2)->where('is_verificator',1)->get() as $key => $approvers) {
                             $approvers->status = 0;
                             if ($app->currentUserApproval()->first()->sequence == $approvers->sequence) {
                                 $approvers->note = $note;
