@@ -114,6 +114,7 @@
                                 @php
                                     $user_text = viewHelper::getCurrentUserProcess($application);
                                 @endphp
+                                @dump($user_text)
 
                                     <div class="fw-semibold">{{ $user_text['name'] ?? '-' }}</div>
                                     <div class="small text-muted">
