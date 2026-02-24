@@ -63,7 +63,7 @@ class Application extends AbstractModel
     public function currentUserApproval()
     {
         return $this->hasOne(ApplicationUserApproval::class)
-                    ->whereColumn('sequence', 'applications.current_seq_user_approval');
+                    ->where('sequence', $this->current_seq_user_approval);
     }
     public function department()
     {
