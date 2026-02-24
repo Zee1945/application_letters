@@ -126,18 +126,19 @@ public static function getHourAndMinute($date_time){
 }
 
 public static function getCurrentUserProcess($app,$is_report=false){
-  list($name,$position,$department) = explode('-',$app->currentUserApproval->user_text);
-  $tes = $app->currentUserApproval;
+  $approval = $app->currentUserApproval;
+  if (!$approval || !$approval->user_text) {
+    return ['name'=>'-','position'=>'','department'=>'','user_id'=>'','application_id'=>''];
+  }
+  list($name,$position,$department) = explode('-',$approval->user_text);
   $data = [
     'name'=>$name,
     'position'=>$position??'',
     'department'=>$department??'',
-    'user_id'=>$tes->user_id??'',
-    'application_id'=>$tes->application_id??'',
+    'user_id'=>$approval->user_id??'',
+    'application_id'=>$approval->application_id??'',
   ];
   return $data;
-
-
 }
 
 

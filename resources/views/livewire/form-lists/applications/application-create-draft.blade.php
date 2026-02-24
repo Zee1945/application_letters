@@ -45,7 +45,7 @@
                                             {!! viewHelper::statusSubmissionHTML($application->current_approval_status) !!}
                                             {{-- </span> --}}
                                         <small class="ms-1"> Oleh :
-                                            {!! viewHelper::getCurrentUserProcess($application)['name'] !!}</small>
+                                            {!! viewHelper::getCurrentUserProcess($this->application)['name'] !!}</small>
                                     </div>
                                 </div>
                             </div>
