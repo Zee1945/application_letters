@@ -46,6 +46,7 @@
                                             {{-- </span> --}}
                                         <small class="ms-1"> Oleh :
                                             {!! viewHelper::getCurrentUserProcess($application)['name'] !!}</small>
+                                             @dump(viewHelper::getCurrentUserProcess($this->application))
                                     </div>
                                 </div>
                             </div>

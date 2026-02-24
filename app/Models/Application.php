@@ -62,7 +62,8 @@ class Application extends AbstractModel
 
     public function currentUserApproval()
     {
-        return $this->belongsTo(ApplicationUserApproval::class, 'current_seq_user_approval', 'sequence');
+        return $this->hasOne(ApplicationUserApproval::class)
+                    ->whereColumn('sequence', 'applications.current_seq_user_approval');
     }
     public function department()
     {

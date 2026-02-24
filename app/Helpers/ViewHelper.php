@@ -127,10 +127,13 @@ public static function getHourAndMinute($date_time){
 
 public static function getCurrentUserProcess($app,$is_report=false){
   list($name,$position,$department) = explode('-',$app->currentUserApproval->user_text);
+  $tes = $app->currentUserApproval;
   $data = [
     'name'=>$name,
     'position'=>$position??'',
     'department'=>$department??'',
+    'user_id'=>$tes->user_id??'',
+    'application_id'=>$tes->application_id??'',
   ];
   return $data;
 
