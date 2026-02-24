@@ -87,7 +87,7 @@ class ApplicationService
     {
         $qp_search = isset($search)?$search:null; 
         
-        $applications = Application::with('currentUserApproval')->when($qp_search, function($query) use($qp_search) {
+        $applications = Application::when($qp_search, function($query) use($qp_search) {
                             $query->where('activity_name', 'like', '%'.$qp_search.'%');
                                 if (strtolower(trim($qp_search)) === 'blu') {
                                     $query->orWhere('funding_source', 1);
@@ -1139,8 +1139,7 @@ public static function getListReport($search = '', $status_approval = '', $depar
 {
     $qp_search = isset($search) ? $search : null;
 
-    $list = Application::with('currentUserApproval')
-        ->whereHas('currentUserApproval', function ($q) {
+    $list = Application::whereHas('currentUserApproval', function ($q) {
             $q->where('trans_type', 2);
         })
         ->when($qp_search, function ($query) use ($qp_search) {
