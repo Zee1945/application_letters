@@ -107,10 +107,10 @@ class ApplicationService
                     // </select>
                     switch ($status_approval) {
                         case 'need-my-process':
-                            // Contoh: status yang butuh proses user saat ini (misal status 6)
-                            $query->whereNot('current_approval_status', 13)->whereHas('currentUserApproval',function($q){
-                                $q->where('user_id',AuthService::currentAccess()['id']);
-                            }); 
+                            $query->whereNot('current_approval_status', 13)->whereHas('userApprovals',function($q){
+                                $q->where('user_id',AuthService::currentAccess()['id'])
+                                  ->whereColumn('sequence', 'applications.current_seq_user_approval');
+                            });
                             break;
                         case 'ongoing':
                             // Contoh: status sedang diproses (misal status 7-10)
@@ -1139,8 +1139,9 @@ public static function getListReport($search = '', $status_approval = '', $depar
 {
     $qp_search = isset($search) ? $search : null;
 
-    $list = Application::whereHas('currentUserApproval', function ($q) {
-            $q->where('trans_type', 2);
+    $list = Application::whereHas('userApprovals', function ($q) {
+            $q->where('trans_type', 2)
+              ->whereColumn('sequence', 'applications.current_seq_user_approval');
         })
         ->when($qp_search, function ($query) use ($qp_search) {
             $query->where('activity_name', 'like', '%' . $qp_search . '%');
@@ -1157,8 +1158,9 @@ public static function getListReport($search = '', $status_approval = '', $depar
             switch ($status_approval) {
                 case 'need-my-process':
                     $query->whereNot('current_approval_status', 13)
-                        ->whereHas('currentUserApproval', function ($q) {
-                            $q->where('user_id', AuthService::currentAccess()['id']);
+                        ->whereHas('userApprovals', function ($q) {
+                            $q->where('user_id', AuthService::currentAccess()['id'])
+                              ->whereColumn('sequence', 'applications.current_seq_user_approval');
                         });
                     break;
                 case 'ongoing':

@@ -89,8 +89,9 @@ class Application extends AbstractModel
     {
         $user = AuthService::currentAccess();
         return $query->where(function($query)use($user){
-            $q = $query->whereHas('currentUserApproval',function($sub_q)use($user){
-                $sub_q->where('user_id',$user['id']);
+            $q = $query->whereHas('userApprovals',function($sub_q)use($user){
+                $sub_q->where('user_id',$user['id'])
+                      ->whereColumn('sequence', 'applications.current_seq_user_approval');
             })
             ->where('current_approval_status','<',12);
             if ($user['role'] == 'finance') {
