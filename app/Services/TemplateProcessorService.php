@@ -266,10 +266,10 @@ case 'surat_permohonan_moderator':
                 break;
         }
         $signer_position = $log_approval->position->name;
-        $signer_name = $log_approval->user->name;
+        $signer_name = self::sanitizeForXml($log_approval->user->name);
         if ($role->name !== 'dekan') {
             $get_chief_commitee = $application->participants()->where('is_signer_commitee',1)->first();
-            $signer_name = $get_chief_commitee->name;
+            $signer_name = self::sanitizeForXml($get_chief_commitee->name);
             $signer_position = 'Ketua Panitia';
             // $signer_position = $get_chief_commitee->commitee_position;
         }
