@@ -338,10 +338,10 @@ case 'surat_permohonan_moderator':
                                 // $date = trim($date); // HILANGKAN SPASI DI SINI
                                 $converted = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
                                 $get_year[]=$converted;
-                                return ViewHelper::humanReadableDate($converted).' ';
+                                return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode(' ;', $human_readable_dates)));
                             break;
                         default:
                             $templateProcessor->setValue($key, self::sanitizeForXml($value));
@@ -1147,7 +1147,7 @@ foreach ($new_data as $index => $item) {
                                 return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode('; ', $human_readable_dates)));
                             break;
                         default:
                             $templateProcessor->setValue($key, self::sanitizeForXml($value));
@@ -1273,7 +1273,7 @@ foreach ($new_data as $index => $item) {
                                 return ViewHelper::humanReadableDate($converted);
                             },$split_dates);
 
-                            $templateProcessor->setValue($key, self::sanitizeForXml(implode($human_readable_dates)));
+                            $templateProcessor->setValue($key, self::sanitizeForXml(implode('; ', $human_readable_dates)));
                             break;
                         default:
                             $templateProcessor->setValue($key, self::sanitizeForXml($value));

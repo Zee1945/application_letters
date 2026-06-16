@@ -34,6 +34,10 @@ class ApplicationFile extends Model
     {
         return $this->belongsTo(Files::class,'file_id','id');
     }
+    public function mergedFile()
+    {
+        return $this->belongsTo(Files::class,'merged_file_id','id');
+    }
     public function department()
     {
         return $this->belongsTo(Department::class);

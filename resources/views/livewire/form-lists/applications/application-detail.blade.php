@@ -11,6 +11,7 @@
                             <div class="ms-auto">
                                 <a class="btn btn-sm btn-outline-secondary" href="{{route('applications.create.draft',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i>Konten Pengajuan</a>
                                 <a class="btn btn-sm btn-outline-secondary" href="{{route('reports.create',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i> Konten Laporan</a>
+                                <a class="btn btn-sm btn-outline-danger" wire:click="merged"><i class='bx bxs-edit'></i> MergePDF</a>
                     
                         @if (viewHelper::handleFieldDisabled($app) !== 'disabled')
                             <button class="btn btn-sm btn-outline-danger"
@@ -178,11 +179,11 @@
                                                     <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
                                                     @endif
                                                 </div>
-                                                @if ($item->status_ready == 3)
+                                                @if ($item->status_ready == 3 || $item->status_ready == 5)
                                                     @if ($item->fileType->is_upload == 1 )
                                                           <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u></span>
                                                     @else
-                                                         <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
+                                                         <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->merged_file_id ? $item->mergedFile->path : $item->file->path}}','{{$item->merged_file_id ? $item->mergedFile->filename : $item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
                                                         <i class="fa-solid fa-signature"></i></span></span>
                                                     @endif
                                                

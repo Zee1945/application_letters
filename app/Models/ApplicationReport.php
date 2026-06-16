@@ -17,6 +17,11 @@ class ApplicationReport extends Model
      *
      * @var list<string>
      */
+
+    protected $casts = [
+        'merge_with_attachments' => 'boolean',
+        'merged_at'              => 'datetime',
+    ];
     protected $fillable = [
         'introduction',
         'budget_realization',
@@ -46,6 +51,8 @@ class ApplicationReport extends Model
         'updated_by',
         'created_by',
         'updated_by',
+        'merge_with_attachments',
+        'merged_at'            
     ];
 
     public function application()

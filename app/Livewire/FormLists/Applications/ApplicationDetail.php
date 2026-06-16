@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\MasterManagementService;
+use App\Services\PdfMergerService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -114,6 +115,14 @@ public function cancelEdit($field)
     $this->editable[$field]['is_edit'] = false;
     $this->is_editable_opened =false;
 
+}
+
+
+public function merged()
+{
+    $app = Application::find($this->application_id);
+    $merger = new PdfMergerService();
+    $merger->mergeLpjWithAttachments($app);
 }
 
 public function openModalConfirm(){

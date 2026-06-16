@@ -66,6 +66,12 @@ public static function generateStatusFileHTML($status_number)
         } elseif ($status_number == 3) {
             $label = 'Tersedia';
             $color = 'success';
+        } elseif ($status_number == 4) {
+            $label = 'Merging';
+            $color = 'info';
+        } elseif ($status_number == 5) {
+            $label = 'Merged + Tersedia';
+            $color = 'success';
         } else {
             $label ='Gagal';
             $color ='danger';

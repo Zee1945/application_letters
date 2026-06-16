@@ -47,16 +47,23 @@ class ApplicationParticipant extends Model
     {
         return $this->belongsTo(ParticipantType::class);
     }
-    // public function cvFiles()
-    // {
-    //     return $this->belongsTo(Files::class,'cv_file_id', 'id');
-    // }
-    // public function npwpFiles()
-    // {
-    //     return $this->belongsTo(Files::class,'npwp_file_id', 'id');
-    // }
-    // public function idCardFiles()
-    // {
-    //     return $this->belongsTo(Files::class,'idcard_file_id','id');
-    // }
+    public function cvFile()
+    {
+        return $this->belongsTo(Files::class, 'cv_file_id', 'id');
+    }
+
+    public function idcardFile()
+    {
+        return $this->belongsTo(Files::class, 'idcard_file_id', 'id');
+    }
+
+    public function npwpFile()
+    {
+        return $this->belongsTo(Files::class, 'npwp_file_id', 'id');
+    }
+
+    public function materialFile()
+    {
+        return $this->belongsTo(Files::class, 'material_file_id', 'id');
+    }
 }

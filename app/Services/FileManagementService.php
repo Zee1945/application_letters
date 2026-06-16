@@ -79,7 +79,7 @@ class FileManagementService
      public static function find($id){
         return Files::find($id);
      }
-     public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null,$mime_type='pdf'){
+     public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null,$mime_type='pdf',$target_column='file_id',$status_ready=3){
 
         $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
         $clean_activity_name = preg_replace('/[\/\\\\\?\%\*\:\|\"<>\.]/', '-', $application->activity_name);
@@ -120,8 +120,8 @@ class FileManagementService
                         $update_file_type= $update_file_type->where('participant_id',$app_file->participant_id);
                     }    
                     $update_file_type = $update_file_type->first();
-                    $update_file_type->file_id = $res->id;
-                    $update_file_type->status_ready = 3;
+                    $update_file_type->{$target_column} = $res->id;
+                    $update_file_type->status_ready = $status_ready;
                     $update_file_type->save();
 
 

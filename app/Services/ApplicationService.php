@@ -500,8 +500,10 @@ class ApplicationService
             $ft = $minutes_type;
         }
 
-        // Sanitasi dan limit panjang filename
-        $raw_filename = $ft->name . ' - ' . $attachment->file->filename;
+        // Sanitasi dan limit panjang filename.
+        // Cek dulu: jika filename sudah berprefix "{file_type->name} - " (mis. dari regenerate
+        // sebelumnya), pakai as-is agar prefix tidak dobel.
+        $raw_filename = self::prefixFileTypeName($ft->name, $attachment->file->filename);
         $new_file_name = self::sanitizeFilename($raw_filename, 200);
         $data = [
             'display_name' => $new_file_name,
@@ -1379,6 +1381,26 @@ public static function getListReport($search = '', $status_approval = '', $depar
             ]);
             return ['status' => false, 'message' => 'Gagal menghapus file.'];
         }
+    }
+
+    /**
+     * Tambahkan prefix "{file_type_name} - " ke nama file, kecuali jika sudah ada.
+     * Mencegah prefix dobel saat admin melakukan regenerate dokumen.
+     *
+     * @param string $fileTypeName  Nama file type (mis. "Absensi Kehadiran")
+     * @param string $filename      Nama file saat ini
+     * @return string
+     */
+    private static function prefixFileTypeName($fileTypeName, $filename)
+    {
+        $prefix = $fileTypeName . ' - ';
+
+        // Sudah berprefix → pakai as-is
+        if (str_starts_with($filename, $prefix)) {
+            return $filename;
+        }
+
+        return $prefix . $filename;
     }
 
     /**
