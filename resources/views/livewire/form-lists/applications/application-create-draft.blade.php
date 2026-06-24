@@ -127,19 +127,17 @@
                                             <div class="bs-stepper-circle">2</div>
                                             <div class="">
                                                 <h5 class="mb-0 steper-title">
-                                                    {{count($this->participants) > 0 ? 'Peran' : 'Peran dan RAB'}}</h5>
+                                                    Peran</h5>
                                                 <p class="mb-0 steper-sub-title">
-                                                    {{count($this->participants) > 0 ? 'Peran dalam kegiatan' : 'Peran dalam kegiatan dan RAB'}}
+                                                    Peran dalam kegiatan
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-3">
-                                        <div class="step-trigger {{$this->step == 3 ? 'active' : ''}} {{count($this->participants) == 0 ? 'disabled' : ''}}"
-                                            role="tab" @if(count($this->participants) > 0) wire:click="directStep('3')"
-                                            @else style="cursor: not-allowed; opacity: 0.5;" data-bs-toggle="tooltip"
-                                            title="Lengkapi peserta terlebih dahulu" @endif id="stepper1trigger3"
+                                        <div class="step-trigger {{$this->step == 3 ? 'active' : ''}}"
+                                            role="tab" wire:click="directStep('3')" id="stepper1trigger3"
                                             aria-controls="test-l-3">
                                             <div class="bs-stepper-circle">3</div>
                                             <div class="">
@@ -150,10 +148,8 @@
                                     </div>
                                     <div class="bs-stepper-line"></div>
                                     <div class="step" data-target="#test-l-4">
-                                        <div class="step-trigger {{$this->step == 4 ? 'active' : ''}} {{count($this->participants) == 0 ? 'disabled' : ''}}"
-                                            role="tab" @if(count($this->participants) > 0) wire:click="directStep('4')"
-                                            @else style="cursor: not-allowed; opacity: 0.5;" data-bs-toggle="tooltip"
-                                            title="Lengkapi rundown acara terlebih dahulu" @endif id="stepper1trigger4"
+                                        <div class="step-trigger {{$this->step == 4 ? 'active' : ''}}"
+                                            role="tab" wire:click="directStep('4')" id="stepper1trigger4"
                                             aria-controls="test-l-4">
                                             <div class="bs-stepper-circle">4</div>
                                             <div class="">
@@ -419,6 +415,13 @@
                                                         Peserta Acara .</p>
                                                 </div>
                                                 <div class="action-button">
+                                                    @if (viewHelper::handleFieldDisabled($this->application) !== 'disabled')
+                                                        <button
+                                                            class="btn btn-outline-primary border border-1 btn-sm border-primary"
+                                                            wire:click="$dispatch('open-pj-modal', { source: 'participant' })"><i
+                                                                class="fa-solid fa-user-plus me-2" style="font-size: 1rem"></i> Tambah
+                                                            Partisipan</button>
+                                                    @endif
                                                     @if (count($this->participants) > 0)
                                                         <button
                                                             class="btn btn-outline-success border border-1 btn-sm border-success"
@@ -445,6 +448,7 @@
                                                         <div class="">
                                                             <livewire:forms.table-participants
                                                                 :participants="$this->participants"
+                                                                :handleDisable="viewHelper::handleFieldDisabled($this->application)"
                                                                 :participantType="'speaker'" />
                                                         </div>
                                                     </div>
@@ -454,6 +458,7 @@
                                                         </label>
                                                         <livewire:forms.table-participants
                                                             :participants="$this->participants"
+                                                            :handleDisable="viewHelper::handleFieldDisabled($this->application)"
                                                             :participantType="'commitee'" />
                                                     </div>
                                                     <div class="col-12">
@@ -462,7 +467,17 @@
                                                         </label>
                                                         <livewire:forms.table-participants
                                                             :participants="$this->participants"
+                                                            :handleDisable="viewHelper::handleFieldDisabled($this->application)"
                                                             :participantType="'participant'" />
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="InputUsername" class="form-label fw-bold mx-auto">
+                                                            <h6>Daftar Partisipan Lainnya</h6>
+                                                        </label>
+                                                        <livewire:forms.table-participants
+                                                            :participants="$this->participants"
+                                                            :handleDisable="viewHelper::handleFieldDisabled($this->application)"
+                                                            :participantType="'others'" />
                                                     </div>
                                                 @else
                                                     <!-- Button trigger modal -->
@@ -553,14 +568,26 @@
                                         <div id="test-l-3" role="tabpanel"
                                             class="{{$this->step == '3' ? '' : 'bs-stepper-pane'}}"
                                             aria-labelledby="stepper1trigger3">
-                                            <h5 class="mb-1">Susunan Acara</h5>
-                                            <p class="mb-4">Berisi Jadwal Susunan Acara</p>
+                                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                                <div>
+                                                    <h5 class="mb-1">Susunan Acara</h5>
+                                                    <p class="mb-0">Berisi Jadwal Susunan Acara</p>
+                                                </div>
+                                                @if (viewHelper::handleFieldDisabled($this->application) !== 'disabled')
+                                                    <button type="button" class="btn btn-sm btn-outline-primary align-self-end"
+                                                        wire:click="$dispatch('open-pj-modal')">
+                                                        <i class="fa-solid fa-user-plus me-1" style="font-size: 1rem"></i> Tambah Opsi PJ
+                                                    </button>
+                                                @endif
+                                            </div>
 
 
                                             <div class="row g-3">
                                                 <div class="col-12">
                                                     <livewire:forms.table-rundown :rundowns="$this->rundowns"
                                                         :participants="$this->participants"
+                                                        :activityDates="$this->activity_dates"
+                                                        :applicationId="$this->application_id"
                                                         :handleDisable="viewHelper::handleFieldDisabled($this->application)" />
                                                     {{-- <livewire:forms.table-participants
                                                         :participants="$this->participants"
@@ -663,7 +690,8 @@
 
                                             <div class="row g-3">
                                                 <div class="col-12">
-                                                    <livewire:forms.table-draft-cost :draftCosts="$this->draft_costs" />
+                                                    <livewire:forms.table-draft-cost wire:model="draft_costs"
+                                                        :handleDisable="viewHelper::handleFieldDisabled($this->application)" />
                                                 </div>
 
                                                 <div class="col-12">
@@ -983,6 +1011,231 @@
                 </div>
             </div>
             {{-- Modal Confirm Submit --}}
+
+            {{-- ===================== Modal Edit Peserta ===================== --}}
+            <div class="modal fade @if($show_edit_participant_modal) show d-block @endif" tabindex="-1"
+                 style="@if($show_edit_participant_modal) background: rgba(0,0,0,.5); @endif"
+                 aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header bg-light border-0">
+                            <h1 class="modal-title fs-5 fw-bold text-dark d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-pen text-primary"></i> Edit Peserta
+                            </h1>
+                            <button type="button" class="btn-close" wire:click="closeEditParticipant" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-4">
+                            <form wire:submit.prevent="updateParticipant">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Peran</label>
+                                    <input type="text" class="form-control" value="{{ $ep_type_label }}" disabled readonly>
+                                    <small class="text-muted">Peran tidak dapat diubah.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nama</label>
+                                    <input type="text" class="form-control" wire:model="ep_name" placeholder="Nama">
+                                    @error('ep_name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Jabatan - Lembaga</label>
+                                    <input type="text" class="form-control" wire:model="ep_institution" placeholder="Jabatan - Lembaga">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">NIP <span class="text-muted">(opsional)</span></label>
+                                        <input type="text" class="form-control" wire:model="ep_nip">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Pangkat (Golongan) <span class="text-muted">(opsional)</span></label>
+                                        <input type="text" class="form-control" wire:model="ep_rank">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Jabatan Fungsional <span class="text-muted">(opsional)</span></label>
+                                        <input type="text" class="form-control" wire:model="ep_functional_position">
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-secondary px-4" wire:click="closeEditParticipant">
+                                        <i class="fa-solid fa-times me-1"></i> Batal
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-4"
+                                            wire:loading.attr="disabled" wire:target="updateParticipant">
+                                        <span wire:loading.remove wire:target="updateParticipant">
+                                            <i class="fa-solid fa-check me-1"></i> Simpan
+                                        </span>
+                                        <span wire:loading wire:target="updateParticipant">
+                                            <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- ===================== End Modal Edit Peserta ===================== --}}
+
+            {{-- ===================== Modal Konfirmasi Hapus Peserta ===================== --}}
+            <div class="modal fade @if($show_delete_participant_modal) show d-block @endif" tabindex="-1"
+                 style="@if($show_delete_participant_modal) background: rgba(0,0,0,.5); @endif"
+                 aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-dialog-centered modal-md">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header bg-light border-0">
+                            <h1 class="modal-title fs-5 fw-bold text-dark">
+                                <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i> Hapus Peserta
+                            </h1>
+                            <button type="button" class="btn-close" wire:click="closeDeleteParticipant" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-4">
+                            <div class="d-flex flex-column align-items-center gap-3">
+                                <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center"
+                                     style="width: 70px; height: 70px;">
+                                    <i class="fa-solid fa-trash fs-1 text-danger"></i>
+                                </div>
+                                <h5 class="text-center fw-semibold mb-0">Yakin ingin menghapus peserta ini?</h5>
+                                @if ($delete_participant_index !== null && isset($this->participants[$delete_participant_index]))
+                                    <p class="text-center text-muted mb-0">
+                                        <strong>{{ $this->participants[$delete_participant_index]['name'] ?? '' }}</strong>
+                                    </p>
+                                @endif
+                                <p class="text-center text-muted small mb-0">
+                                    Tindakan ini akan menghapus data peserta beserta berkas terkait (jika ada) dan tidak dapat dibatalkan.
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <button type="button" class="btn btn-outline-secondary px-4" wire:click="closeDeleteParticipant">
+                                    <i class="fa-solid fa-times me-1"></i> Batal
+                                </button>
+                                <button type="button" class="btn btn-danger px-4" wire:click="deleteParticipant"
+                                        wire:loading.attr="disabled" wire:target="deleteParticipant">
+                                    <span wire:loading.remove wire:target="deleteParticipant">
+                                        <i class="fa-solid fa-trash me-1"></i> Hapus
+                                    </span>
+                                    <span wire:loading wire:target="deleteParticipant">
+                                        <span class="spinner-border spinner-border-sm me-2"></span> Menghapus...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- ===================== End Modal Konfirmasi Hapus Peserta ===================== --}}
+
+            {{-- ===================== Modal Tambah Partisipan / Opsi PJ ===================== --}}
+            <div class="modal fade @if($show_pj_modal) show d-block @endif" tabindex="-1"
+                 style="@if($show_pj_modal) background: rgba(0,0,0,.5); @endif"
+                 aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header bg-light border-0">
+                            <h1 class="modal-title fs-5 fw-bold text-dark d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-primary"></i>
+                                {{ $pj_source === 'participant' ? 'Tambah Partisipan' : 'Tambah Opsi PJ' }}
+                            </h1>
+                            <button type="button" class="btn-close" wire:click="closePjModal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-4">
+                            <form wire:submit.prevent="submitPj">
+                                {{-- a. Sumber data peserta --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Pilih Peserta</label>
+                                    <select class="form-select" wire:model.live="pj_mode">
+                                        <option value="existing">Pilih dari peserta</option>
+                                        <option value="new">Buat baru</option>
+                                    </select>
+                                </div>
+
+                                {{-- b. Peran (participant_type) --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Peran</label>
+                                    @if ($pj_mode === 'new')
+                                        <select class="form-select" wire:model.live="pj_participant_type_id">
+                                            <option value="">-- Pilih Peran --</option>
+                                            @foreach ($participant_types as $pt)
+                                                <option value="{{ $pt['id'] }}">{{ $pt['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                        <input type="text" class="form-control mt-2"
+                                               placeholder="Atau ketik nama peran baru di sini"
+                                               wire:model.live="pj_new_type_name">
+                                        <small class="text-muted">Isi kotak di atas hanya jika peran belum ada di daftar.</small>
+                                    @else
+                                        <select class="form-select" wire:model.live="pj_participant_type_id">
+                                            <option value="">-- Pilih Peran --</option>
+                                            @foreach ($participant_types as $pt)
+                                                <option value="{{ $pt['id'] }}">{{ $pt['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
+                                    @error('pj_participant_type_id') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                {{-- c. Nama --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Nama</label>
+                                    @if ($pj_mode === 'existing')
+                                        <select class="form-select" wire:model.live="pj_selected_participant">
+                                            <option value="">-- Pilih Nama --</option>
+                                            @foreach ($this->pjFilteredParticipants as $idx => $p)
+                                                <option value="{{ $idx }}">{{ $p['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input type="text" class="form-control" wire:model="pj_name"
+                                               placeholder="Masukkan nama">
+                                    @endif
+                                    @error('pj_name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                {{-- d. Jabatan - Lembaga (institution) --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Jabatan - Lembaga</label>
+                                    <input type="text" class="form-control"
+                                           wire:model="pj_institution"
+                                           @if ($pj_mode === 'existing') readonly @endif
+                                           placeholder="Jabatan - Lembaga">
+                                </div>
+
+                                {{-- e, f, g. Hanya saat buat baru --}}
+                                @if ($pj_mode === 'new')
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">NIP <span class="text-muted">(opsional)</span></label>
+                                            <input type="text" class="form-control" wire:model="pj_nip">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Pangkat (Golongan) <span class="text-muted">(opsional)</span></label>
+                                            <input type="text" class="form-control" wire:model="pj_rank">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Jabatan Fungsional <span class="text-muted">(opsional)</span></label>
+                                            <input type="text" class="form-control" wire:model="pj_functional_position">
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-secondary px-4" wire:click="closePjModal">
+                                        <i class="fa-solid fa-times me-1"></i> Batal
+                                    </button>
+                                    <button type="submit" class="btn btn-primary px-4"
+                                            wire:loading.attr="disabled" wire:target="submitPj">
+                                        <span wire:loading.remove wire:target="submitPj">
+                                            <i class="fa-solid fa-check me-1"></i> Simpan
+                                        </span>
+                                        <span wire:loading wire:target="submitPj">
+                                            <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- ===================== End Modal Tambah Partisipan / Opsi PJ ===================== --}}
 
 
 

@@ -4,31 +4,52 @@ namespace App\Livewire\Forms;
 
 use App\Models\CommiteePosition;
 use App\Models\ParticipantType;
+use Livewire\Attributes\Reactive;
 use Livewire\Component;
 
 class TableParticipants extends Component
 {
     public $participantType = '';
     public $commiteePositions = [];
-    public $raw_participant = [];
-    public $filteredParticipants=[];
 
-    public function mount($participants,$participantType)
+    // Reactive: ikut ter-update saat parent mengubah $this->participants
+    // (edit/hapus peserta), sehingga tabel ikut refresh tanpa reload.
+    #[Reactive]
+    public $participants = [];
+
+    public $handleDisable = '';
+
+    public function mount($participants, $participantType, $handleDisable = '')
     {
-        $this->raw_participant = $participants;
+        $this->participants = $participants;
         $this->participantType = $participantType;
-        $this->filteredParticipants = $this->filterParticipantByType();
+        $this->handleDisable = $handleDisable;
     }
 
     public function render()
     {
-        return view('livewire.forms.table-participants');
+        // Hitung ulang tiap render agar sinkron dgn perubahan dari parent.
+        return view('livewire.forms.table-participants', [
+            'filteredParticipants' => $this->filterParticipantByType(),
+        ]);
     }
 
 
     public function filterParticipantByType(){
         $participant_type= new ParticipantType();
         $ids = [];
+
+        // Tipe "others": tampilkan peran SELAIN 4 tipe utama (peserta, panitia,
+        // moderator, narasumber). Logikanya kebalikan — exclude, bukan include.
+        if ($this->participantType === 'others') {
+            $excluded_ids = $participant_type::whereIn('name', ['peserta', 'panitia', 'moderator', 'narasumber'])
+                ->get()->pluck('id')->toArray();
+
+            return array_filter($this->participants, function ($item) use ($excluded_ids) {
+                return !in_array($item['participant_type_id'], $excluded_ids);
+            });
+        }
+
         switch ($this->participantType) {
             case 'speaker':
                 $ids = $participant_type::whereIn('name',['narasumber','moderator'])->get()->pluck('id')->toArray();
@@ -44,7 +65,7 @@ class TableParticipants extends Component
                 # code...
                 break;
         }
-        return array_filter($this->raw_participant,function ($item) use ($ids){
+        return array_filter($this->participants,function ($item) use ($ids){
             if (in_array($item['participant_type_id'],$ids)) {
                 return $item;
             }
@@ -63,7 +84,7 @@ class TableParticipants extends Component
     }
     public function debugger()
     {
-        dd($this->raw_participant);
+        dd($this->participants);
     }
 
     public function addRow()

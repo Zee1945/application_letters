@@ -180,15 +180,15 @@
                                                     @endif
                                                 </div>
                                                 @if ($item->status_ready == 3 || $item->status_ready == 5)
-                                                    @if ($item->fileType->is_upload == 1 )
-                                                          <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->file->path}}','{{$item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u></span>
-                                                    @else
-                                                         <span class="text-primary cursor-pointer"  wire:click="downloadFile('{{$item->merged_file_id ? $item->mergedFile->path : $item->file->path}}','{{$item->merged_file_id ? $item->mergedFile->filename : $item->file->filename}}','{{$item->fileType->is_upload}}')"><u>{{$item->display_name}}</u> <span class="bg-pastel-primary rounded-circle">
-                                                        <i class="fa-solid fa-signature"></i></span></span>
-                                                    @endif
-                                               
+                                                    @php $downloadFile = $item->merged_file_id ? $item->mergedFile : $item->file; @endphp
+                                                    <span class="text-primary cursor-pointer" wire:click="downloadFile('{{$downloadFile->path}}','{{$downloadFile->filename}}','{{$item->fileType->is_upload}}')">
+                                                        <u>{{$item->display_name}}</u>
+                                                        @unless ($item->fileType->is_upload == 1)
+                                                            <span class="bg-pastel-primary rounded-circle"><i class="fa-solid fa-signature"></i></span>
+                                                        @endunless
+                                                    </span>
                                                 @else
-                                                <span> {{$item->display_name}}</span>
+                                                    <span> {{$item->display_name}}</span>
                                                 @endif
                                             </div>
                                         </td>

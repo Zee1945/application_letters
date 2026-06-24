@@ -24,6 +24,7 @@ class ApplicationSchedule extends Model
         'speaker_text',
         'department_id',
         'application_id',
+        'officer_text',
         'delete_note',
         'created_by',
         'updated_by',

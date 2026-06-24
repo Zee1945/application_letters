@@ -4,7 +4,7 @@
             <tr>
                 <th>Tanggal/Waktu</th>
                 <th>Acara</th>
-                <th>Narasumber & Moderator</th>
+                <th>Petugas</th>
                 <th></th>
             </tr>
         </thead>
@@ -13,8 +13,14 @@
                 <tr>
                     <!-- Tanggal/Waktu -->
                     <td style="width: 200px">
-                        <input type="date" class="form-control"
-                               wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.date" {!! $this->handleDisable !!}>
+                        <select class="form-select"
+                                wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.date" {!! $this->handleDisable !!}>
+                            @forelse ($this->dateOptionsFor($row['date'] ?? '') as $opt)
+                                <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                            @empty
+                                <option value="">— Isi Tanggal Pelaksanaan dahulu —</option>
+                            @endforelse
+                        </select>
                         <div class="d-flex mt-3">
                             <input type="time" class="form-control"
                                    wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.start_date" {!! $this->handleDisable !!}>
@@ -31,37 +37,27 @@
                     </td>
 
                 <td>
-                        <div>
-                            <strong>Narasumber:</strong>
-                            @foreach ($this->options['opt_speakers'] as $key => $speaker)
-                                <div class="d-flex align-items-center mb-2">
-                                    <input type="checkbox" 
-                                           id="speaker_{{ $index }}_{{ $key }}"
-                                           class="form-check-input"
-                                           wire:click="toggleSpeaker({{ $index }}, `{{ $speaker['text'] }}`)"
-                                           {{ in_array($speaker['text'], $row['speaker_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
-                                    <label for="speaker_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
-                                        {{ $speaker['text'] }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-
+                        @foreach ($this->options_2 as $key => $opt)
                         <div class="mt-2">
-                            <strong>Moderator:</strong>
-                            @foreach ($this->options['opt_moderators'] as $key => $moderator)
+                            <strong>{{ $opt['label']}}:</strong>
+                            @foreach ($opt['officers'] as $k => $ofc)
                                 <div class="d-flex align-items-center mb-2">
                                     <input type="checkbox" 
-                                           id="moderator_{{ $index }}_{{ $key }}"
+                                           id="{{ $opt['slug'] }}_{{ $k }}"
                                            class="form-check-input"
-                                           wire:click="toggleModerator({{ $index }}, `{{ $moderator['text'] }}`)"
-                                           {{ in_array($moderator['text'], $row['moderator_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
+                                           wire:click="toggleOfficer({{ $index }}, `{{ $ofc }}`)"
+                                           {{ in_array($ofc, $row['officer_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
                                     <label for="moderator_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
-                                        {{ $moderator['text'] }}
+                                       
+                                        {{ $this->_formatStripe($ofc) }}
                                     </label>
                                 </div>
                             @endforeach
                         </div>
+                        @endforeach
+
+
+
                         {{-- @dump(isset($row['moderator_text'], $row['speaker_text']))
                         @if (
                             isset($row['moderator_text'], $row['speaker_text']) &&

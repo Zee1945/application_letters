@@ -13,12 +13,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ApplicationsExport implements FromView,WithEvents
 {
     protected $participants;
-    protected $draft_costs;
 
-    public function __construct($participants, $draft_costs)
+    public function __construct($participants)
     {
         $this->participants = $participants;
-        $this->draft_costs = $draft_costs;
     }
 
     /**
@@ -34,13 +32,11 @@ class ApplicationsExport implements FromView,WithEvents
 
         $commitee = $this->filterParticipantByName('Panitia');
         $participants = $this->filterParticipantByName('Peserta');
-        $draft_costs = $this->draft_costs;
 
         return view('exports.application', [
             'speaker_moderator' => $speaker_moderator,
             'commitee' => $commitee,
             'participants' => $participants,
-            'draft_costs' => $draft_costs,
         ]);
     }
 

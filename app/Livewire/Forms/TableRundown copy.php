@@ -2,25 +2,21 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\ApplicationParticipant;
 use App\Models\ParticipantType;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rules\Exists;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class TableRundown extends Component
 {
-    public $application_id;
     public $get_moderators = [];
     public $get_speakers = [];
     public $participants = [];
 
     public $handleDisable='';
 
-    public $options = ['opt_moderators' => [], 'opt_speakers' => []];
-    public $options_2 = [];
-    public $participant_types = [];
+    public $options = [];
 
     /**
      * Opsi tanggal untuk dropdown, diambil dari activity_dates (application_details).
@@ -36,12 +32,10 @@ class TableRundown extends Component
         ['date' => '', 'start_date' => '', 'end_date' => '', 'name' => null, 'speaker_text' => [], 'moderator_text' => [],'officer_text'=>[]],
     ];
 
-    public function mount($rundowns,$participants=[],$handleDisable="",$activityDates="",$applicationId=null)
+    public function mount($rundowns,$participants=[],$handleDisable="",$activityDates="")
     {
         $this->handleDisable = $handleDisable;
-        $this->application_id = $applicationId;
         $this->dateOptions = $this->buildDateOptions($activityDates);
-        $this->participant_types = ParticipantType::get()->toArray();
 
         $this->rundown = count($rundowns) > 0
             ? $this->denormalizeData($rundowns)
@@ -49,7 +43,6 @@ class TableRundown extends Component
        if (count($participants)>0) {
             $this->receiveParticipant($participants);
        }
-       
     }
 
     /**
@@ -141,8 +134,8 @@ class TableRundown extends Component
         return $options;
     }
     public function render()
-    {   
-        $this->participant_types = ParticipantType::get()->toArray(); 
+    {
+    
         return view('livewire.forms.table-rundown');
     }
     public function filterUserByType($participant_type_name)
@@ -185,52 +178,77 @@ class TableRundown extends Component
             if (!empty($row['end_date'])) {
                 $row['end_date'] = date('H:i', strtotime($row['end_date']));  // Ambil hanya jam dan menit
             }
-            $join_all_officers = [];
 
             // Konversi speakers dan moderators yang menggunakan format "nama-instansi" menjadi array
             if (!empty($row['speaker_text'])) {
-
-                $row['speaker_text'] = explode(';', $row['speaker_text']);
-                     $matched = array_filter($this->participant_types, function($pt){
-                            return $pt['slug'] === 'narasumber';
-                    });
-                    $prt_type_spk = reset($matched);
-                $format_hashtag_spk = array_map(function($spk) use ($prt_type_spk){
-                    list($name,$institution) =  explode('-',$spk);
-                    return $name.'###'.$institution.'###'.$prt_type_spk['id'];
-                },$row['speaker_text']);
-                // array_push($join_all_officers,$format_hashtag_spk);
-                $join_all_officers = array_merge($join_all_officers,$format_hashtag_spk);
-
+                $this->options = [
+                    $this->_buildOfficerOption('Narasumber', $row['speaker_text']),
+                ];
             }
 
             if (!empty($row['moderator_text'])) {
-                Log::info($row);
-                Log::info($this->participant_types);
                 $row['moderator_text'] = explode(';', $row['moderator_text']);
-                $matched_mod = array_filter($this->participant_types, function($pt){
-                            return $pt['slug'] === 'moderator';
-                    });
-                    $prt_type_spk = reset($matched_mod);
-                $format_hashtag_mod = array_map(function($spk) use ($prt_type_spk){
-                    list($name,$institution) =  explode('-',$spk);
-                    return $name.'###'.$institution.'###'.$prt_type_spk['id'];
-                },$row['moderator_text']);
-                $join_all_officers = array_merge($join_all_officers,$format_hashtag_mod);
 
+                $moderators = $this->_buildOfficerOption('Narasumber', $row['speaker_text']);
+                $this->options = [...$this->options,$moderators];
             }
-
-            // officer_text tersimpan sebagai string "a###b###c;..." dipisah ";".
-            // Pecah jadi array agar checkbox options_2 bisa tahu mana yang tercentang.
-            if (!empty($row['officer_text'])) {
-                // $row['officer_text'] = explode(';', $row['officer_text']);
-                $join_all_officers = array_merge($join_all_officers,explode(';', $row['officer_text']));
-            }
-            $row['officer_text'] = [...$join_all_officers];
-
         }
 
         return $data;
+    }
+
+    /**
+     * Bangun satu entri opsi officer dari string mentah "nama-instansi" yang
+     * dipisah ";" (mis. "Budi-UGM;Ani-ITB"), berdasarkan nama tipe peserta.
+     *
+     * Tiap officer diformat ke pola "nama###instansi###partypeid".
+     *
+     * @return array{slug:string,label:string,officers:array<int,string>}
+     */
+    private function _buildOfficerOption(string $participantTypeName, string $rawText): array
+    {
+        $partType = ParticipantType::whereName($participantTypeName)->first();
+        $partTypeId = $partType->id ?? null;
+
+        $officers = array_map(
+            fn($item) => $this->_formatHashtagSeparator($item, $partTypeId),
+            explode(';', $rawText)
+        );
+
+        return [
+            'slug'     => $partType['slug'],
+            'label'    => $partType['name'],
+            'officers' => $officers,
+        ];
+    }
+
+    /**
+     * Ubah text berformat "nama - instansi" menjadi "nama###instansi###partypeid".
+     *
+     * Pemisah pertama "-" diperlakukan sebagai pembatas nama & instansi (spasi di
+     * sekitarnya dirapikan). Jika instansi mengandung "-" lagi, sisanya tetap utuh.
+     * partypeid ditempel di akhir hanya jika $parTypeId tidak null.
+     *
+     * Contoh: ("Budi - UGM", 2) => "Budi###UGM###2"
+     */
+    private function _formatHashtagSeparator($text, $parTypeId = null)
+    {
+        if (empty($text)) {
+            return $text;
+        }
+
+        // Pisah pada "-" pertama saja agar instansi yang mengandung "-" tidak ikut terpecah.
+        $parts = explode('-', $text, 2);
+        $name = trim($parts[0]);
+        $institution = isset($parts[1]) ? trim($parts[1]) : '';
+
+        $result = $name . '###' . $institution;
+
+        if ($parTypeId !== null) {
+            $result .= '###' . $parTypeId;
+        }
+
+        return $result;
     }
 
     public function normalizeData($rundowns)
@@ -262,22 +280,19 @@ class TableRundown extends Component
             }else{
                 $row['moderator_text'] = null;
             }
-            if (!empty($row['officer_text'])) {
-                $row['officer_text'] = implode(';', $row['officer_text']);  // Gabungkan array menjadi string dengan pemisah ;
-            }else{
-                $row['officer_text'] = null;
-            }
         }
 
         return $data;
     }
 
     public function debug(){
+        // dd($this->normalizeData($this->rundown));
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns',[...$normalizeData]);
 
     }
     public function syncRundown(){
+        // dd($this->normalizeData($this->rundown));
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns',[...$normalizeData]);
     }
@@ -327,87 +342,29 @@ class TableRundown extends Component
     #[On('transfer-participant-to-rundown')]
     public function receiveParticipant($participant)
     {
-       $this->participant_types = ParticipantType::get()->toArray();
-        $moderator_id = ParticipantType::where('name','Moderator')->first()->id;
-        $speaker_id = ParticipantType::where('name','Narasumber')->first()->id;
-        $option_participants = array_filter($participant,function($par){
-            return $par['is_option_rundown'] === 1;
-        });
-        foreach ($option_participants??[] as $key => $pt) {
-            //    if ($pt['participant_type_id'] == $moderator_id) {
-            //     $this->options['opt_moderators'][]=['text'=>$pt['name'].'-' .$pt['institution']];
-            //    }
-            //    if ($pt['participant_type_id'] == $speaker_id) {
-            //     $this->options['opt_speakers'][]=['text'=>$pt['name'].'-' .$pt['institution']];
-            //    }  
-               
-               $this->buildOptions($pt);
-
-        }
-      
-    }
-
-    public function buildOptions($prt){
-        // dd($prt);
-        // array_filter mengembalikan array of array; ambil elemen pertama yang cocok.
-        $matched = array_filter($this->participant_types, function($pt) use($prt){
-                return $prt['participant_type_id'] === $pt['id'];
-        });
-        $prt_type = reset($matched);
-
-        // Tidak ada tipe peserta yang cocok — tidak ada yang bisa dibangun.
-        if (empty($prt_type)) {
-            return;
-        }
-
-        // $formatted_ofc = $this->_formatHashtagSeparator($prt['name'], $prt['institution'], $prt['participant_type_id']);
-        $formatted_ofc = $prt['name'].'###'.$prt['institution'].'###'.$prt_type['id'] ;
-
-        // Cari index entri opsi yang slug-nya sama. Simpan index (bukan salinan)
-        // agar bisa memodifikasi $this->options_2 secara langsung.
-        $foundIndex = null;
-        foreach ($this->options_2 as $key => $item) {
-            if ($item['slug'] === $prt_type['slug']) {
-                $foundIndex = $key;
-                break;
-            }
-        }
-
-        if ($foundIndex === null) {
-            // Belum ada: buat entri baru.
-            $this->options_2[] = [
-                'slug'     => $prt_type['slug'],
-                'label'    => $prt_type['name'],
-                'officers' => [$formatted_ofc],
-             ];
-        } else {
-            // Sudah ada: tambahkan officer baru (hindari duplikat).
-            if (!in_array($formatted_ofc, $this->options_2[$foundIndex]['officers'], true)) {
-                $this->options_2[$foundIndex]['officers'][] = $formatted_ofc;
-            }
+        
+    
+        $only_opt_participants = array_filter($participant,function($pts){
+                    return $pts['is_option_rundown'] === 1;
+            });
+        foreach ($only_opt_participants??[] as $key => $pt) {
+                $part_type = ParticipantType::find($pt['participant_type_id'])->first();
+                $spk_options = null;
+                foreach ($this->options as $item) {
+                    if ($item['slug'] === $part_type['slug']) {
+                        $spk_options = $item;
+                        break;
+                    }
+                }
+                if ($spk_options) {
+                    $dashed_pt =  $pt['name'].'-'.$pt['institution'];
+                    $formatted_pt = $this->_formatHashtagSeparator($dashed_pt,$pt['participant_type_id']);
+                    array_push($spk_options['officer'],$formatted_pt);
+                }else{
+                    $this->_buildOfficerOption()
+                }
         }
     }
-
-    private function _formatHashtagSeparator(string $name,string $institution,$parTypeId = null)
-    {
-        if (empty($name)) {
-            return $name;
-        }
-        $result = $name . '###' . $institution;
-
-        if ($parTypeId !== null) {
-            $result .= '###' . $parTypeId;
-        }
-
-        return $result;
-    }
-
-    public function _formatStripe($user_text)
-    {
-        list($name,$institution) = explode('###',$user_text);
-
-        return $name.' - '.$institution;
-}
 
     public function toggleSpeaker($rowIndex, $speakerText)
     {
@@ -428,27 +385,7 @@ class TableRundown extends Component
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
     }
-    public function toggleOfficer($rowIndex, $officerText)
-    {
-        
-        if (!isset($this->rundown[$rowIndex]['officer_text'])) {
-            $this->rundown[$rowIndex]['officer_text'] = [];
-        }
-        
-        $currentOfficers = $this->rundown[$rowIndex]['officer_text'];
-        
-        if (in_array($officerText, $currentOfficers)) {
-            $this->rundown[$rowIndex]['officer_text'] = array_values(
-                array_diff($currentOfficers, [$officerText])
-            );
-        } else {
-            $this->rundown[$rowIndex]['officer_text'][] = $officerText;
-        }
 
-        // Dispatch update
-        $normalizeData = $this->normalizeData($this->rundown);
-        $this->dispatch('transfer-rundowns', rundowns: $normalizeData);
-    }
     public function toggleModerator($rowIndex, $moderatorText)
     {
         if (!isset($this->rundown[$rowIndex]['moderator_text'])) {

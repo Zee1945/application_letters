@@ -470,7 +470,42 @@ class ApplicationService
     }
 
 
+    /**
+     * Versi baru: file absensi/SPJ/notulensi TIDAK lagi dibuat sebagai record
+     * application_files karena sudah dilampirkan ke dalam PDF merge LPJ.
+     * File tetap tersimpan di report_attachments (sumber data merge).
+     * Hanya materi narasumber yang tetap ditampilkan sebagai application_files.
+     */
     public static function storeAttachmentToDetails($app,$is_regenerate=false){
+
+        try {
+            DB::beginTransaction();
+
+            $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
+
+            if (count($participant_speakers) > 0) {
+                foreach ($participant_speakers as $key => $par) {
+                    self::updateApplicationFilesReport($app, 'materi_narasumber', $par->material_file_id, $par->id);
+                }
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Error saat memproses attachment: ' . $th->getMessage(), ['exception' => $th]);
+            throw $th;
+        }
+    }
+
+    /**
+     * BACKUP fungsi lama (sebelum file absensi/SPJ/notulensi dipindah ke PDF merge).
+     * Masih membuat record application_files untuk ketiga jenis file tersebut dan
+     * me-rename file fisik di MinIO. Disimpan untuk rollback cepat bila diperlukan.
+     *
+     * @deprecated Gunakan storeAttachmentToDetails().
+     */
+    public static function storeAttachmentToDetailsLegacy($app,$is_regenerate=false){
 
         try {
     DB::beginTransaction(); // Mulai transaksi database
@@ -848,13 +883,26 @@ class ApplicationService
                 foreach ($participants as $key => $value) {
                     $participant = ApplicationParticipant::updateOrCreate($value);
                 }
-
                 foreach ($rundowns as $key => $value) {
                     $value['department_id']= $app->department_id;
                     $value['application_id']= $app->id;
+
+                    // Saring officer_text: hanya pertahankan officer yang benar-benar
+                    // ada di application_participants (cek nama+instansi+participant_type_id),
+                    // hilangkan duplikat, lalu buang yang tidak ditemukan.
+                    if (!empty($value['officer_text'])) {
+                        $value['officer_text'] = self::sanitizeOfficerText($value['officer_text'], $app->id);
+                    }
+
                     $rundown = ApplicationSchedule::updateOrCreate($value);
                 }
                 foreach ($draft_costs as $key => $value) {
+                    // Lewati baris kosong/setengah-isi: minimal harus ada item & sub_item.
+                    if (empty($value['item']) || empty($value['sub_item'])) {
+                        continue;
+                    }
+                    $value['department_id'] = $app->department_id;
+                    $value['application_id'] = $app->id;
                     $value['volume_realization'] = $value['volume'];
                     $value['unit_cost_realization'] = $value['cost_per_unit'];
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
@@ -1077,24 +1125,26 @@ class ApplicationService
 
 
     public static function clearData($app){
+        // Hard delete: data dihapus permanen dari DB (bukan soft delete),
+        // karena clearData dimaksudkan membersihkan data lama secara tuntas.
         // Menghapus semua peserta
         if ($app->participants->isNotEmpty()) {
             foreach ($app->participants as $participant) {
-                $participant->delete();
+                $participant->forceDelete();
             }
         }
 
         // Menghapus semua jadwal
         if ($app->schedules->isNotEmpty()) {
             foreach ($app->schedules as $schedule) {
-                $schedule->delete();
+                $schedule->forceDelete();
             }
         }
 
         // Menghapus semua draftCostBudgets
         if ($app->draftCostBudgets->isNotEmpty()) {
             foreach ($app->draftCostBudgets as $draftCostBudget) {
-                $draftCostBudget->delete();
+                $draftCostBudget->forceDelete();
             }
         }
 
@@ -1381,6 +1431,95 @@ public static function getListReport($search = '', $status_approval = '', $depar
             ]);
             return ['status' => false, 'message' => 'Gagal menghapus file.'];
         }
+    }
+
+    /**
+     * Hapus satu peserta beserta seluruh file terkaitnya (cv, idcard, npwp, material)
+     * agar tidak ada file orphan di MinIO. File dihapus via destroyAttachments,
+     * lalu record peserta di-hapus permanen.
+     */
+    public static function destroyParticipant($participant_id)
+    {
+        try {
+            $participant = ApplicationParticipant::find($participant_id);
+            if (!$participant) {
+                return ['status' => false, 'message' => 'Peserta tidak ditemukan.'];
+            }
+
+            // Bersihkan tiap file peserta lebih dulu (jika ada) agar tidak orphan.
+            $file_columns = ['cv_file_id', 'idcard_file_id', 'npwp_file_id', 'material_file_id'];
+            foreach ($file_columns as $column) {
+                if (!empty($participant->{$column})) {
+                    self::destroyAttachments($participant->{$column}, ['application_participants']);
+                }
+            }
+
+            $participant->forceDelete();
+
+            return ['status' => true, 'message' => 'Peserta berhasil dihapus.'];
+        } catch (\Throwable $th) {
+            Log::error('Gagal menghapus peserta: ' . $th->getMessage(), [
+                'participant_id' => $participant_id,
+            ]);
+            return ['status' => false, 'message' => 'Gagal menghapus peserta.'];
+        }
+    }
+
+    /**
+     * Saring string officer_text rundown.
+     *
+     * Format tiap officer: "nama###instansi###participant_type_id", dipisah ";".
+     * Tiap officer dicek ke application_participants (nama + instansi + participant_type_id
+     * milik aplikasi ini). Officer yang tidak ditemukan dibuang. Duplikat dihilangkan.
+     *
+     * @param string $officerText  mis. "Budi###UGM###4;Ani###ITB###2"
+     * @param int    $applicationId
+     * @return string  officer_text yang sudah disaring (string kosong jika tak ada yang valid)
+     */
+    public static function sanitizeOfficerText($officerText, $applicationId)
+    {
+        if (empty($officerText)) {
+            return $officerText;
+        }
+
+        $valid = [];
+        $seen = [];
+
+        foreach (explode(';', $officerText) as $officer) {
+            $officer = trim($officer);
+            if ($officer === '') {
+                continue;
+            }
+
+            // Hilangkan duplikat (kunci = string officer apa adanya).
+            if (isset($seen[$officer])) {
+                continue;
+            }
+
+            $parts = explode('###', $officer);
+            // Harus lengkap: nama, instansi, participant_type_id.
+            if (count($parts) < 3) {
+                continue;
+            }
+
+            $name = trim($parts[0]);
+            $institution = trim($parts[1]);
+            $typeId = trim($parts[2]);
+
+            // Cek keberadaan peserta di aplikasi ini.
+            $exists = ApplicationParticipant::where('application_id', $applicationId)
+                ->where('name', $name)
+                ->where('institution', $institution)
+                ->where('participant_type_id', $typeId)
+                ->exists();
+
+            if ($exists) {
+                $seen[$officer] = true;
+                $valid[] = $officer;
+            }
+        }
+
+        return implode(';', $valid);
     }
 
     /**

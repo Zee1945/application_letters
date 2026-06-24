@@ -30,9 +30,6 @@
             <th></th>
             <th></th>
             <th colspan="6" style="font-weight: bold; text-align: center; font-size: 15rem;">Pilih Peserta</th>
-            <th></th>
-            <th></th>
-            <th colspan="8" style="font-weight: bold; text-align: center; font-size: 15rem;"><h5>Susun Rencana Anggaran Biaya</h5></th>
         </tr>
         <tr>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
@@ -58,16 +55,6 @@
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Pangkat (Golongan)</th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan Fungsional</th>
             <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Jabatan-Lembaga</th>
-            <th></th>
-            <th></th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">No</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Kode</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Item</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Sub Item</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Volume</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Satuan</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Harga per Unit</th>
-            <th style="border: 3px solid black; font-weight:bold; text-align:center; background-color:#156082;color:white">Total</th>
         </tr>
     </thead>
     <tbody>
@@ -76,7 +63,6 @@
                 count($speaker_moderator),
                 count($commitee),
                 count($participants),
-                count($draft_costs),
             );
         @endphp
 
@@ -110,18 +96,6 @@
                 <td style="border: 3px solid black;">{{ $participants[$i]['rank'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $participants[$i]['functional_position'] ?? '' }}</td>
                 <td style="border: 3px solid black;">{{ $participants[$i]['institution'] ?? '' }}</td>
-                <td></td>
-                <td></td>
-
-                {{-- RAB --}}
-                <td style="border: 3px solid black;">{{ $i + 1 }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['code'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['item'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['sub_item'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['volume'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['unit'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['cost_per_unit'] ?? '' }}</td>
-                <td style="border: 3px solid black;">{{ $draft_costs[$i]['total'] ?? '' }}</td>
             </tr>
         @endfor
     </tbody>

@@ -16,7 +16,10 @@
                 @if ($participantType != 'participant')
                     <th>Peran</th>
                 @endif
-            
+                @if ($handleDisable != 'disabled')
+                    <th class="text-center">Aksi</th>
+                @endif
+
             </tr>
         </thead>
         @php
@@ -59,6 +62,20 @@
                         @endif
                     </td>
 
+                    @if ($handleDisable != 'disabled')
+                        <td class="text-center text-nowrap">
+                            <button type="button" class="btn btn-xs btn-outline-primary p-2 me-1"
+                                    wire:click="$dispatch('edit-participant', { index: {{ $index }} })"
+                                    title="Edit">
+                                <i class="fa-solid fa-pen me-0" style="font-size: 0.8rem"></i>
+                            </button>
+                            <button type="button" class="btn btn-xs btn-outline-danger p-2"
+                                    wire:click="$dispatch('confirm-delete-participant', { index: {{ $index }} })"
+                                    title="Hapus">
+                                <i class="fa-solid fa-trash me-0" style="font-size: 0.8rem"></i>
+                            </button>
+                        </td>
+                    @endif
 
                 </tr>
             @endforeach

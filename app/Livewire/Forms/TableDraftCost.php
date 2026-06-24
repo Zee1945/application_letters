@@ -2,80 +2,133 @@
 
 namespace App\Livewire\Forms;
 
-use Livewire\Attributes\On;
+use App\Exports\DraftCostTemplateExport;
+use App\Imports\DraftCostImport;
+use Livewire\Attributes\Modelable;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TableDraftCost extends Component
 {
+    use WithFileUploads;
 
+    /**
+     * Struktur FLAT per baris: tiap baris satu rincian lengkap.
+     * Disinkronkan dua arah dengan properti parent via wire:model (#[Modelable]),
+     * sehingga tidak perlu dispatch event manual / saling lempar data.
+     */
+    #[Modelable]
     public $draft_costs = [];
-    public $current_code = '';
-    public $sample =[];
-    public function mount($draftCosts=[])
+
+    public $handleDisable = '';
+
+    /** File excel untuk bulk insert */
+    public $excel_file = null;
+
+    /** Kontrol tampil/sembunyi modal import excel */
+    public $show_import_modal = false;
+
+    // Default 1 baris kosong
+    public $blankRow = [
+        'code' => '',
+        'item' => '',
+        'sub_item' => '',
+        'volume' => '',
+        'unit' => '',
+        'cost_per_unit' => '',
+        'total' => '',
+    ];
+
+    public function mount($handleDisable = '')
     {
-        if (count($draftCosts) > 0) {
-            $this->receiveDraftCost($draftCosts);
+        $this->handleDisable = $handleDisable;
+
+        // Modelable mengisi $draft_costs dari parent secara otomatis.
+        // Pastikan minimal ada 1 baris kosong jika parent kosong.
+        if (count($this->draft_costs) === 0) {
+            $this->draft_costs = [$this->blankRow];
         }
     }
+
     public function render()
     {
         return view('livewire.forms.table-draft-cost');
     }
 
-    #[On('transfer-draft-costs')]
-    public function receiveDraftCost($draft_costs)
+    public function openImportModal()
     {
-        $this->sample = $draft_costs;
-        // $this->draft_costs = $draft_costs;
-        $this->draft_costs = $this->getDistinctDataByCodeAndItem($draft_costs);
+        $this->reset('excel_file');
+        $this->resetErrorBag('excel_file');
+        $this->show_import_modal = true;
     }
 
-    public function debugger(){
-        $data = $this->getDistinctDataByCodeAndItem( $this->sample);
-        dd($data);
-    }
-
-    public function mapDataByCodeAndItem($data)
+    public function closeImportModal()
     {
-
+        $this->show_import_modal = false;
+        $this->reset('excel_file');
+        $this->resetErrorBag('excel_file');
     }
-    public function getDistinctDataByCodeAndItem($data)
+
+    public function addRow()
     {
-        // $data = [
-        //     ['code' => 'MAK', 'item' => '5123.BGCG.001.065.GS.525122'],
-        //     ['code' => '525112', 'item' => 'Belanja Barang'],
-        //     ['code' => '525113', 'item' => 'Belanja Jasa']
-        // ];
-
-        $raw_data = $data;
-        // Membuat kombinasi unik berdasarkan code dan item
-        $uniqueData = array_values(
-            array_unique(
-                array_map(function ($value) {
-                    return $value['code'] . '|' . $value['item']; // Menggabungkan code dan item untuk keunikan
-                }, $data)
-            )
-        );
-
-        $distinctData = array_map(function($code_item) use ($raw_data){
-            list($code, $item) = explode('|', $code_item);
-            $new_item = ['key' => $item,'code'=>$code,'item'=>$item, 'is_parent' => true, 'children_total' => 0, 'children' => []];
-            $new_item['children'] = array_filter($raw_data, function ($child) use ($code, $item, &$new_item) {
-                if ($child['code'] == $code && $child['item'] == $item && !empty($child['sub_item'])) {
-                    $new_item['children_total']++;
-                    return true; // Pastikan elemen dimasukkan ke dalam array
-                }
-            });
-            return $new_item;
-        },$uniqueData);
-
-
-        // Ambil data yang sesuai dengan kombinasi code dan item yang unik
-
-        return $distinctData;
+        $this->draft_costs[] = $this->blankRow;
     }
 
+    public function removeRow($index)
+    {
+        if (count($this->draft_costs) > 1) {
+            array_splice($this->draft_costs, $index, 1);
+        }
+    }
 
+    /**
+     * Auto-hitung total tiap kali volume / cost_per_unit berubah.
+     * Perubahan $draft_costs otomatis ter-sync ke parent via #[Modelable].
+     */
+    public function updatedDraftCosts($value, $key)
+    {
+        // $key contoh: "0.volume" atau "2.cost_per_unit"
+        [$index, $field] = array_pad(explode('.', $key), 2, null);
 
+        if (in_array($field, ['volume', 'cost_per_unit'])) {
+            $volume = (float) ($this->draft_costs[$index]['volume'] ?? 0);
+            $cost   = (float) ($this->draft_costs[$index]['cost_per_unit'] ?? 0);
+            $this->draft_costs[$index]['total'] = $volume * $cost;
+        }
+    }
 
+    /**
+     * Bulk insert dari file Excel. Hasil parse menggantikan baris yang ada,
+     * lalu otomatis ter-sync ke parent via #[Modelable].
+     */
+    public function importExcel()
+    {
+        $this->validate([
+            'excel_file' => 'required|mimes:xlsx,xls',
+        ], [
+            'excel_file.required' => 'Silakan pilih file Excel terlebih dahulu.',
+            'excel_file.mimes' => 'File harus berformat .xlsx atau .xls.',
+        ]);
+
+        $importer = new DraftCostImport();
+        Excel::import($importer, $this->excel_file);
+
+        $rows = $importer->rows;
+
+        if (count($rows) > 0) {
+            $this->draft_costs = $rows;
+        }
+
+        $this->reset('excel_file');
+        $this->show_import_modal = false;
+    }
+
+    /**
+     * Unduh template Excel kosong untuk diisi user.
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new DraftCostTemplateExport(), 'template-rincian-anggaran.xlsx');
+    }
 }

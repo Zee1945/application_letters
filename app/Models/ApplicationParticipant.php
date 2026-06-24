@@ -33,6 +33,7 @@ class ApplicationParticipant extends Model
         'cv_file_id',
         'idcard_file_id',
         'npwp_file_id',
+        'is_option_rundown',
         'created_by',
         'updated_by',
         'deleted_by',

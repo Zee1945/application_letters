@@ -70,7 +70,7 @@ public static function generateStatusFileHTML($status_number)
             $label = 'Merging';
             $color = 'info';
         } elseif ($status_number == 5) {
-            $label = 'Merged + Tersedia';
+            $label = 'Tersedia';
             $color = 'success';
         } else {
             $label ='Gagal';
@@ -175,6 +175,11 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
     {
         $date = Carbon::parse($date)->locale('id');
         return $date->translatedFormat($format);
+    }
+
+    public static function slugify(string $value): string
+    {
+        return rtrim(preg_replace('/-+/', '-', preg_replace('/[^a-z0-9-]/', '-', strtolower(trim($value)))), '-');
     }
 
     public static function handleFieldDisabled($application,$is_letter_number =false,$is_report=false) {

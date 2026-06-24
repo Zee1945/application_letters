@@ -120,6 +120,11 @@ class FileManagementService
                         $update_file_type= $update_file_type->where('participant_id',$app_file->participant_id);
                     }    
                     $update_file_type = $update_file_type->first();
+
+                    // Simpan id file lama SEBELUM ditimpa, untuk dihapus nanti
+                    // (hanya setelah seluruh proses simpan file baru sukses & commit).
+                    $old_file_id = $update_file_type->{$target_column};
+
                     $update_file_type->{$target_column} = $res->id;
                     $update_file_type->status_ready = $status_ready;
                     $update_file_type->save();
@@ -127,6 +132,12 @@ class FileManagementService
 
 
                     DB::commit();
+
+                    // Semua proses berhasil → baru bersihkan dokumen lama.
+                    // Dilakukan setelah commit agar bila penyimpanan file baru gagal,
+                    // file lama tetap utuh (tidak ada kehilangan data).
+                    self::deleteOldFileIfUnused($old_file_id, $res->id);
+
                     return ['status'=>true,'message'=> 'Berhasil Simpan File','data' => $res];
                 } catch (\Throwable $th) {
                     //throw $th;
@@ -138,6 +149,87 @@ class FileManagementService
             Log::info('END CONVERT FILE TO PDF - SUCCESS');
             return ['status'=>false,'message'=>'Gagal menyimpan file ke storage'];
         }
+     }
+
+     /**
+      * Hapus file lama (fisik di MinIO + record di tabel files) dengan aman.
+      *
+      * Hanya menghapus jika:
+      *  - $old_file_id valid dan berbeda dari file baru ($new_file_id)
+      *  - file lama TIDAK lagi direferensikan kolom/record lain manapun
+      *
+      * Kegagalan di sini tidak dilempar (hanya di-log), karena penyimpanan file
+      * baru sudah sukses & ter-commit — cleanup yang gagal tidak boleh
+      * membatalkan operasi yang sudah berhasil.
+      */
+     protected static function deleteOldFileIfUnused($old_file_id, $new_file_id): void
+     {
+        try {
+            if (empty($old_file_id) || $old_file_id == $new_file_id) {
+                return;
+            }
+
+            if (self::isFileStillReferenced($old_file_id)) {
+                Log::info('Lewati hapus file lama: masih direferensikan record lain.', ['file_id' => $old_file_id]);
+                return;
+            }
+
+            $old_file = Files::find($old_file_id);
+            if (!$old_file) {
+                return;
+            }
+
+            // path tersimpan sebagai folder + filename terpisah
+            $full_path = rtrim($old_file->path, '/') . '/' . $old_file->filename;
+
+            if (Storage::disk('minio')->exists($full_path)) {
+                Storage::disk('minio')->delete($full_path);
+            }
+
+            $old_file->delete();
+
+            Log::info('File lama berhasil dihapus saat regenerate.', ['file_id' => $old_file_id, 'path' => $full_path]);
+        } catch (\Throwable $th) {
+            Log::warning('Gagal menghapus file lama (diabaikan, file baru sudah tersimpan): ' . $th->getMessage(), [
+                'old_file_id' => $old_file_id,
+            ]);
+        }
+     }
+
+     /**
+      * Cek apakah sebuah file masih direferensikan di kolom/tabel manapun.
+      */
+     protected static function isFileStillReferenced($file_id): bool
+     {
+        // application_files: file_id atau merged_file_id
+        $inApplicationFiles = \App\Models\ApplicationFile::where('file_id', $file_id)
+            ->orWhere('merged_file_id', $file_id)
+            ->exists();
+        if ($inApplicationFiles) {
+            return true;
+        }
+
+        // report_attachments
+        if (\App\Models\ReportAttachment::where('file_id', $file_id)->exists()) {
+            return true;
+        }
+
+        // application_participants: cv/idcard/npwp/material
+        $inParticipants = \App\Models\ApplicationParticipant::where('cv_file_id', $file_id)
+            ->orWhere('idcard_file_id', $file_id)
+            ->orWhere('npwp_file_id', $file_id)
+            ->orWhere('material_file_id', $file_id)
+            ->exists();
+        if ($inParticipants) {
+            return true;
+        }
+
+        // draft_cost_budget_files (pivot kuitansi/SPBY)
+        if (DB::table('draft_cost_budget_files')->where('file_id', $file_id)->exists()) {
+            return true;
+        }
+
+        return false;
      }
 
      public static function generateFilename($filename, $application, $fileCode='',$app_file=null,$mimeType = 'pdf'){
