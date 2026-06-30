@@ -12,7 +12,7 @@
                                     <i class="fa-solid fa-calendar-days fa-2x text-primary"></i>
                                 </div>
                                 <div>
-                                    <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate">{{ $this->application->activity_name }}</h5>
+                                    <h5 class="mb-1 text-uppercase fw-bold text-dark text-truncate text-wrap">{{ $this->application->activity_name }}</h5>
                                     <div class="d-flex align-items-center text-muted">
                                         {!! viewHelper::statusSubmissionHTML($this->application->current_approval_status) !!}
                                         <small class="ms-1"> Oleh : {!! viewHelper::getCurrentUserProcess($this->application, true)['name'] !!}</small>
@@ -172,36 +172,36 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Kata Pengantar</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="introduction"></textarea>
                                         </div>
                                         {{-- <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Latar Belakang</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="background" disabled></textarea>
                                         </div> --}}
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="speaker_material"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">
                                                 Kendala</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Simpulan</label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
-                                            <textarea {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
+                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
                                         </div>
                                         
                                         <div class="col-12 d-flex justify-content-end">
@@ -422,16 +422,15 @@
                             @endif
                         {{-- End additional file component --}}
 
-                                            
+   
                                         </div>
-                                        <div class="col-sm-12 col-md-6 mb-3">
+                                        {{-- <div class="col-sm-12 col-md-6 mb-3">
                                             <label for="spj_file" class="form-label fw-bold">
                                            Dokumen SPJ
                                      
                                             </label>
 
 
-                                              {{-- Start additional file component --}}
                                                     @error('spj_file.*')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -503,10 +502,9 @@
                                                         </small>
                                                                             
                                                     @endif
-                                                {{-- End additional file component --}}
-                                        </div>
+                                        </div> --}}
 
-                                        <div class="col-12 mb-3">
+                                        <div class="col-sm-12 col-md-6 mb-3">
                                             <label for="attendence_files" class="form-label fw-bold">
                                                 File Absensi Kehadiran
                                             </label>

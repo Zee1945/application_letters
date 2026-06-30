@@ -11,7 +11,7 @@
                             <div class="ms-auto">
                                 <a class="btn btn-sm btn-outline-secondary" href="{{route('applications.create.draft',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i>Konten Pengajuan</a>
                                 <a class="btn btn-sm btn-outline-secondary" href="{{route('reports.create',['application_id'=>$app->id])}}"><i class='bx bxs-edit'></i> Konten Laporan</a>
-                                <a class="btn btn-sm btn-outline-danger" wire:click="merged"><i class='bx bxs-edit'></i> MergePDF</a>
+                                {{-- <a class="btn btn-sm btn-outline-danger" wire:click="merged"><i class='bx bxs-edit'></i> MergePDF</a> --}}
                     
                         @if (viewHelper::handleFieldDisabled($app) !== 'disabled')
                             <button class="btn btn-sm btn-outline-danger"

@@ -99,8 +99,10 @@ class TableDraftCost extends Component
     }
 
     /**
-     * Bulk insert dari file Excel. Hasil parse menggantikan baris yang ada,
-     * lalu otomatis ter-sync ke parent via #[Modelable].
+     * Bulk insert dari file Excel. Hasil parse DIGABUNG (merge) dengan baris yang
+     * sudah ada — tidak menimpa. Baris kosong (mis. baris default) dibuang dulu
+     * agar tidak menyisakan baris hampa di atas hasil import.
+     * Perubahan $draft_costs otomatis ter-sync ke parent via #[Modelable].
      */
     public function importExcel()
     {
@@ -117,7 +119,13 @@ class TableDraftCost extends Component
         $rows = $importer->rows;
 
         if (count($rows) > 0) {
-            $this->draft_costs = $rows;
+            // Buang baris yang benar-benar kosong (mis. baris default) sebelum merge.
+            $existing = array_filter($this->draft_costs, function ($row) {
+                return !empty($row['item']) || !empty($row['sub_item']) || !empty($row['code']);
+            });
+
+            // Gabungkan: pertahankan data lama yang terisi, tambahkan hasil import.
+            $this->draft_costs = array_values(array_merge($existing, $rows));
         }
 
         $this->reset('excel_file');

@@ -83,10 +83,10 @@ class ApplicationService
 
 
 
-    public static function getListApp($search='',$status_approval='',$department_id='')
+    public static function getListApp($search='',$status_approval='',$department_id='',$year='')
     {
-        $qp_search = isset($search)?$search:null; 
-        
+        $qp_search = isset($search)?$search:null;
+
         $applications = Application::when($qp_search, function($query) use($qp_search) {
                             $query->where('activity_name', 'like', '%'.$qp_search.'%');
                                 if (strtolower(trim($qp_search)) === 'blu') {
@@ -96,6 +96,8 @@ class ApplicationService
                                 }
                         })->when($department_id,function($query) use($department_id){
                             $query->where('department_id',$department_id);
+                        })->when($year,function($query) use($year){
+                            $query->whereYear('created_at', $year);
                         })->when($status_approval,function($query) use($status_approval){
                         //     <select class="form-select form-select-sm" wire:model.live="status_approval">
                         // <option value="">Filter Status</option>
@@ -855,6 +857,18 @@ class ApplicationService
                     DB::commit();
                     return ['status' => false, 'message' => $rundownValidation['message']];
                 }
+
+                // Validasi: harus ada ketua pelaksana (is_signer_commitee = 1).
+                // Cek dari data yang akan disimpan ($participants), karena clearData()
+                // akan menghapus data lama lalu rebuild dari array ini.
+                $hasChief = collect($participants)->contains(function ($p) {
+                    return (int) ($p['is_signer_commitee'] ?? 0) === 1;
+                });
+                if (!$hasChief) {
+                    $is_submit = false;
+                    DB::commit();
+                    return ['status' => false, 'message' => 'Ketua pelaksana belum ditentukan'];
+                }
             }
 
             if ($app->detail?->exists) {
@@ -1187,7 +1201,7 @@ class ApplicationService
 
     }
 
-public static function getListReport($search = '', $status_approval = '', $department_id = '')
+public static function getListReport($search = '', $status_approval = '', $department_id = '', $year = '')
 {
     $qp_search = isset($search) ? $search : null;
 
@@ -1205,6 +1219,9 @@ public static function getListReport($search = '', $status_approval = '', $depar
         })
         ->when($department_id, function ($query) use ($department_id) {
             $query->where('department_id', $department_id);
+        })
+        ->when($year, function ($query) use ($year) {
+            $query->whereYear('created_at', $year);
         })
         ->when($status_approval, function ($query) use ($status_approval) {
             switch ($status_approval) {

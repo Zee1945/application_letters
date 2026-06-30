@@ -1465,10 +1465,7 @@ foreach ($new_data as $index => $item) {
                 'rd_start_date'    => self::sanitizeForXml(ViewHelper::humanReadableDate($row->date)),
                 'rd_start_end_time' => self::sanitizeForXml(ViewHelper::formatDateToHumanReadable($row->start_date,'H:i').' - '. ViewHelper::formatDateToHumanReadable($row->end_date, 'H:i')),
                 'rd_name'   => self::sanitizeForXml(ucwords($row->name)),
-                'rd_moderator_label'=> (!empty($row->moderator_text) ? 'Moderator' : ''),
-                'rd_speaker_label'=> (!empty($row->speaker_text) ? 'Narasumber' : ''),
-                'rd_speaker_list'   => self::speakerListToUnorderedString($row->speaker_text),
-                'rd_moderator_list'   => self::speakerListToUnorderedString($row->moderator_text),
+                'rd_officer_list'   => self::officerListToWordML($row->officer_text),
             ];
             $number++;
         }
@@ -1562,6 +1559,124 @@ foreach ($new_data as $index => $item) {
         // dd($result);
         return $result;
     }
+    /**
+     * Bangun daftar petugas (officer) per peran dari kolom officer_text untuk
+     * disisipkan ke satu placeholder ${rd_officer_list} di template .docx.
+     *
+     * Format input: "nama###instansi###participant_type_id" dipisah ";".
+     * Contoh: "Bagus sekali jadi###Dekan###2;Geboy mujair###tess###6"
+     *
+     * Output (WordML, dirender PhpWord sebagai paragraf ber-line-break):
+     *   [Nama Peran] (tebal)
+     *   • nama (instansi)
+     *   • nama (instansi)
+     *   [Nama Peran lain] (tebal)
+     *   • ...
+     *
+     * Catatan: hanya TEKS yang di-sanitizeForXml; tag WordML (<w:br/>, run bold)
+     * dirangkai mentah di luar sanitasi agar tetap dikenali sebagai markup.
+     */
+    public static function officerListToWordML($officer_text)
+    {
+        if (empty($officer_text)) {
+            return '';
+        }
+
+        // Kelompokkan officer per participant_type_id, jaga urutan kemunculan.
+        $groups = []; // [type_id => ['name'=>..., 'institution'=>...][]]
+        foreach (explode(';', $officer_text) as $officer) {
+            $officer = trim($officer);
+            if ($officer === '') {
+                continue;
+            }
+            $parts = explode('###', $officer);
+            if (count($parts) < 3) {
+                continue; // format tidak lengkap, lewati
+            }
+            $name = trim($parts[0]);
+            $institution = trim($parts[1]);
+            $typeId = trim($parts[2]);
+
+            $groups[$typeId][] = ['name' => $name, 'institution' => $institution];
+        }
+
+        if (empty($groups)) {
+            return '';
+        }
+
+        // Cache nama peran agar tidak query berulang.
+        static $roleNameCache = [];
+
+        $blocks = [];
+        foreach ($groups as $typeId => $officers) {
+            if (!array_key_exists($typeId, $roleNameCache)) {
+                $roleNameCache[$typeId] = ParticipantType::find($typeId)->name ?? '';
+            }
+            $roleName = $roleNameCache[$typeId];
+
+            // Judul peran: Arial MT, ukuran 9pt, tebal.
+            $line = self::runWordML(self::sanitizeForXml($roleName), [
+                'font' => 'Arial MT',
+                'size' => 9,
+                'bold' => true,
+            ]) . '<w:br/>';
+
+            // Tiap officer sebagai bullet: Arial MT, ukuran 7pt.
+            foreach ($officers as $ofc) {
+                $text = '• ' . self::sanitizeForXml($ofc['name']);
+                if ($ofc['institution'] !== '') {
+                    $text .= ' (' . self::sanitizeForXml($ofc['institution']) . ')';
+                }
+                $line .= self::runWordML($text, [
+                    'font' => 'Arial MT',
+                    'size' => 8,
+                ]) . '<w:br/>';
+            }
+
+            $blocks[] = $line;
+        }
+
+        // Beri jarak antar-peran: satu baris kosong (tinggi 8pt) di antara blok.
+        // Pakai run kosong agar tinggi spasi konsisten, bukan mengikuti font default.
+        $spacer = self::runWordML(' ', ['font' => 'Arial MT', 'size' => 8]) . '<w:br/>';
+
+        return implode($spacer, $blocks);
+    }
+
+    /**
+     * Bungkus teks menjadi satu run WordML dengan style (font, ukuran, bold)
+     * yang valid disisipkan di tengah paragraf via setValue/cloneRowAndSetValues.
+     *
+     * Menutup run berjalan, membuka run ber-style, lalu membuka kembali run normal
+     * agar teks/markup setelahnya tetap normal.
+     *
+     * @param string $text  teks yang SUDAH di-sanitizeForXml
+     * @param array  $opts  ['font' => string, 'size' => int (point), 'bold' => bool]
+     */
+    private static function runWordML($text, array $opts = [])
+    {
+        $rPr = '';
+
+        if (!empty($opts['font'])) {
+            $font = htmlspecialchars($opts['font'], ENT_XML1 | ENT_QUOTES, 'UTF-8');
+            $rPr .= '<w:rFonts w:ascii="' . $font . '" w:hAnsi="' . $font . '" w:cs="' . $font . '"/>';
+        }
+        if (!empty($opts['bold'])) {
+            $rPr .= '<w:b/>';
+        }
+        if (!empty($opts['size'])) {
+            // WordML pakai half-point: ukuran point x 2.
+            $sz = (int) round($opts['size'] * 2);
+            $rPr .= '<w:sz w:val="' . $sz . '"/><w:szCs w:val="' . $sz . '"/>';
+        }
+
+        $rPrBlock = $rPr !== '' ? '<w:rPr>' . $rPr . '</w:rPr>' : '';
+
+        return '</w:t></w:r>'
+             . '<w:r>' . $rPrBlock . '<w:t xml:space="preserve">' . $text . '</w:t></w:r>'
+             . '<w:r><w:t xml:space="preserve">';
+    }
+
     public static function filterParticipantByType($type,$data)
     {
         $participant_type = new ParticipantType();

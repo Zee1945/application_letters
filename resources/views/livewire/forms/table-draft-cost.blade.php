@@ -2,8 +2,8 @@
     {{-- Toolbar: tombol pembuka modal import excel --}}
     @if ($this->handleDisable != 'disabled')
         <div class="d-flex flex-wrap gap-2 w-100 justify-content-end align-items-center mb-3" style="margin-top: -55px">
-            <button type="button" wire:click="openImportModal" class="btn btn-outline-primary btn-sm">
-                <i class="fa-solid fa-file-import me-1"></i> Import Excel
+            <button type="button" wire:click="openImportModal" class="btn btn-outline-success btn-sm">
+                <i class="fa-solid fa-file-excel me-1 text-success"></i> Import Excel
             </button>
         </div>
     @endif
@@ -96,7 +96,7 @@
             <div class="modal-content shadow-lg border-0">
                 <div class="modal-header bg-light border-0">
                     <h1 class="modal-title fs-5 fw-bold text-dark d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-file-import text-primary"></i> Import Rincian Anggaran
+                        <i class="fa-solid fa-file-excel me-1 text-success"></i> Import Rincian Anggaran
                     </h1>
                     <button type="button" class="btn-close" wire:click="closeImportModal" aria-label="Close"></button>
                 </div>
@@ -123,9 +123,9 @@
                             </div>
                         </div>
 
-                        <div class="alert alert-warning small d-flex align-items-start" role="alert">
-                            <i class="fa-solid fa-triangle-exclamation me-2 mt-1"></i>
-                            <div>Mengimpor akan <strong>menggantikan</strong> seluruh data anggaran yang ada saat ini.</div>
+                        <div class="alert alert-info small d-flex align-items-start" role="alert">
+                            <i class="fa-solid fa-circle-info me-2 mt-1"></i>
+                            <div>Data dari Excel akan <strong>digabungkan</strong> dengan rincian anggaran yang sudah ada (tidak menimpa).</div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-3">

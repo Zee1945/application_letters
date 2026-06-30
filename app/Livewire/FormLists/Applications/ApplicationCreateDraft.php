@@ -8,6 +8,7 @@ use App\Jobs\GenerateApplicationFileJob;
 use App\Livewire\AbstractComponent;
 use App\Models\Application;
 use App\Models\ApplicationFile;
+use App\Models\ApplicationParticipant;
 use App\Services\ApplicationService;
 use App\Services\AuthService;
 use App\Services\TemplateProcessorService;
@@ -83,10 +84,15 @@ class ApplicationCreateDraft extends AbstractComponent
     public $pj_new_type_name = '';
     public $pj_selected_participant = '';
     public $pj_name = '';
+    public $pj_id = null;
     public $pj_institution = '';
     public $pj_nip = '';
     public $pj_rank = '';
     public $pj_functional_position = '';
+    public $pj_commitee_position = ''; // hanya relevan bila peran = Panitia
+
+    /** Kontrol modal import partisipan via Excel (merge, bukan replace). */
+    public $show_import_participant_modal = false;
 
     public $letter_numbers=[];
 
@@ -231,11 +237,36 @@ if (!$application['status']) {
         }
         $result = [];
         foreach ($this->participants as $idx => $p) {
-            if ((string)($p['participant_type_id'] ?? '') === (string)$this->pj_participant_type_id) {
+            if ((string)($p['participant_type_id'] ?? '') === (string)$this->pj_participant_type_id && $p['is_option_rundown'] === 0) {
                 $result[$idx] = $p;
             }
         }
         return $result;
+    }
+
+    /**
+     * Apakah participant_type_id tertentu adalah peran "Panitia" (cek by slug).
+     */
+    private function isPanitiaType($typeId): bool
+    {
+        if (empty($typeId) || $typeId === '__new__') {
+            return false;
+        }
+        foreach ($this->participant_types as $pt) {
+            if ((string) $pt['id'] === (string) $typeId) {
+                return strtolower($pt['slug'] ?? '') === 'panitia';
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Computed: apakah peran yang sedang dipilih di modal = Panitia.
+     * Dipakai blade untuk menampilkan field "Peran Kepanitiaan".
+     */
+    public function getPjIsPanitiaProperty(): bool
+    {
+        return $this->isPanitiaType($this->pj_participant_type_id);
     }
 
     #[On('open-pj-modal')]
@@ -243,6 +274,8 @@ if (!$application['status']) {
     {
         $this->resetPjForm();
         $this->pj_source = in_array($source, ['rundown', 'participant'], true) ? $source : 'rundown';
+        if ($this->pj_source === 'participant') $this->pj_mode = "new";
+      
         $this->show_pj_modal = true;
     }
 
@@ -257,6 +290,7 @@ if (!$application['status']) {
         $this->reset([
             'pj_mode', 'pj_participant_type_id', 'pj_new_type_name', 'pj_selected_participant',
             'pj_name', 'pj_institution', 'pj_nip', 'pj_rank', 'pj_functional_position',
+            'pj_commitee_position',
         ]);
         $this->pj_mode = 'existing';
     }
@@ -267,29 +301,42 @@ if (!$application['status']) {
         $this->pj_new_type_name = '';
         $this->pj_selected_participant = '';
         $this->pj_name = '';
+        $this->pj_id = null;
         $this->pj_institution = '';
         $this->pj_nip = '';
         $this->pj_rank = '';
         $this->pj_functional_position = '';
+        $this->pj_commitee_position = '';
     }
 
     public function updatedPjParticipantTypeId()
     {
         $this->pj_selected_participant = '';
         $this->pj_name = '';
+        $this->pj_id = null;
         $this->pj_institution = '';
+        $this->pj_commitee_position = '';
+        // Bersihkan nama peran baru jika peran yang dipilih bukan "Lainnya".
+        if ($this->pj_participant_type_id !== '__new__') {
+            $this->pj_new_type_name = '';
+        }
     }
 
     public function updatedPjSelectedParticipant($value)
     {
         if ($value === '' || !isset($this->participants[$value])) {
             $this->pj_name = '';
+            $this->pj_id = null;
             $this->pj_institution = '';
+            $this->pj_commitee_position = '';
             return;
         }
         $p = $this->participants[$value];
         $this->pj_name = $p['name'] ?? '';
+        $this->pj_id = $p['id'] ?? '';
         $this->pj_institution = $p['institution'] ?? '';
+        // Tampilkan peran kepanitiaan peserta (read-only saat mode existing).
+        $this->pj_commitee_position = $p['commitee_position'] ?? '';
     }
 
     /**
@@ -299,9 +346,14 @@ if (!$application['status']) {
      */
     public function submitPj()
     {
-        // Tentukan participant_type_id; buat tipe baru bila mode 'new' + nama tipe diisi.
-        if ($this->pj_mode === 'new' && trim($this->pj_new_type_name) !== '') {
+        // Tentukan participant_type_id. Bila mode 'new' & peran "Lainnya" (__new__)
+        // dipilih, buat/cari tipe dari nama yang diketik. Selain itu pakai id terpilih.
+        if ($this->pj_mode === 'new' && $this->pj_participant_type_id === '__new__') {
             $typeName = trim($this->pj_new_type_name);
+            if ($typeName === '') {
+                $this->addError('pj_new_type_name', 'Nama peran baru wajib diisi.');
+                return;
+            }
 
             $existing = null;
             foreach ($this->participant_types as $pt) {
@@ -335,6 +387,25 @@ if (!$application['status']) {
             return;
         }
 
+        // Tentukan is_option_rundown:
+        // - dari tab rundown  => selalu 1
+        // - dari tab peran    => 1 hanya bila peran Narasumber/Moderator, selain itu 0
+        $rundown_role_ids = [];
+        foreach ($this->participant_types as $pt) {
+            if (in_array(strtolower($pt['slug'] ?? ''), ['narasumber', 'moderator'], true)) {
+                $rundown_role_ids[] = (string) $pt['id'];
+            }
+        }
+
+        if ($this->pj_source === 'rundown') {
+            $is_option_rundown = 1;
+        } else {
+            $is_option_rundown = in_array((string) $typeId, $rundown_role_ids, true) ? 1 : 0;
+        }
+
+        // commitee_position hanya diisi bila peran terpilih = Panitia.
+        $is_panitia = $this->isPanitiaType($typeId);
+
         $participant = [
             'application_id'      => $this->application_id,
             'participant_type_id' => (int) $typeId,
@@ -343,16 +414,33 @@ if (!$application['status']) {
             'nip'                 => $this->pj_mode === 'new' ? ($this->pj_nip ?: null) : null,
             'rank'                => $this->pj_mode === 'new' ? ($this->pj_rank ?: null) : null,
             'functional_position' => $this->pj_mode === 'new' ? ($this->pj_functional_position ?: null) : null,
-            'is_option_rundown'   => $this->pj_source === 'rundown' ? 1 : 0,
+            'commitee_position'   => $is_panitia ? (trim($this->pj_commitee_position) ?: null) : null,
+            'is_signer_commitee'  => ($is_panitia && strtolower(trim($this->pj_commitee_position)) === 'ketua') ? 1 : 0,
+            'is_option_rundown'   => $is_option_rundown,
         ];
+
+
 
         // Jaring pengaman: store langsung bila draft sudah tersimpan (anti-hilang).
         // id sengaja tidak dimasukkan ke array (clearData+rebuild saat Save Draft).
         if (!empty($participant['application_id'])) {
-            \App\Models\ApplicationParticipant::create($participant);
+            if ($this->pj_mode === 'existing') {
+                $this->participants = array_map(function($pt) use ($participant){
+                        if ($pt['id'] === $this->pj_id) {
+                            $pt['is_option_rundown'] = $participant['is_option_rundown'];
+                        }
+                        return $pt;
+                },$this->participants);
+                $db_ptcp = ApplicationParticipant::find($this->pj_id);
+                $db_ptcp->is_option_rundown = $participant['is_option_rundown'];
+                $db_ptcp->save();
+            }else{
+                ApplicationParticipant::create($participant);
+                $this->participants[] = $participant;
+            }
         }
 
-        $this->participants[] = $participant;
+       
 
         // Bila PJ opsi rundown, kabari TableRundown agar opsi officer diperbarui.
         if ($this->pj_source === 'rundown') {
@@ -593,6 +681,49 @@ if (!$application['status']) {
     public function importParticipant(){
 
         $this->import('participant');
+    }
+
+    public function openImportParticipantModal()
+    {
+        $this->reset('excel_participant');
+        $this->resetErrorBag('excel_participant');
+        $this->show_import_participant_modal = true;
+    }
+
+    public function closeImportParticipantModal()
+    {
+        $this->show_import_participant_modal = false;
+        $this->reset('excel_participant');
+        $this->resetErrorBag('excel_participant');
+    }
+
+    /**
+     * Import peserta dari Excel lalu GABUNG (merge) dengan $this->participants
+     * yang sudah ada — TIDAK mereplace. Data hasil import ditambahkan di belakang.
+     */
+    public function importParticipantMerge()
+    {
+        $this->validate([
+            'excel_participant' => 'required|mimes:xlsx,xls',
+        ], [
+            'excel_participant.required' => 'Silakan pilih file Excel terlebih dahulu.',
+            'excel_participant.mimes' => 'File harus berformat .xlsx atau .xls.',
+        ]);
+
+        $importer = new ParticipantsImport($this->application_id);
+        Excel::import($importer, $this->excel_participant, 'local', \Maatwebsite\Excel\Excel::XLSX);
+
+        $imported = $importer->finest_participant_data ?? [];
+
+        if (count($imported) > 0) {
+            // Gabungkan: pertahankan data lama, tambahkan hasil import di belakang.
+            $this->participants = array_values(array_merge($this->participants, $imported));
+            $this->dispatch('transfer-participant-to-rundown', [...$this->participants]);
+        }
+
+        $this->reset('excel_participant');
+        $this->show_import_participant_modal = false;
+        session()->flash('success', 'Data peserta dari Excel berhasil ditambahkan.');
     }
 
 

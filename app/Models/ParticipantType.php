@@ -19,6 +19,7 @@ class ParticipantType extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
         'created_by',
         'updated_by',
         'deleted_by',

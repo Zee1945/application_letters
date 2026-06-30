@@ -26,7 +26,15 @@
             $no = 0;
         @endphp
         <tbody id="table-body-{{$participantType}}">
-            @foreach ($filteredParticipants as $index => $row)
+            @php
+                // Hitung jumlah kolom dinamis untuk colspan baris "tidak ada data".
+                $colCount = 5; // No, Nama, Nip, Pangkat, Jabatan Fungsional
+                $colCount += $participantType != 'commitee' ? 1 : 0;  // Jabatan - Lembaga
+                $colCount += $participantType == 'commitee' ? 1 : 0;  // Penandatangan
+                $colCount += $participantType != 'participant' ? 1 : 0; // Peran
+                $colCount += $handleDisable != 'disabled' ? 1 : 0;     // Aksi
+            @endphp
+            @forelse ($filteredParticipants as $index => $row)
             @php
                 $no++;
             @endphp
@@ -78,7 +86,13 @@
                     @endif
 
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="{{ $colCount }}" class="text-center text-muted">
+                        Tidak ada data partisipan.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>

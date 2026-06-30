@@ -7,7 +7,7 @@
     @endif
 
     <div class="row g-4">
-        @foreach ($speakers as $index => $row)
+        @forelse ($speakers as $index => $row)
         <div class="col-12">
                 <div class="card shadow border-0 h-100">
                     <div class="card-header">
@@ -196,9 +196,15 @@
                         </form>
                     </div>
                 </div>
-          
+
             </div>
-        @endforeach
+        @empty
+            <div class="col-12">
+                <div class="alert alert-info text-center mb-0" role="alert">
+                    <i class="fa-solid fa-circle-info me-1"></i> Tidak ada narasumber dan moderator.
+                </div>
+            </div>
+        @endforelse
     </div>
 </div>
 

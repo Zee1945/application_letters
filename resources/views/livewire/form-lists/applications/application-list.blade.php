@@ -44,6 +44,23 @@
                         @endforeach
                     </select>
                 </div>
+                <div style="min-width: 140px;">
+                    <select class="form-select form-select-sm" wire:model.live="year">
+                        <option value="">Semua Tahun</option>
+                        @foreach($this->yearOptions as $yr)
+                            <option value="{{ $yr }}">{{ $yr }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div style="min-width: 140px;" class="ms-auto">
+                    <select class="form-select form-select-sm" wire:model.live="per_page">
+                        <option value="10">10 data</option>
+                        <option value="20">20 data</option>
+                        <option value="30">30 data</option>
+                        <option value="50">50 data</option>
+                        <option value="100">100 data</option>
+                    </select>
+                </div>
             </div>
             {{-- <div class="mb-2 d-flex">
                 <!-- Filter Dropdown (Add more filters as needed) -->

@@ -260,75 +260,75 @@
                                                 <div class="col-12">
                                                     <label for="Outcome" class="form-label fw-bold">Hasil
                                                         (Outcome)</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
                                                         wire:model="activity_outcome"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="UnitOfMeasurement" class="form-label fw-bold">Indikator
                                                         kinerja kegiatan</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
                                                         wire:model="performance_indicator"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="Outcome" class="form-label fw-bold">Keluaran
                                                         (Output)</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
                                                         wire:model="activity_output"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
                                                         Ukur</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
                                                         wire:model="unit_of_measurment"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="ActivityVolume" class="form-label fw-bold">Volume
                                                         Kegiatan
                                                     </label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume"
                                                         wire:model="activity_volume"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="GeneralDescription" class="form-label fw-bold">Gambaran
                                                         Umum</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription"
                                                         wire:model="general_description"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="PurposeAndObjectives" class="form-label fw-bold">Maksud
                                                         dan
                                                         Tujuan</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives"
                                                         wire:model="objectives"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="Beneficiary" class="form-label fw-bold">Penerima
                                                         Manfaat</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary"
                                                         wire:model="beneficiaries"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="activity_scope" class="form-label fw-bold">Lingkup
                                                         Aktifitas</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope"
                                                         wire:model="activity_scope"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="implementation_method" class="form-label fw-bold">
                                                         Metode pelaksanaan</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method"
                                                         wire:model="implementation_method"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="implementation_stages" class="form-label fw-bold">
                                                         Tahapan pelaksanaan</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages"
                                                         wire:model="implementation_stages"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="activity_location" class="form-label fw-bold"> Lokasi
                                                         Kegiatan</label>
-                                                    <textarea {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location"
+                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location"
                                                         wire:model="activity_location"></textarea>
                                                 </div>
                                                 <div class="col-12">
@@ -416,11 +416,27 @@
                                                 </div>
                                                 <div class="action-button">
                                                     @if (viewHelper::handleFieldDisabled($this->application) !== 'disabled')
-                                                        <button
-                                                            class="btn btn-outline-primary border border-1 btn-sm border-primary"
-                                                            wire:click="$dispatch('open-pj-modal', { source: 'participant' })"><i
-                                                                class="fa-solid fa-user-plus me-2" style="font-size: 1rem"></i> Tambah
-                                                            Partisipan</button>
+                                                        <div class="btn-group">
+                                                            <button type="button"
+                                                                class="btn btn-outline-primary border border-1 btn-sm border-primary dropdown-toggle"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="fa-solid fa-user-plus me-2"></i> Tambah Partisipan
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li>
+                                                                    <button type="button" class="dropdown-item"
+                                                                        wire:click="$dispatch('open-pj-modal', { source: 'participant' })">
+                                                                        <i class="fa-solid fa-user-plus me-2 text-primary"></i> Tambah Satu Partisipan
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button type="button" class="dropdown-item"
+                                                                        wire:click="openImportParticipantModal">
+                                                                        <i class="fa-solid fa-file-excel me-2 text-success"></i> Import dari Excel
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     @endif
                                                     @if (count($this->participants) > 0)
                                                         <button
@@ -1139,6 +1155,7 @@
                         <div class="modal-body pb-4">
                             <form wire:submit.prevent="submitPj">
                                 {{-- a. Sumber data peserta --}}
+                                @if ($this->pj_source === 'rundown')    
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Pilih Peserta</label>
                                     <select class="form-select" wire:model.live="pj_mode">
@@ -1146,6 +1163,8 @@
                                         <option value="new">Buat baru</option>
                                     </select>
                                 </div>
+                                @endif
+
 
                                 {{-- b. Peran (participant_type) --}}
                                 <div class="mb-3">
@@ -1156,11 +1175,14 @@
                                             @foreach ($participant_types as $pt)
                                                 <option value="{{ $pt['id'] }}">{{ $pt['name'] }}</option>
                                             @endforeach
+                                            <option value="__new__">Lainnya (buat peran baru)</option>
                                         </select>
-                                        <input type="text" class="form-control mt-2"
-                                               placeholder="Atau ketik nama peran baru di sini"
-                                               wire:model.live="pj_new_type_name">
-                                        <small class="text-muted">Isi kotak di atas hanya jika peran belum ada di daftar.</small>
+                                        @if ($pj_participant_type_id === '__new__')
+                                            <input type="text" class="form-control mt-2"
+                                                   placeholder="Ketik nama peran baru di sini"
+                                                   wire:model.live="pj_new_type_name">
+                                            <small class="text-muted">Masukkan nama peran yang belum ada di daftar.</small>
+                                        @endif
                                     @else
                                         <select class="form-select" wire:model.live="pj_participant_type_id">
                                             <option value="">-- Pilih Peran --</option>
@@ -1188,6 +1210,18 @@
                                     @endif
                                     @error('pj_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
+                                                                       {{-- Peran Kepanitiaan: hanya saat peran = Panitia --}}
+                                @if ($this->pjIsPanitia)
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Peran Kepanitiaan</label>
+                                        <input type="text" class="form-control"
+                                               wire:model="pj_commitee_position"
+                                               placeholder="Peran Kepanitiaan" @if ($pj_mode === 'existing') readonly @endif>
+                                               @if ($pj_mode === 'new') 
+                                               <small class="text-muted">Tulis "ketua" jika partisipan merupakan ketua pelaksana.</small>
+                                                @endif
+                                    </div>
+                                @endif
 
                                 {{-- d. Jabatan - Lembaga (institution) --}}
                                 <div class="mb-3">
@@ -1236,6 +1270,68 @@
                 </div>
             </div>
             {{-- ===================== End Modal Tambah Partisipan / Opsi PJ ===================== --}}
+
+            {{-- ===================== Modal Import Partisipan (Excel, merge) ===================== --}}
+            <div class="modal fade @if($show_import_participant_modal) show d-block @endif" tabindex="-1"
+                 style="@if($show_import_participant_modal) background: rgba(0,0,0,.5); @endif"
+                 aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-dialog-centered modal-md">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header bg-light border-0">
+                            <h1 class="modal-title fs-5 fw-bold text-dark d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-file-excel text-success"></i> Import Partisipan
+                            </h1>
+                            <button type="button" class="btn-close" wire:click="closeImportParticipantModal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pb-4">
+                            {{-- Langkah 1: unduh template --}}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold mb-1">1. Unduh Template</label>
+                                <p class="text-muted small mb-2">Gunakan template berikut agar format kolom sesuai.</p>
+                                <button type="button" wire:click="downloadTemplateExcel" class="btn btn-outline-success btn-sm">
+                                    <i class="fa-solid fa-file-arrow-down me-1"></i> Download Template Peserta
+                                </button>
+                            </div>
+
+                            {{-- Langkah 2: unggah & import --}}
+                            <form wire:submit.prevent="importParticipantMerge">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold mb-1">2. Unggah File (.xlsx)</label>
+                                    <input type="file" class="form-control" wire:model="excel_participant" accept=".xlsx,.xls">
+                                    @error('excel_participant')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                    <div wire:loading wire:target="excel_participant" class="text-muted small mt-1">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Mengunggah...
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info small d-flex align-items-start" role="alert">
+                                    <i class="fa-solid fa-circle-info me-2 mt-1"></i>
+                                    <div>Data dari Excel akan <strong>digabungkan</strong> dengan partisipan yang sudah ada (tidak menimpa).</div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-secondary px-4" wire:click="closeImportParticipantModal">
+                                        <i class="fa-solid fa-times me-1"></i> Batal
+                                    </button>
+                                    <button type="submit" class="btn btn-success px-4 text-white"
+                                            wire:loading.attr="disabled" wire:target="importParticipantMerge,excel_participant"
+                                            @if(empty($this->excel_participant)) disabled @endif>
+                                        <span wire:loading.remove wire:target="importParticipantMerge">
+                                            <i class="fa-solid fa-file-import me-1"></i> Import
+                                        </span>
+                                        <span wire:loading wire:target="importParticipantMerge">
+                                            <span class="spinner-border spinner-border-sm me-2"></span> Memproses...
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- ===================== End Modal Import Partisipan ===================== --}}
 
 
 

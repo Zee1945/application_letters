@@ -38,7 +38,8 @@ class TableSpeakerInformations extends Component
             return $item;
         }, $this->rows, array_keys($this->rows));
 
-
+        if (count($this->speakers) > 0) {
+            # code...
         if (empty($selectedInfId)) {
           $this->selected_inf_id = 'part_'.$this->speakers[0]['id'].'_'.$this->speakers[0]['participant_type_id'];
         }else{
@@ -47,6 +48,8 @@ class TableSpeakerInformations extends Component
                 })->values()[0];
             $this->selected_inf_id = 'part_'.$selected['id'].'_'.$selected['participant_type_id'];
         }
+        }
+
     }
 
     public function render()
