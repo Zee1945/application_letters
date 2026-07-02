@@ -197,6 +197,7 @@ class TableRundown extends Component
                     $prt_type_spk = reset($matched);
                 $format_hashtag_spk = array_map(function($spk) use ($prt_type_spk){
                     list($name,$institution) =  explode('-',$spk);
+                    $institution = empty($institution) ? 'null' : $institution;
                     return $name.'###'.$institution.'###'.$prt_type_spk['id'];
                 },$row['speaker_text']);
                 // array_push($join_all_officers,$format_hashtag_spk);
@@ -214,6 +215,7 @@ class TableRundown extends Component
                     $prt_type_spk = reset($matched_mod);
                 $format_hashtag_mod = array_map(function($spk) use ($prt_type_spk){
                     list($name,$institution) =  explode('-',$spk);
+                    $institution = empty($institution) ? 'null' : $institution;
                     return $name.'###'.$institution.'###'.$prt_type_spk['id'];
                 },$row['moderator_text']);
                 $join_all_officers = array_merge($join_all_officers,$format_hashtag_mod);
@@ -359,9 +361,10 @@ class TableRundown extends Component
         if (empty($prt_type)) {
             return;
         }
-
+        
         // $formatted_ofc = $this->_formatHashtagSeparator($prt['name'], $prt['institution'], $prt['participant_type_id']);
-        $formatted_ofc = $prt['name'].'###'.$prt['institution'].'###'.$prt_type['id'] ;
+        $institution = empty($prt['institution']) ? 'null' : $prt['institution'];
+        $formatted_ofc = $prt['name'].'###'.$institution.'###'.$prt_type['id'] ;
 
         // Cari index entri opsi yang slug-nya sama. Simpan index (bukan salinan)
         // agar bisa memodifikasi $this->options_2 secara langsung.
@@ -406,8 +409,12 @@ class TableRundown extends Component
     {
         list($name,$institution) = explode('###',$user_text);
 
+        if (empty($institution) || $institution === 'null') {
+            return $name;
+        }
+
         return $name.' - '.$institution;
-}
+    }
 
     public function toggleSpeaker($rowIndex, $speakerText)
     {
@@ -444,7 +451,6 @@ class TableRundown extends Component
         } else {
             $this->rundown[$rowIndex]['officer_text'][] = $officerText;
         }
-
         // Dispatch update
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns', rundowns: $normalizeData);

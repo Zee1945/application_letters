@@ -1624,7 +1624,7 @@ foreach ($new_data as $index => $item) {
             // Tiap officer sebagai bullet: Arial MT, ukuran 7pt.
             foreach ($officers as $ofc) {
                 $text = '• ' . self::sanitizeForXml($ofc['name']);
-                if ($ofc['institution'] !== '') {
+                if ($ofc['institution'] !== 'null') {
                     $text .= ' (' . self::sanitizeForXml($ofc['institution']) . ')';
                 }
                 $line .= self::runWordML($text, [

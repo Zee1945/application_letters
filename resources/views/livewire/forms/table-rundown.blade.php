@@ -47,7 +47,7 @@
                                            class="form-check-input"
                                            wire:click="toggleOfficer({{ $index }}, `{{ $ofc }}`)"
                                            {{ in_array($ofc, $row['officer_text'] ?? []) ? 'checked' : '' }} {!! $this->handleDisable !!}>
-                                    <label for="moderator_{{ $index }}_{{ $key }}" class="form-check-label ms-2">
+                                    <label for="{{ $opt['slug'] }}_{{ $k }}" class="form-check-label ms-2">
                                        
                                         {{ $this->_formatStripe($ofc) }}
                                     </label>

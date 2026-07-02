@@ -1523,11 +1523,19 @@ public static function getListReport($search = '', $status_approval = '', $depar
             $institution = trim($parts[1]);
             $typeId = trim($parts[2]);
 
+            // Penanda "tanpa instansi" dari proses formatting rundown.
+            // Di DB nilainya tersimpan sebagai NULL atau string kosong, bukan literal ini.
+            $isEmptyInstitution = \in_array($institution, ['null', '&nbsp;', ''], true);
+
             // Cek keberadaan peserta di aplikasi ini.
             $exists = ApplicationParticipant::where('application_id', $applicationId)
                 ->where('name', $name)
-                ->where('institution', $institution)
                 ->where('participant_type_id', $typeId)
+                ->when(
+                    $isEmptyInstitution,
+                    fn ($q) => $q->where(fn ($sub) => $sub->whereNull('institution')->orWhere('institution', '')),
+                    fn ($q) => $q->where('institution', $institution)
+                )
                 ->exists();
 
             if ($exists) {

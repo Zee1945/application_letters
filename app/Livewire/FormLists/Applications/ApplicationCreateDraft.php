@@ -435,8 +435,9 @@ if (!$application['status']) {
                 $db_ptcp->is_option_rundown = $participant['is_option_rundown'];
                 $db_ptcp->save();
             }else{
-                ApplicationParticipant::create($participant);
-                $this->participants[] = $participant;
+                $storedParticipant = ApplicationParticipant::create($participant);
+                $newParticipantArr = $storedParticipant->toArray();
+                $this->participants[] = $newParticipantArr;
             }
         }
 
