@@ -243,7 +243,9 @@ public function submitRealization(Request $request, $application_id)
             // Handle file upload for bukti bayar
             if ($request->hasFile("realizations.{$draft_cost_id}.file_bukti")) {
                 $file = $request->file("realizations.{$draft_cost_id}.file_bukti");
-                $path = $application_id . '/realization/' . $draft_cost_id;
+                // $path = $application_id . '/realization/' . $draft_cost_id;
+                $path = FileManagementService::getPathStorage($application,'report') . '/realization/' . $draft_cost_id;
+
 
                 // Delete old files if exists
                 if (Storage::disk('minio')->exists($path)) {

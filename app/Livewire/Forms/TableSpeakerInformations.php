@@ -28,7 +28,7 @@ class TableSpeakerInformations extends Component
         $this->application = $application;
         $this->filterSpeakers($participants);
         $this->rows = array_fill(0, count($this->speakers), ['participant_id' => null, 'cv_file_id' => null, 'idcard_file_id' => null, 'npwp_file_id' => null,'material_file_id'=>null]);
-        $speakers = $this->speakers->values();
+        $this->speakers = $speakers = $this->speakers->values();
         $this->rows = array_map(function ($item, $index) use ($speakers) {
             $item['participant_id'] = $speakers[$index]['id'];  // Pastikan index valid di $speakers
             $item['cv_file_id'] = $speakers[$index]['cv_file_id'];  // Pastikan index valid di $speakers
@@ -39,7 +39,6 @@ class TableSpeakerInformations extends Component
         }, $this->rows, array_keys($this->rows));
 
         if (count($this->speakers) > 0) {
-            # code...
         if (empty($selectedInfId)) {
           $this->selected_inf_id = 'part_'.$this->speakers[0]['id'].'_'.$this->speakers[0]['participant_type_id'];
         }else{

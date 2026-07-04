@@ -1343,6 +1343,8 @@
                     });
                     Livewire.on('open-modal-confirm-submit', (event) => {
                         const modal = bootstrap.Modal.getOrCreateInstance('#modalConfirmSubmit');
+                        console.log(modal);
+                        
                         modal.show();
                     });
                     Livewire.on('close-modal-confirm-submit', (event) => {

@@ -390,15 +390,20 @@ case 'surat_permohonan_moderator':
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -503,15 +508,20 @@ case 'surat_permohonan_moderator':
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -597,15 +607,20 @@ case 'surat_permohonan_moderator':
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -742,15 +757,20 @@ case 'surat_permohonan_moderator':
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -893,15 +913,20 @@ foreach ($new_data as $index => $item) {
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 75,
-            'height' => 75,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 75,
+                'height' => 75,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -973,15 +998,20 @@ foreach ($new_data as $index => $item) {
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -1085,15 +1115,20 @@ foreach ($new_data as $index => $item) {
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -1209,15 +1244,20 @@ foreach ($new_data as $index => $item) {
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 70,
-            'height' => 70,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 70,
+                'height' => 70,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         // return response()->download($converted_to_pdf);
         return true;
@@ -1357,15 +1397,20 @@ foreach ($new_data as $index => $item) {
 
 
         // set qr code ttd
-        $templateProcessor->setImageValue('signed_barcode', [
-            'path'   => $qrPath,
-            'width'  => 100,
-            'height' => 100,
-            'ratio'  => true,
-        ]);
-            // end set qr code ttd
+        try {
+            $templateProcessor->setImageValue('signed_barcode', [
+                'path'   => $qrPath,
+                'width'  => 100,
+                'height' => 100,
+                'ratio'  => true,
+            ]);
+                // end set qr code ttd
 
-        $templateProcessor->saveAs($write_output);
+            $templateProcessor->saveAs($write_output);
+        } finally {
+            // Hapus PNG QR sementara agar tidak menumpuk di storage.
+            self::deleteQrCode($qrPath);
+        }
 
         foreach ($need_to_delete_dir as $key => $dir) {
              if (file_exists($dir)) {
@@ -1755,6 +1800,20 @@ foreach ($new_data as $index => $item) {
         $result->saveToFile($savePath);
 
         return $savePath;                                         // path PNG siap dipakai
+    }
+
+    /**
+     * Hapus file PNG QR code sementara yang dihasilkan generateQrCode().
+     *
+     * QR hanya dibutuhkan sampai di-embed ke dokumen (setImageValue + saveAs);
+     * setelah itu file jadi sampah di storage/app/qrcodes. Dipanggil dari blok
+     * finally tiap generator agar file tetap terhapus walau terjadi exception.
+     */
+    public static function deleteQrCode($qrPath)
+    {
+        if (!empty($qrPath) && is_file($qrPath)) {
+            @unlink($qrPath);
+        }
     }
 
     /**

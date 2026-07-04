@@ -484,10 +484,19 @@ class ApplicationService
             DB::beginTransaction();
 
             $participant_speakers = $app->participants()->whereNotNull('material_file_id')->get();
-
+            Log::error('LOG $participant_speakers: ', ['participant_speakers' => $participant_speakers]);
+            
             if (count($participant_speakers) > 0) {
                 foreach ($participant_speakers as $key => $par) {
-                    self::updateApplicationFilesReport($app, 'materi_narasumber', $par->material_file_id, $par->id);
+                    
+                    // self::updateApplicationFilesReport($app, 'materi_narasumber', $par->material_file_id, $par->id);
+                    $app_files = $app->applicationFiles()->findCode('materi_narasumber')->where('participant_id', $par->id)
+                    ->first();
+                    if (!empty($app_files)) {
+                        $app_files->status_ready = 3;
+                        $app_files->file_id = $par->material_file_id;
+                        $app_files->save();
+                    }
                 }
             }
 
@@ -1031,14 +1040,12 @@ class ApplicationService
                 'npwp_file_id' => $request['npwp_file_id'],
                 'material_file_id' => $request['material_file_id']
             ];
-            $directory = 'speaker-information/' . $participant_id;
-
-            Log::info('Masok ke fungsi =>',['$key'=>'yessss']);
+            $directory = FileManagementService::getPathStorage($app,'report').'/speaker-information/' . $participant_id;
             foreach ($files as $key => $file) {
-                Log::info('Masok ke loop fiiles =>',['$key'=>$key]);
                 if ($file instanceof UploadedFile) {
                         Log::info('Masok ke upload =>',['$key'=>$key]);
-                    $fileName = $file->getClientOriginalName().'-'.$participant_id . '-' . $key . '.' . $file->getClientOriginalExtension();
+                    $clean_original_name  = explode('.',$file->getClientOriginalName())[0];
+                    $fileName = $clean_original_name.'-'.$participant_id . '-' . $key . '.' . $file->getClientOriginalExtension();
                         $path = $directory.'/'.$fileName;
                         // Simpan file ke MinIO
                         $file->storeAs($directory, $fileName, 'minio');

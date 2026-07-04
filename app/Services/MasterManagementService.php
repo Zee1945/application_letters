@@ -2,9 +2,17 @@
 
 namespace App\Services;
 
+use App\Models\Application;
+use App\Models\ApplicationDetail;
+use App\Models\ApplicationDraftCostBudget;
+use App\Models\ApplicationLetterNumber;
+use App\Models\ApplicationParticipant;
+use App\Models\ApplicationSchedule;
 use App\Models\Department;
 use App\Models\LogActivity;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SessionService;
 use Illuminate\Support\Facades\Auth;
@@ -185,6 +193,254 @@ class MasterManagementService
         
 
    
+
+    /**
+     * Isi data dummy detail draft untuk sebuah application.
+     *
+     * Mengisi 5 tabel: application_details, application_schedules,
+     * application_participants, application_draft_cost_budgets, dan
+     * application_letter_numbers. Dibungkus transaksi agar all-or-nothing.
+     *
+     * Idempoten: memanggil ulang akan menghapus data dummy lama milik
+     * application tsb (forceDelete) lalu mengisi ulang, sehingga tidak
+     * menumpuk saat command dijalankan berkali-kali.
+     *
+     * @param int $applicationId
+     * @return array{status:bool, message:string, counts?:array}
+     */
+    public static function seedDummyDraftDetail($applicationId): array
+    {
+        $app = Application::withoutGlobalScopes()->find($applicationId);
+        if (!$app) {
+            return ['status' => false, 'message' => "Application id {$applicationId} tidak ditemukan."];
+        }
+
+        $departmentId = $app->department_id;
+        $createdBy    = $app->created_by;
+
+        try {
+            DB::beginTransaction();
+
+            // Bersihkan data dummy lama agar idempoten (hard delete).
+            $app->detail()->forceDelete();
+            $app->schedules()->forceDelete();
+            $app->participants()->forceDelete();
+            $app->draftCostBudgets()->forceDelete();
+            $app->letterNumbers()->forceDelete();
+
+            $counts = [];
+
+            // 1) application_details (hasOne)
+            ApplicationDetail::create([
+                'application_id'        => $app->id,
+                'department_id'         => $departmentId,
+                'created_by'            => $createdBy,
+                'activity_outcome'      => 'Meningkatnya kompetensi peserta pada bidang terkait.',
+                'activity_output'       => 'Laporan kegiatan dan dokumentasi.',
+                'performance_indicator' => 'Jumlah peserta yang lulus pelatihan',
+                'unit_of_measurment'    => 'Orang',
+                'activity_volume'       => '30',
+                'general_description'   => 'Kegiatan dummy untuk keperluan pengujian sistem.',
+                'objectives'            => 'Menguji alur pembuatan dokumen dari data dummy.',
+                'beneficiaries'         => 'Peserta dan panitia kegiatan.',
+                'activity_scope'        => 'Lingkup internal instansi.',
+                'implementation_method' => 'Luring (tatap muka).',
+                'implementation_stages' => 'Persiapan, pelaksanaan, evaluasi.',
+                'activity_dates'        => self::dummyActivityDatesString(),
+                'activity_location'     => 'Aula Utama, Gedung A',
+            ]);
+            $counts['application_details'] = 1;
+
+            // 2) application_participants
+            $participants = self::dummyParticipants($app->id, $departmentId, $createdBy);
+            foreach ($participants as $p) {
+                ApplicationParticipant::create($p);
+            }
+            $counts['application_participants'] = count($participants);
+
+            // 3) application_schedules (rundown)
+            $schedules = self::dummySchedules($app->id, $departmentId, $createdBy);
+            foreach ($schedules as $s) {
+                ApplicationSchedule::create($s);
+            }
+            $counts['application_schedules'] = count($schedules);
+
+            // 4) application_draft_cost_budgets
+            $draftCosts = self::dummyDraftCostBudgets($app->id, $departmentId, $createdBy);
+            foreach ($draftCosts as $d) {
+                ApplicationDraftCostBudget::create($d);
+            }
+            $counts['application_draft_cost_budgets'] = count($draftCosts);
+
+            // 5) application_letter_numbers
+            $letterNumbers = self::dummyLetterNumbers($app->id, $departmentId, $createdBy);
+            foreach ($letterNumbers as $l) {
+                ApplicationLetterNumber::create($l);
+            }
+            $counts['application_letter_numbers'] = count($letterNumbers);
+
+            DB::commit();
+
+            return [
+                'status'  => true,
+                'message' => "Berhasil mengisi data dummy untuk application id {$app->id}.",
+                'counts'  => $counts,
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('seedDummyDraftDetail gagal: ' . $th->getMessage(), [
+                'application_id' => $applicationId,
+            ]);
+            return ['status' => false, 'message' => 'Gagal mengisi data dummy: ' . $th->getMessage()];
+        }
+    }
+
+    /**
+     * Tiga tanggal berurutan (format "d-m-Y" dipisah koma), seperti activity_dates asli.
+     */
+    private static function dummyActivityDatesString(): string
+    {
+        $base = Carbon::today()->addDays(14);
+        $dates = [];
+        for ($i = 0; $i < 3; $i++) {
+            $dates[] = $base->copy()->addDays($i)->format('d-m-Y');
+        }
+        return implode(',', $dates);
+    }
+
+    private static function dummyParticipants($applicationId, $departmentId, $createdBy): array
+    {
+        $common = [
+            'application_id' => $applicationId,
+            'department_id'  => $departmentId,
+            'created_by'     => $createdBy,
+        ];
+
+        return [
+            // Ketua panitia (wajib ada 1 signer committee).
+            array_merge($common, [
+                'participant_type_id' => 1, // Panitia
+                'name'                => 'Budi Santoso',
+                'institution'         => 'Instansi Dummy',
+                'commitee_position'   => 'Ketua',
+                'is_signer_commitee'  => 1,
+                'is_option_rundown'   => 0,
+            ]),
+            array_merge($common, [
+                'participant_type_id' => 1, // Panitia
+                'name'                => 'Siti Aminah',
+                'institution'         => 'Instansi Dummy',
+                'commitee_position'   => 'Sekretaris',
+                'is_signer_commitee'  => 0,
+                'is_option_rundown'   => 0,
+            ]),
+            array_merge($common, [
+                'participant_type_id' => 2, // Narasumber
+                'name'                => 'Dr. Andi Wijaya',
+                'institution'         => 'Universitas Contoh',
+                'is_option_rundown'   => 1,
+            ]),
+            array_merge($common, [
+                'participant_type_id' => 4, // Moderator
+                'name'                => 'Rina Kartika',
+                'institution'         => 'Lembaga Contoh',
+                'is_option_rundown'   => 1,
+            ]),
+            array_merge($common, [
+                'participant_type_id' => 3, // Peserta
+                'name'                => 'Agus Prasetyo',
+                'institution'         => 'Instansi Dummy',
+                'is_option_rundown'   => 0,
+            ]),
+        ];
+    }
+
+    /**
+     * Rundown dummy. speaker_text/moderator_text: "nama-instansi" dipisah ";".
+     * officer_text: "nama###instansi###participant_type_id" dipisah ";".
+     */
+    private static function dummySchedules($applicationId, $departmentId, $createdBy): array
+    {
+        $date = Carbon::today()->addDays(14)->format('Y-m-d');
+        $common = [
+            'application_id' => $applicationId,
+            'department_id'  => $departmentId,
+            'created_by'     => $createdBy,
+            'date'           => $date,
+        ];
+
+        return [
+            array_merge($common, [
+                'name'           => 'Registrasi & Pembukaan',
+                'start_date'     => $date . ' 08:00:00',
+                'end_date'       => $date . ' 09:00:00',
+                'speaker_text'   => null,
+                'moderator_text' => null,
+                'officer_text'   => 'Budi Santoso###Instansi Dummy###1',
+            ]),
+            array_merge($common, [
+                'name'           => 'Materi Sesi 1',
+                'start_date'     => $date . ' 09:00:00',
+                'end_date'       => $date . ' 11:00:00',
+                'speaker_text'   => 'Dr. Andi Wijaya-Universitas Contoh',
+                'moderator_text' => 'Rina Kartika-Lembaga Contoh',
+                'officer_text'   => 'Dr. Andi Wijaya###Universitas Contoh###2;Rina Kartika###Lembaga Contoh###4',
+            ]),
+            array_merge($common, [
+                'name'           => 'Penutupan',
+                'start_date'     => $date . ' 11:00:00',
+                'end_date'       => $date . ' 12:00:00',
+                'speaker_text'   => null,
+                'moderator_text' => null,
+                'officer_text'   => null,
+            ]),
+        ];
+    }
+
+    private static function dummyDraftCostBudgets($applicationId, $departmentId, $createdBy): array
+    {
+        $common = [
+            'application_id' => $applicationId,
+            'department_id'  => $departmentId,
+            'created_by'     => $createdBy,
+        ];
+
+        $rows = [
+            ['code' => 'A', 'item' => 'Belanja Bahan',        'sub_item' => 'Konsumsi peserta', 'volume' => '30', 'unit' => 'Orang', 'cost_per_unit' => 50000],
+            ['code' => 'A', 'item' => 'Belanja Bahan',        'sub_item' => 'ATK & penggandaan', 'volume' => '1',  'unit' => 'Paket', 'cost_per_unit' => 500000],
+            ['code' => 'B', 'item' => 'Honor Narasumber',     'sub_item' => 'Honor narasumber',  'volume' => '2',  'unit' => 'JP',    'cost_per_unit' => 1000000],
+            ['code' => 'C', 'item' => 'Belanja Perjalanan',   'sub_item' => 'Transport lokal',   'volume' => '2',  'unit' => 'Orang', 'cost_per_unit' => 300000],
+        ];
+
+        return array_map(function ($r) use ($common) {
+            $total = (int) $r['volume'] * (int) $r['cost_per_unit'];
+            return array_merge($common, $r, ['total' => $total]);
+        }, $rows);
+    }
+
+    private static function dummyLetterNumbers($applicationId, $departmentId, $createdBy): array
+    {
+        $today = Carbon::today()->format('Y-m-d');
+
+        $fields = [
+            ['letter_name' => 'mak',                          'letter_label' => 'MAK',                                        'type_field' => 'text',     'is_with_date' => 0, 'letter_number' => '523.001',           'letter_date' => null],
+            ['letter_name' => 'keterangan_mak',               'letter_label' => 'Poin No 7 SK terkait MAK',                   'type_field' => 'textarea', 'is_with_date' => 0, 'letter_number' => 'Keterangan MAK dummy', 'letter_date' => null],
+            ['letter_name' => 'nomor_sk',                     'letter_label' => 'Nomor Sk',                                   'type_field' => 'text',     'is_with_date' => 1, 'letter_number' => 'SK/001/DUMMY',      'letter_date' => $today],
+            ['letter_name' => 'tanggal_berlaku_sk',           'letter_label' => 'Tanggal Berlaku SK',                         'type_field' => 'date',     'is_with_date' => 0, 'letter_number' => $today,              'letter_date' => null],
+            ['letter_name' => 'nomor_surat_permohonan',       'letter_label' => 'Nomor Surat Permohonan Narasumber/Moderator','type_field' => 'text',     'is_with_date' => 1, 'letter_number' => 'SP/001/DUMMY',      'letter_date' => $today],
+            ['letter_name' => 'nomor_surat_tugas',            'letter_label' => 'Nomor Surat Tugas Narasumber/Moderator',     'type_field' => 'text',     'is_with_date' => 1, 'letter_number' => 'ST/001/DUMMY',      'letter_date' => $today],
+            ['letter_name' => 'nomor_surat_tugas_peserta',    'letter_label' => 'Nomor Surat Tugas Peserta',                  'type_field' => 'text',     'is_with_date' => 1, 'letter_number' => 'ST/002/DUMMY',      'letter_date' => $today],
+            ['letter_name' => 'nomor_surat_undangan_peserta', 'letter_label' => 'Nomor Surat Undangan Peserta',               'type_field' => 'text',     'is_with_date' => 1, 'letter_number' => 'SU/001/DUMMY',      'letter_date' => $today],
+        ];
+
+        return array_map(function ($f) use ($applicationId, $departmentId, $createdBy) {
+            return array_merge($f, [
+                'application_id' => $applicationId,
+                'department_id'  => $departmentId,
+                'created_by'     => $createdBy,
+            ]);
+        }, $fields);
+    }
 
     /**
      * Bootstrap services.

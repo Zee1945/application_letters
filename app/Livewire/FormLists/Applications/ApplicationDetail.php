@@ -50,7 +50,16 @@ class ApplicationDetail extends Component
         $app = Application::find($this->application_id);
         $user_approvers = $app->userApprovals;
         $title_alert = $app->current_seq_user_approval > 4? "Laporan":"Pengajuan";
-        $application_files = $app->applicationFiles()->with('fileType')->orderBy('order','asc')->get();
+        // Group file berdasarkan grup file type (group_file_types).
+        // Urutkan berdasarkan order grup, lalu order file type di dalam grup.
+        $application_files = $app->applicationFiles()
+            ->with(['fileType.group'])
+            ->get()
+            ->sortBy(fn ($item) => [
+                $item->fileType?->group?->order ?? PHP_INT_MAX,
+                $item->fileType?->order ?? PHP_INT_MAX,
+            ])
+            ->groupBy(fn ($item) => $item->fileType?->group?->name ?? 'Lainnya');
         return view('livewire.form-lists.applications.application-detail', compact('app','application_files','user_approvers','title_alert'))
             ->extends('layouts.main');
     }

@@ -15,6 +15,7 @@ class FileType extends Model
         'trans_type',
         'signed_role_id',
         'parent_id',
+        'group_file_type_id',
         'is_upload',
         'order',
         'created_by',
@@ -27,6 +28,10 @@ class FileType extends Model
 
     public function parent(){
         return $this->belongsTo(FileType::class,'parent_id','id');
+    }
+
+    public function group(){
+        return $this->belongsTo(GroupFileType::class,'group_file_type_id','id');
     }
 
 

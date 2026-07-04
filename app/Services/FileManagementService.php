@@ -24,13 +24,13 @@ class FileManagementService
      * @return void
      */
 
-     public static function setPathStorage($application_id,$type='letter'){
-        $current = Carbon::now();
-        return $current->year.'-'.$current->month.'/'.$application_id.'/'.$type;
+     public static function setPathStorage($application,$type='letter'){
+        $created = Carbon::parse($application->created_at);
+        return $created->year.'-'.$created->month.'/'.$application->id.'/'.$type;
      }
 
-     public static function getPathStorage($application_id, $type = 'letter'){
-        return self::setPathStorage($application_id, $type);
+     public static function getPathStorage($application, $type = 'letter'){
+        return self::setPathStorage($application, $type);
      }
 
 
@@ -81,7 +81,7 @@ class FileManagementService
      }
      public static function storeFileApplication($content,$application,$trans_type,$file_code=null,$app_file=null,$mime_type='pdf',$target_column='file_id',$status_ready=3){
 
-        $get_path = FileManagementService::getPathStorage($application->id, $trans_type);
+        $get_path = FileManagementService::getPathStorage($application, $trans_type);
         $clean_activity_name = preg_replace('/[\/\\\\\?\%\*\:\|\"<>\.]/', '-', $application->activity_name);
         list($filename,$ext) =  explode('.',FileManagementService::generateFilename($clean_activity_name,$application, $file_code,$app_file,$mime_type));
         $target_dir = $get_path . '/' . $filename.'.'.$ext;
@@ -142,7 +142,11 @@ class FileManagementService
                 } catch (\Throwable $th) {
                     //throw $th;
                     DB::rollBack();
-                    dd($th);
+                    Log::error('Gagal menyimpan file: ' . $th->getMessage(), [
+                        'application_id' => $application->id ?? null,
+                        'file_code'      => $file_code,
+                    ]);
+                    return ['status' => false, 'message' => 'Gagal menyimpan file', 'data' => null];
                 }
                 // Files::create($application, $get_path, explode($get_filename)[1]);
             }
@@ -185,7 +189,7 @@ class FileManagementService
             if (Storage::disk('minio')->exists($full_path)) {
                 Storage::disk('minio')->delete($full_path);
             }
-
+ 
             $old_file->delete();
 
             Log::info('File lama berhasil dihapus saat regenerate.', ['file_id' => $old_file_id, 'path' => $full_path]);
@@ -195,6 +199,9 @@ class FileManagementService
             ]);
         }
      }
+
+
+     
 
      /**
       * Cek apakah sebuah file masih direferensikan di kolom/tabel manapun.
@@ -232,6 +239,78 @@ class FileManagementService
         return false;
      }
 
+     /**
+      * Bersihkan file yatim (orphan): record `files` yang sudah tidak
+      * direferensikan kolom/tabel manapun (lihat isFileStillReferenced).
+      *
+      * Untuk tiap orphan: hapus file fisik di MinIO lalu hard-delete recordnya.
+      * Dirancang untuk data yang sudah menumpuk (mis. 7000+ record) — diproses
+      * per-batch dengan chunkById agar hemat memori dan tidak mengunci tabel.
+      *
+      * Aman dijalankan berulang (idempoten) & mendukung mode dry-run untuk audit
+      * tanpa menghapus apa pun.
+      *
+      * @param bool $dryRun   true = hanya hitung/laporkan, tidak menghapus.
+      * @param int  $chunkSize Jumlah record per batch yang di-scan.
+      * @return array{scanned:int, orphans:int, deleted:int, physical_deleted:int, failed:int}
+      */
+     public static function purgeOrphanFiles(bool $dryRun = true, int $chunkSize = 500): array
+     {
+        $stats = [
+            'scanned'          => 0,
+            'orphans'          => 0,
+            'deleted'          => 0, // record dihapus dari DB
+            'physical_deleted' => 0, // file fisik dihapus dari MinIO
+            'failed'           => 0,
+        ];
+
+        // Bypass DepartmentScope agar seluruh record ikut ter-scan, tidak
+        // bergantung pada user yang sedang login (mis. saat dijalankan via CLI).
+        Files::withoutGlobalScope(\App\Models\Scopes\DepartmentScope::class)
+            ->orderBy('id')
+            ->chunkById($chunkSize, function ($files) use (&$stats, $dryRun) {
+                foreach ($files as $file) {
+                    $stats['scanned']++;
+
+                    // Masih dipakai record lain → lewati.
+                    if (self::isFileStillReferenced($file->id)) {
+                        continue;
+                    }
+
+                    $stats['orphans']++;
+
+                    if ($dryRun) {
+                        continue;
+                    }
+
+                    try {
+                        // path tersimpan sebagai folder + filename terpisah.
+                        $full_path = rtrim($file->path, '/') . '/' . $file->filename;
+
+                        if (!empty($file->filename)
+                            && Storage::disk('minio')->exists($full_path)) {
+                            Storage::disk('minio')->delete($full_path);
+                            $stats['physical_deleted']++;
+                        }
+
+                        // Hard delete: file fisik sudah tiada, record tidak perlu
+                        // disimpan sebagai soft-deleted (menghindari dangling record).
+                        $file->forceDelete();
+                        $stats['deleted']++;
+                    } catch (\Throwable $th) {
+                        $stats['failed']++;
+                        Log::warning('Gagal menghapus orphan file: ' . $th->getMessage(), [
+                            'file_id' => $file->id,
+                        ]);
+                    }
+                }
+            });
+
+        Log::info('purgeOrphanFiles selesai.', array_merge($stats, ['dry_run' => $dryRun]));
+
+        return $stats;
+     }
+
      public static function generateFilename($filename, $application, $fileCode='',$app_file=null,$mimeType = 'pdf'){
          $file_type_name = $application->applicationFiles()->withFileCodeAndParent($fileCode)->first()->fileType->name;
         $carbon = Carbon::now();
@@ -261,7 +340,7 @@ class FileManagementService
 
    public static function getFileStorage($path,$application,$extend_dir=null,$type ='', $disk = 'minio') {
     if (Storage::disk($disk)->exists($path)) {
-        $set_path_directory = FileManagementService::setPathStorage($application->id,$type).($extend_dir?'/'.$extend_dir:'');
+        $set_path_directory = FileManagementService::setPathStorage($application,$type).($extend_dir?'/'.$extend_dir:'');
         if (Storage::disk($disk)->mimeType($path) !== false) {
             return [
                 'fileName'=>basename($path),

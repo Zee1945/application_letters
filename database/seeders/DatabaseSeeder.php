@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ParticipantTypeSeeder::class,
             FileTypeSeeder::class,
+            GroupFileTypeSeeder::class,
         ]);
 
         // User::factory()->create([

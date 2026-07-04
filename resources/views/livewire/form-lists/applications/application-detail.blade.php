@@ -160,39 +160,44 @@
                         <table class="table table-striped table-sm mb-0">
                             <thead>
                                 <tr>
-                                    {{-- <th class="text-center" style="width: 45%">Parent</th> --}}
-                                    <th class="text-center" style="width: 45%">Status</th>
-                                    <th style="width: 45%">Nama File</th>
+                                    <th class="text-center" style="width: 25%"></th>
+                                    <th class="text-center" style="width: 25%">Status</th>
+                                    <th style="width: 50%">Nama File</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($application_files as $item)
-                                    <tr>
-                                        {{-- <td>{{$item->fileType->parent?->name}}</td> --}}
-                                        <td class="text-center">{!! viewHelper::generateStatusFileHTML($item->status_ready) !!}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div>
-                                                    @if(Str::startsWith($item->fileType->code, 'daftar_kehadiran'))
-                                                    <i class="bx bxs-file-doc me-2 font-24 text-primary"></i>
+                                @foreach ($application_files as $groupName => $items)
+                                    <tr class="border-4">
+                                        <th rowspan="{{ count($items)+1 }}" class="fw-bold text-center">{{ $groupName }}</th>
+                                    </tr>
+                                    @foreach ($items as $item)
+                                        <tr>
+                                            {{-- <td>{{$item->fileType->parent?->name}}</td> --}}
+                                            <td class="text-center">{!! viewHelper::generateStatusFileHTML($item->status_ready) !!}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        @if(Str::startsWith($item->fileType->code, 'daftar_kehadiran'))
+                                                        <i class="bx bxs-file-doc me-2 font-24 text-primary"></i>
+                                                        @else
+                                                        <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
+                                                        @endif
+                                                    </div>
+                                                    @if ($item->status_ready == 3 || $item->status_ready == 5)
+                                                        @php $downloadFile = $item->merged_file_id ? $item->mergedFile : $item->file; @endphp
+                                                        <span class="text-primary cursor-pointer" wire:click="downloadFile('{{$downloadFile->path}}','{{$downloadFile->filename}}','{{$item->fileType->is_upload}}')">
+                                                            <u>{{$item->display_name}}</u>
+                                                            @unless ($item->fileType->is_upload == 1)
+                                                                <span class="bg-pastel-primary rounded-circle"><i class="fa-solid fa-signature"></i></span>
+                                                            @endunless
+                                                        </span>
                                                     @else
-                                                    <i class="bx bxs-file-pdf me-2 font-24 text-danger"></i>
+                                                        <span> {{$item->display_name}}</span>
                                                     @endif
                                                 </div>
-                                                @if ($item->status_ready == 3 || $item->status_ready == 5)
-                                                    @php $downloadFile = $item->merged_file_id ? $item->mergedFile : $item->file; @endphp
-                                                    <span class="text-primary cursor-pointer" wire:click="downloadFile('{{$downloadFile->path}}','{{$downloadFile->filename}}','{{$item->fileType->is_upload}}')">
-                                                        <u>{{$item->display_name}}</u>
-                                                        @unless ($item->fileType->is_upload == 1)
-                                                            <span class="bg-pastel-primary rounded-circle"><i class="fa-solid fa-signature"></i></span>
-                                                        @endunless
-                                                    </span>
-                                                @else
-                                                    <span> {{$item->display_name}}</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endforeach
                             </tbody>
                         </table>
