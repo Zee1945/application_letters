@@ -947,7 +947,7 @@ class ApplicationService
         }
 
     }
-    public static function storeReport($data,$realization=[],$speakers_info=[],$is_submit=false)
+    public static function storeReport($data,$is_submit=false)
     {
         try {
             DB::beginTransaction();
@@ -955,64 +955,6 @@ class ApplicationService
             $reports = $app->report->update($data);
 
             // dd($data['attachments'],$speakers_info,$realization);
-
-            // dd($reports,$temp,$realization);
-            // store file id ke tabel draft_cost_application
-            foreach ($realization as $key => $value) {
-                    $draf_cost= ApplicationDraftCostBudget::find($value['id']);
-
-                    $draf_cost->realization = $value['realization'];
-                    $draf_cost->volume_realization = $value['volume_realization'];
-                    $draf_cost->unit_cost_realization = $value['unit_cost_realization'];
-                    $draf_cost->save();
-
-                  if (isset($value['file_id']) && !empty($value['file_id'])) {
-                    $new_dir = str_replace('temp/report/', '', $value['file_id']);
-                    $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
-                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report', $value['file_id']);
-                    $draf_cost->files()->attach($files['data']->id);
-                 }
-
-            }
-
-            // foreach ($data['attachments']??[] as $att_type) {
-            // //    dd(Storage::disk('minio')->files($att_type['file_path']),$att_type['file_path']);
-            //     if (Storage::disk('minio')->exists($att_type['file_path'])) {
-            //         $get_dir_files = Storage::disk('minio')->files($att_type['file_path']); // Mendapatkan semua file dalam folder
-            //         foreach ($get_dir_files as $dir_file) {
-            //             $new_dir = str_replace('temp/report/'.$app->id.'/', '', $dir_file);
-            //             $get_file_storage = FileManagementService::getFileStorage($dir_file,$app,$new_dir,'report');
-            //             $file = FileManagementService::storeFiles($get_file_storage,$app,'report', $dir_file);
-                       
-            //             if ($file['status']) {
-            //                 $arr = [
-            //                     'file_id'=>$file['data']->id,
-            //                     'reference_id'=>null,
-            //                     'application_report_id'=>$att_type['application_report_id'],
-            //                     'type'=>$att_type['type']
-            //                 ];
-            //                 $app->report->attachments()->create($arr);
-            //             } 
-            //         }
-            // }
-
-            //     # code...
-            // }
-
-            // foreach ($speakers_info as $key => $value) {
-            //     $new_dir = str_replace('temp/report/', '', $path);
-            //     $get_file_storage = FileManagementService::getFileStorage($value['file_id'],$app,$new_dir,'report');
-
-            //     $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
-            //     $draf_cost= ApplicationDraftCostBudget::find($value['id']);
-            //     $draf_cost->files()->attach($files->id);
-            // }
-
-
-
-            // if (!$reports) {
-            //         return ['status' => false, 'message' => 'data LPJ Gagal ditambahkan'];
-            //     }
             if ($is_submit) {
                 self::updateFlowApprovalStatus('submit-report', $data['application_id']);
             }
@@ -1043,19 +985,15 @@ class ApplicationService
             $directory = FileManagementService::getPathStorage($app,'report').'/speaker-information/' . $participant_id;
             foreach ($files as $key => $file) {
                 if ($file instanceof UploadedFile) {
-                        Log::info('Masok ke upload =>',['$key'=>$key]);
                     $clean_original_name  = explode('.',$file->getClientOriginalName())[0];
                     $fileName = $clean_original_name.'-'.$participant_id . '-' . $key . '.' . $file->getClientOriginalExtension();
-                        $path = $directory.'/'.$fileName;
-                        // Simpan file ke MinIO
-                        $file->storeAs($directory, $fileName, 'minio');
 
-                        $get_file_storage = FileManagementService::getFileStorage($path,$app,$path,'report');
-                                    $files = FileManagementService::storeFiles($get_file_storage,$app,'report');
-                                if ($files['status']) {
-                                    $participant->$key = $files['data']?->id;
-                                }
-                                $participant->save();
+                    // Unggah fisik + simpan record files sekaligus (tanpa round-trip).
+                    $stored = FileManagementService::storeFilesAlt($file, $directory, $fileName, $app, 'report');
+                    if ($stored['status']) {
+                        $participant->$key = $stored['data']?->id;
+                    }
+                    $participant->save();
                 }
             }
         DB::commit();
@@ -1315,9 +1253,16 @@ public static function getListReport($search = '', $status_approval = '', $depar
         return ['status' => false, 'message' => 'Gagal menghapus data: ' . $th->getMessage()];
     }
 }
+    /**
+     * @deprecated Tidak dipakai lagi. Upload attachment laporan kini dilakukan
+     * satu-fase langsung di ApplicationController::submitReport memakai
+     * FileManagementService::storeFilesAlt (upload fisik + record files +
+     * report attachment sekaligus). Fungsi ini memakai pola getFileStorage +
+     * storeFiles yang menghasilkan path dobel & file orphan — jangan dipakai.
+     */
     public static function submitReport($metadata_files,$application,$report){
 
-  
+
     // Validasi file dengan ukuran maksimal 10MB untuk semua file
     // $request->validate([
     //     'spj_file.*' => 'nullable|file|max:10240', // Maksimal 10MB per file

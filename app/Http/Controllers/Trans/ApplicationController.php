@@ -9,6 +9,7 @@ use App\Models\Application;
 use App\Services\ApplicationService;
 use App\Services\FileManagementService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -93,92 +94,62 @@ class ApplicationController extends Controller
     }
 public function submitReport(Request $request, $application_id)
 {
+    $application = Application::find($application_id);
 
-  
-    
-    $data = [];
-      $application = Application::find($application_id);
-
-          // Validasi file
+    // Validasi file
     $validation_result = $this->validateAttachments($request);
     if (!$validation_result['status']) {
         // Jika validasi gagal, kembalikan pesan error ke halaman sebelumnya
         return redirect()->back()->withErrors($validation_result['errors'])->withInput();
     }
 
-     $report = $application->report()->first();
-            if ($request->hasFile('spj_file')) {
-                $slug = 'spj-file';
-                $spjFilePath = $application_id . '/'.$slug;
-                $data[]= [
-                        'dir_path'=>$spjFilePath,
-                        'type'=>$slug,
-                        'file_path'=>$spjFilePath,
-                        'application_report_id'=>$report->id,
-                    ];
-            foreach ($request->file('spj_file') as $spjFile) {
-                $spjFile->storeAs($spjFilePath.'/', $spjFile->getClientOriginalName(), 'minio');
+    $report = $application->report()->first();
+
+    // Pemetaan field upload => type attachment (slug).
+    $attachmentMap = [
+        'spj_file'             => 'spj-file',
+        'minutes_file'         => 'minutes-file',
+        'attendence_files'     => 'attendence-files',
+        'documentation_photos' => 'document-photos',
+    ];
+
+    try {
+        DB::beginTransaction();
+
+        foreach ($attachmentMap as $field => $slug) {
+            if (!$request->hasFile($field)) {
+                continue;
+            }
+
+            $dir = FileManagementService::getPathStorage($application, 'report') . '/' . $slug;
+
+            foreach ($request->file($field) as $file) {
+                // Unggah fisik + buat record files sekaligus (tanpa round-trip).
+                $stored = FileManagementService::storeFilesAlt($file, $dir, $file->getClientOriginalName(), $application, 'report');
+
+                if ($stored['status']) {
+                    $report->attachments()->create([
+                        'file_id'               => $stored['data']->id,
+                        'reference_id'          => null,
+                        'application_report_id' => $report->id,
+                        'type'                  => $slug,
+                    ]);
+                }
             }
         }
 
-        // Proses file Minutes
-        if ($request->hasFile('minutes_file')) {
-              $slug = 'minutes-file';
-                $minutesFilePath = $application_id . '/'.$slug;
+        DB::commit();
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        Log::error('Error saat submit laporan: ' . $th->getMessage(), ['application_id' => $application_id]);
+        return redirect()->back()->with(false, 'Laporan gagal disubmit.');
+    }
 
-               $data[]= [
-                    'dir_path'=>$minutesFilePath,
-                    'type'=>$slug,
-                    'file_path'=>$minutesFilePath,
-                    'application_report_id'=>$report->id,
-                ];
-                // dd($data);
-            foreach ($request->file('minutes_file') as $minutesFile) {
-                // dd($minutesFile->getClientOriginalName());
-                $minutesFile->storeAs($minutesFilePath.'/', $minutesFile->getClientOriginalName(), 'minio');
-            }
-        }
+    if ($request->is_submit == '1') {
+        ApplicationService::updateFlowApprovalStatus('submit-report', $application_id);
+    }
 
-        // // Proses file Absensi
-        if ($request->hasFile(key: 'attendence_files')) {
-            $slug = 'attendence-files';
-             $attendenceFilePath = $application_id .'/'.$slug;
-            $data[]= [
-                    'dir_path'=>$attendenceFilePath,
-                    'type'=>$slug,
-                    'file_path'=>$attendenceFilePath,
-                    'application_report_id'=>$report->id,
-                ];
-            foreach ($request->file('attendence_files') as $attendenceFile) {
-                $attendenceFile->storeAs($attendenceFilePath.'/',$attendenceFile->getClientOriginalName(), 'minio');
-            }
-        }
-
-        // Proses Foto Dokumentasi
-        if ($request->hasFile('documentation_photos')) {
-            $slug = 'document-photos';
-                $photoPath = $application_id . '/'.$slug;
-                $data[]= [
-                    'dir_path'=>$photoPath,
-                    'type'=>$slug,
-                    'file_path'=>$photoPath,
-                    'application_report_id'=>$report->id,
-                ];
-
-            foreach ($request->file('documentation_photos') as $photo) {
-                $photo->storeAs($photoPath.'/', $photo->getClientOriginalName(), 'minio');
-           
-            }
-        }
-            $res =  ApplicationService::submitReport($data,$application,$report);
-            // GenerateSubmitReportJob::dispatch($request,$application_id);
-            if ($res['status'] && $request->is_submit =='1') {
-                ApplicationService::updateFlowApprovalStatus('submit-report', $application_id);
-            }
-            return redirect()->back()->with($res['status'], $res['message']);
-
-    
-
+    return redirect()->back()->with(true, 'Laporan berhasil disubmit.');
 }
 
 public function onAttachmentChanged($files,$type,$application_id)
@@ -243,9 +214,7 @@ public function submitRealization(Request $request, $application_id)
             // Handle file upload for bukti bayar
             if ($request->hasFile("realizations.{$draft_cost_id}.file_bukti")) {
                 $file = $request->file("realizations.{$draft_cost_id}.file_bukti");
-                // $path = $application_id . '/realization/' . $draft_cost_id;
                 $path = FileManagementService::getPathStorage($application,'report') . '/realization/' . $draft_cost_id;
-
 
                 // Delete old files if exists
                 if (Storage::disk('minio')->exists($path)) {
@@ -255,28 +224,13 @@ public function submitRealization(Request $request, $application_id)
                     }
                 }
 
-                // Store new file
-                $filePath = $file->storeAs($path, $file->getClientOriginalName(), 'minio');
-                $mimeType = Storage::disk('minio')->mimeType($filePath);
-                $fileSize = Storage::disk('minio')->size($filePath);
-
-                // Save file reference to database
-                $fileRecord = \App\Models\Files::create([
-                    'filename' => $file->getClientOriginalName(),
-                    'encrypted_filename' => \Illuminate\Support\Facades\Crypt::encryptString($file->getClientOriginalName()),
-                    'mimetype' => $mimeType,
-                    'belongs_to' => 'realization',
-                    'path' => $filePath,
-                    'storage_type' => 'minio',
-                    'filesize' => $fileSize,
-                    'application_id' => $application->id,
-                    'department_id' => $application->department_id,
-                    'created_by' => auth()->id(),
-                    'updated_by' => auth()->id()
-                ]);
+                // Unggah fisik + simpan record files sekaligus.
+                $stored = FileManagementService::storeFilesAlt($file, $path, $file->getClientOriginalName(), $application, 'realization');
 
                 // Attach file to draft cost budget using pivot table
-                $draftCostBudget->files()->attach($fileRecord->id);
+                if ($stored['status']) {
+                    $draftCostBudget->files()->attach($stored['data']->id);
+                }
             }
         }
 

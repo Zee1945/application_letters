@@ -144,7 +144,7 @@ class ReportCreate extends AbstractComponent
             // 'attachments' => $this->attachment_files,
             'department_id' => AuthService::currentAccess()['department_id'],
         ];
-        $report = ApplicationService::storeReport($generals, $this->draft_costs,$this->speakers_info,$is_submit);
+        $report = ApplicationService::storeReport($generals,$is_submit);
         if ($report['status']) {
         if (empty($goToStep) && $is_submit) {
             $this->redirectRoute('reports.create', ['application_id' => $this->application_id], false, true);

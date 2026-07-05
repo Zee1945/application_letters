@@ -6,6 +6,7 @@ use App\Helpers\ViewHelper;
 use App\Models\Application;
 use App\Models\Files;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -44,36 +45,87 @@ class FileManagementService
 
 
 
-     public static function storeFiles($metafile = [],$application,$trans_type,$temp_dir=''){
-         if (count($metafile)) {
-            $moveFileStorage = Storage::disk('minio')->put($metafile['path'],$metafile['content']);
+     /**
+      * Simpan file upload sekaligus: unggah fisik ke MinIO + buat record `files`.
+      *
+      * Berbeda dengan storeFiles() yang menerima $metafile hasil getFileStorage
+      * (baca-ulang + put-ulang), fungsi ini mengerjakan seluruh proses dari
+      * UploadedFile langsung — menghindari round-trip, path dobel, & file orphan.
+      *
+      * @param UploadedFile $file      File hasil upload.
+      * @param string       $directory Folder tujuan di MinIO (tanpa nama file).
+      * @param string       $fileName  Nama file final (dengan ekstensi).
+      * @param mixed        $application
+      * @param mixed        $trans_type Nilai kolom belongs_to.
+      * @param string       $temp_dir  Bila diisi, dihapus setelah sukses (bersihkan sumber temp).
+      * @return array{status:bool, message:string, data:mixed}
+      */
+     public static function storeFilesAlt(UploadedFile $file, $directory, $fileName, $application, $trans_type, $temp_dir = ''){
+        // Unggah fisik ke MinIO. storeAs mengembalikan path lengkap (folder + nama).
+        $full_path = $file->storeAs($directory, $fileName, 'minio');
 
-            if ($moveFileStorage) {
-                $data = [
-                    'filename' => $metafile['fileName'],
-                    'encrypted_filename' => Crypt::encryptString($metafile['fileName']),
-                    'mimetype' => $metafile['mimeType'],
-                    'belongs_to' => $trans_type,
-                    'path' => $metafile['path'],
-                    'storage_type' => 'minio',
-                    'filesize' => $metafile['size'],
-                    'application_id' => $application->id,
-                    'department_id' => $application->department_id,
-                    'created_by' => $application->created_by,
-                    'updated_by' => $application->created_by
-                ];
-                $res = Files::create($data);
-                if (!$res) {
-                    return ['status'=>false,'message'=>'failed to store new file data','data'=>[]];
-                }
-                if ($temp_dir) {
-                    Storage::disk('minio')->delete($temp_dir);
-                }
-             return ['status'=>true,'message'=>'success store new data','data'=>$res];
-            }
+        if (!$full_path) {
+            return ['status' => false, 'message' => 'Gagal mengunggah file ke storage', 'data' => null];
         }
-        return ['status' => false, 'message' => 'failed to store new file data, metadata is empty', 'data' => []];
+
+        // Metadata diambil langsung dari UploadedFile (tanpa baca ulang dari MinIO).
+        $data = [
+            'filename'           => $fileName,
+            'encrypted_filename' => Crypt::encryptString($fileName),
+            'mimetype'           => $file->getClientMimeType(),
+            'belongs_to'         => $trans_type,
+            'path'               => $full_path,
+            'storage_type'       => 'minio',
+            'filesize'           => $file->getSize(),
+            'application_id'     => $application->id,
+            'department_id'      => $application->department_id,
+            'created_by'         => $application->created_by,
+            'updated_by'         => $application->created_by,
+        ];
+
+        $res = Files::create($data);
+        if (!$res) {
+            // Rollback fisik agar tidak meninggalkan orphan bila record gagal dibuat.
+            Storage::disk('minio')->delete($full_path);
+            return ['status' => false, 'message' => 'Gagal menyimpan data file', 'data' => null];
+        }
+
+        if ($temp_dir) {
+            Storage::disk('minio')->delete($temp_dir);
+        }
+
+        return ['status' => true, 'message' => 'success store new data', 'data' => $res];
     }
+    //  public static function storeFiles($metafile = [],$application,$trans_type,$temp_dir=''){
+    //      if (count($metafile)) {
+    //         $moveFileStorage = Storage::disk('minio')->put($metafile['path'],$metafile['content']);
+
+    //         if ($moveFileStorage) {
+    //             $data = [
+    //                 'filename' => $metafile['fileName'],
+    //                 'encrypted_filename' => Crypt::encryptString($metafile['fileName']),
+    //                 'mimetype' => $metafile['mimeType'],
+    //                 'belongs_to' => $trans_type,
+    //                 'path' => $metafile['path'],
+    //                 'storage_type' => 'minio',
+    //                 'filesize' => $metafile['size'],
+    //                 'application_id' => $application->id,
+    //                 'department_id' => $application->department_id,
+    //                 'created_by' => $application->created_by,
+    //                 'updated_by' => $application->created_by
+    //             ];
+    //             $res = Files::create($data);
+    //             if (!$res) {
+    //                 return ['status'=>false,'message'=>'failed to store new file data','data'=>[]];
+    //             }
+    //             if ($temp_dir) {
+    //                 Storage::disk('minio')->delete($temp_dir);
+    //             }
+    //          return ['status'=>true,'message'=>'success store new data','data'=>$res];
+    //         }
+    //     }
+    //     return ['status' => false, 'message' => 'failed to store new file data, metadata is empty', 'data' => []];
+    // }
 
 
      public static function find($id){

@@ -537,7 +537,7 @@ case 'surat_permohonan_moderator':
             $qrPath = self::generateQrCode($metadata_signer);
             // dd($application->getAttributes(),$application->detail->getAttributes());
             $templateProcessor = new TemplateProcessor($templatePath);
-
+            $templateProcessor->setValue('department_name', self::sanitizeForXml($application->department->approvalDepartment()->first()?->name));
      foreach ($application->getAttributes() as $key => $value) {
                 switch ($key) {
                     case 'activity_name':
