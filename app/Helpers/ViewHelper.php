@@ -288,35 +288,23 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                 return false;
             case 'admin-submit':
                 if ($admin_has_access) {
-                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 12) {
-                        return false;
-                    }
                     return true;
                 }
                 return false;
             case 'admin-submit-letter-number':
                 if ($admin_has_access) {
-                    if ($app->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 12) {
-                        return false;
-                    }
                     return true;
                 }
                 return false;
             case 'admin-submit-report':
                 if ($admin_has_access){
-                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 11) {
-                        return false;
-                    }
                     return true;
-                } 
+                }
                 return false;
             case 'edit-detail':
                 if ($admin_has_access){
-                    if ($app->report->created_by == AuthService::currentAccess()['id'] && $app->current_approval_status != 11) {
-                        return false;
-                    }
                     return true;
-                } 
+                }
                 $kabag_user_id_kabag = User::rolePosition('kabag',$app->department_id)->first()->id;
                  if($kabag_user_id_kabag == AuthService::currentAccess()['id']){
                     return true;

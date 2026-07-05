@@ -226,7 +226,7 @@ class MasterManagementService
             $app->schedules()->forceDelete();
             $app->participants()->forceDelete();
             $app->draftCostBudgets()->forceDelete();
-            $app->letterNumbers()->forceDelete();
+            // $app->letterNumbers()->forceDelete();
 
             $counts = [];
 
@@ -273,11 +273,11 @@ class MasterManagementService
             $counts['application_draft_cost_budgets'] = count($draftCosts);
 
             // 5) application_letter_numbers
-            $letterNumbers = self::dummyLetterNumbers($app->id, $departmentId, $createdBy);
-            foreach ($letterNumbers as $l) {
-                ApplicationLetterNumber::create($l);
-            }
-            $counts['application_letter_numbers'] = count($letterNumbers);
+            // $letterNumbers = self::dummyLetterNumbers($app->id, $departmentId, $createdBy);
+            // foreach ($letterNumbers as $l) {
+            //     ApplicationLetterNumber::create($l);
+            // }
+            // $counts['application_letter_numbers'] = count($letterNumbers);
 
             DB::commit();
 
