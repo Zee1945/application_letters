@@ -381,7 +381,7 @@ class FileManagementService
         $path = parse_url($file_url, PHP_URL_PATH);
         $fileInfo = pathinfo($path);
         $extension = $fileInfo['extension'];
-        $content = self::onlyOfficeConversion($extension, 'pdf', $file_url);
+        $content = self::onlyOfficeConversion($extension, 'pdfa', $file_url);
         if ($content) {
             Log::info('END CONVERT FILE TO PDF - SUCCESS');
             return $content;
