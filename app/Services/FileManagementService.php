@@ -465,7 +465,8 @@ public static function onlyOfficeConversion($from, $to, $fileUrl, $key = null)
         'filetype' => $from,
         'outputtype' => $to,
         'url' => $fileUrl,
-        'key' => $key
+        'key' => $key,
+        'pdf'        => [ 'a' => true ]
     ];
     Log::info('OnlyOffice Conversion Config:', $config);
 
