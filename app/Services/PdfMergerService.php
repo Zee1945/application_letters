@@ -40,7 +40,7 @@ class PdfMergerService
                 return '';
             }
 
-            $outputPath = $this->mergePdfs($sections, $application->id);
+            $outputPath = $this->mergePdfs($sections, $application->id, $tempFiles);
             $tempFiles[] = $outputPath;
 
             // Pakai record application_files LPJ yang sudah ada.
@@ -335,10 +335,7 @@ class PdfMergerService
         foreach ($paths as $path) {
             $mime = mime_content_type($path);
             if ($mime === 'application/pdf') {
-                // Normalisasi ke PDF 1.4 (xref table klasik) via Ghostscript agar
-                // FPDI free bisa membaca. PDF hasil OnlyOffice versi baru memakai
-                // cross-reference stream (/XRef) yang tidak didukung FPDI free.
-                $result[] = $this->normalizePdf($path, $tempFiles);
+                $result[] = $path;
                 continue;
             }
 
@@ -482,7 +479,7 @@ class PdfMergerService
     /**
      * Merge array of PDF paths menjadi satu file PDF.
      */
-    private function mergePdfs(array $pdfPaths, int $applicationId): string
+    private function mergePdfs(array $pdfPaths, int $applicationId, array &$tempFiles = []): string
     {
         $fpdi = new Fpdi();
 
@@ -491,6 +488,12 @@ class PdfMergerService
                 Log::warning("File tidak ditemukan saat merge: {$pdfPath}, skip.");
                 continue;
             }
+
+            // Normalisasi ke PDF 1.4 (xref table klasik) via Ghostscript agar FPDI
+            // free bisa membaca. Dilakukan terpusat di sini supaya SEMUA file yang
+            // masuk FPDI ter-cover — termasuk LPJ utama yang tidak lewat ensurePdf.
+            // Fallback aman: bila gs tak ada/gagal, kembalikan path asli.
+            $pdfPath = $this->normalizePdf($pdfPath, $tempFiles);
 
             try {
                 $pageCount = $fpdi->setSourceFile($pdfPath);
