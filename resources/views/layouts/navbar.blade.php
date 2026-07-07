@@ -4,15 +4,17 @@
                         <nav class="navbar navbar-expand gap-2 align-items-center">
                             <div class="mobile-toggle-menu d-flex"><i class='bx bx-menu'></i>
                             </div>
+                                <h5 class="text-danger text-center">[TESTING]</h5>
+
 
 
                               <div class="top-menu ms-auto">
-                                <ul class="navbar-nav align-items-center gap-1">
+                                {{-- <ul class="navbar-nav align-items-center gap-1">
                                     <li class="nav-item mobile-search-icon d-flex d-lg-none" data-bs-toggle="modal" data-bs-target="#SearchModal">
-                                        <a class="nav-link" href="avascript:;"><i class='bx bx-search'></i>
+                                        <a class="nav-link" href="javascript:;"><i class='bx bx-search'></i>
                                         </a>
                                     </li>
-                                    {{-- <li class="nav-item dropdown dropdown-large">
+                                    <li class="nav-item dropdown dropdown-large">
                                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" data-bs-toggle="dropdown"><span class="alert-count">7</span>
                                             <i class='bx bx-bell'></i>
                                         </a>
@@ -67,8 +69,9 @@
                                                 </div>
                                             </a>
                                         </div>
-                                    </li> --}}
+                                    </li> 
                                 </ul>
+                                --}}
                             </div>
                             <div class="user-box dropdown px-4">
                                 <a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
