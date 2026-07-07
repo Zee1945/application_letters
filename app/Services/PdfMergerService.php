@@ -8,9 +8,17 @@ use App\Models\ReportAttachment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\Fpdi;
+use Symfony\Component\Process\Process;
 
 class PdfMergerService
 {
+    /**
+     * Cache hasil deteksi binary Ghostscript.
+     * null = belum dicek, '' = tidak ada, 'gs'/'gswin64c' = nama binary.
+     */
+    private ?string $gsBinary = null;
+    private bool $gsChecked = false;
+
     /**
      * Entry point: merge semua lampiran ke dalam LPJ utama.
      * Urutan sesuai requirement: LPJ → Realisasi → Dokumentasi → File Pendukung → Data Personal
@@ -327,7 +335,10 @@ class PdfMergerService
         foreach ($paths as $path) {
             $mime = mime_content_type($path);
             if ($mime === 'application/pdf') {
-                $result[] = $path;
+                // Normalisasi ke PDF 1.4 (xref table klasik) via Ghostscript agar
+                // FPDI free bisa membaca. PDF hasil OnlyOffice versi baru memakai
+                // cross-reference stream (/XRef) yang tidak didukung FPDI free.
+                $result[] = $this->normalizePdf($path, $tempFiles);
                 continue;
             }
 
@@ -348,6 +359,101 @@ class PdfMergerService
             }
         }
         return $result;
+    }
+
+    /**
+     * Deteksi binary Ghostscript yang tersedia (hasil di-cache per instance).
+     * 'gs' untuk Linux/VPS, 'gswin64c' untuk Windows lokal.
+     */
+    private function ghostscriptBinary(): ?string
+    {
+        if ($this->gsChecked) {
+            return $this->gsBinary ?: null;
+        }
+        $this->gsChecked = true;
+
+        foreach (['gs', 'gswin64c'] as $bin) {
+            try {
+                $probe = new Process([$bin, '--version']);
+                $probe->setTimeout(10);
+                $probe->run();
+                if ($probe->isSuccessful()) {
+                    $this->gsBinary = $bin;
+                    return $bin;
+                }
+            } catch (\Throwable $e) {
+                // coba kandidat berikutnya
+            }
+        }
+
+        $this->gsBinary = '';
+        Log::warning('Ghostscript tidak ditemukan; normalisasi PDF dilewati (FPDI bisa gagal pada PDF cross-reference stream).');
+        return null;
+    }
+
+    /**
+     * Tulis ulang PDF ke versi 1.4 (xref table klasik, tanpa cross-reference/object
+     * stream) via Ghostscript, agar FPDI free bisa membacanya saat merge.
+     *
+     * Keamanan (file bisa berasal dari upload user):
+     *  - Dipanggil via Symfony Process dengan ARRAY args (bukan shell) -> tidak ada
+     *    shell yang mem-parse -> command injection tertutup.
+     *  - '-dSAFER' mengaktifkan sandbox Ghostscript (batasi akses FS & operator
+     *    berbahaya dari dalam dokumen) -> mitigasi eksploit PDF crafting.
+     *  - Device dibatasi 'pdfwrite' saja, non-interaktif, dengan timeout.
+     *  - Input di-realpath & dipastikan file valid sebelum diproses.
+     *
+     * Fallback aman: bila gs tak ada / gagal, kembalikan file asli (perilaku lama).
+     */
+    private function normalizePdf(string $path, array &$tempFiles): string
+    {
+        $gs = $this->ghostscriptBinary();
+        if (!$gs) {
+            return $path; // tanpa gs: perilaku seperti sebelumnya
+        }
+
+        // Input harus file nyata milik sistem (file temp hasil download MinIO).
+        $real = realpath($path);
+        if ($real === false || !is_file($real)) {
+            return $path;
+        }
+
+        $outPath = $this->tempPath('gsnorm_' . uniqid() . '.pdf');
+
+        try {
+            $process = new Process([
+                $gs,
+                '-dSAFER',                    // sandbox: mitigasi PDF jahat (WAJIB)
+                '-dNOPAUSE',
+                '-dBATCH',
+                '-dQUIET',
+                '-sDEVICE=pdfwrite',          // hanya tulis PDF
+                '-dCompatibilityLevel=1.4',   // -> xref table klasik, FPDI-friendly
+                '-sOutputFile=' . $outPath,
+                $real,
+            ]);
+            $process->setTimeout(120);        // cegah PDF "bom" menggantung worker
+            $process->run();
+
+            if ($process->isSuccessful() && is_file($outPath) && filesize($outPath) > 0) {
+                $tempFiles[] = $outPath;
+                return $outPath;
+            }
+
+            Log::warning('Normalisasi Ghostscript gagal, pakai file asli.', [
+                'path' => $real,
+                'exit' => $process->getExitCode(),
+                'err'  => mb_substr($process->getErrorOutput(), 0, 500),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Exception normalisasi Ghostscript: ' . $e->getMessage(), ['path' => $real]);
+        }
+
+        // Bersihkan output gagal, fallback ke file asli.
+        if (is_file($outPath)) {
+            @unlink($outPath);
+        }
+        return $path;
     }
 
     /**
