@@ -2,7 +2,8 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Tanggal/Waktu</th>
+                <th style="width: 220px">Tanggal</th>
+                <th style="width: 200px">Waktu</th>
                 <th>Acara</th>
                 <th>Petugas</th>
                 <th></th>
@@ -12,7 +13,7 @@
             @foreach ($rundown as $index => $row)
                 <tr>
                     <!-- Tanggal/Waktu -->
-                    <td style="width: 200px">
+                    <td>
                         <select class="form-select"
                                 wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.date" {!! $this->handleDisable !!}>
                             @forelse ($this->dateOptionsFor($row['date'] ?? '') as $opt)
@@ -21,13 +22,22 @@
                                 <option value="">— Isi Tanggal Pelaksanaan dahulu —</option>
                             @endforelse
                         </select>
-                        <div class="d-flex mt-3">
-                            <input type="time" class="form-control"
+                    </td>
+                    <td>
+                         <div class="d-flex">
+                            <input type="text" class="form-control @if(!empty($timeErrors[$index]['start'])) is-invalid @endif" placeholder="08:00"
                                    wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.start_date" {!! $this->handleDisable !!}>
                             <h5 class="mx-2">-</h5>
-                            <input type="time" class="form-control"
+                            <input type="text" class="form-control @if(!empty($timeErrors[$index]['end'])) is-invalid @endif" placeholder="10:00"
                                    wire:change="syncRundown" wire:model.live="rundown.{{ $index }}.end_date" {!! $this->handleDisable !!}>
                         </div>
+                        <small class="text-muted">Format waktu 24 jam: JJ:MM (contoh: 08:00)</small>
+                        @if (!empty($timeErrors[$index]['start']))
+                            <div class="text-danger small">{{ $timeErrors[$index]['start'] }}</div>
+                        @endif
+                        @if (!empty($timeErrors[$index]['end']))
+                            <div class="text-danger small">{{ $timeErrors[$index]['end'] }}</div>
+                        @endif
                     </td>
 
                     <!-- Nama Acara -->

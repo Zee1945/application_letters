@@ -1,12 +1,10 @@
 <div>
     <table class="table table-bordered">
         <thead>
-            <tr>
-                <th>Sub Uraian</th>
-                <th> Rencana</th>
-                <th> Realisasi</th>
-                <th> Bukti Bayar</th>
-            </tr>
+                <th width="30%">Sub Uraian</th>
+                <th width="12%"> Rencana</th>
+                <th width="12%"> Realisasi</th>
+                <th width="25%"> Kuitansi & SPBY</th>
         </thead>
         <tbody>
             @php
@@ -17,6 +15,19 @@
                 @php
                     $all_total+=$child['total'];
                 @endphp
+                @if (strtolower(trim($row['code'] ?? '')) === 'mak')
+                <tr>
+                    <td><span class="fw-bold"> ({{$row['code']}})</span>
+                        {{ ($row['item'] ?? '') . (!empty($child['sub_item']) ? '. ' . $child['sub_item'] : '') }}
+                    </td>
+                    <td colspan="">
+                    </td>
+                    <td colspan="">
+                    </td>
+                    <td colspan="">
+                    </td>
+                </tr>
+                @else
                 <tr>
                     <td> <div class="">
                        <div class="d-flex justify-content-betweenc w-100">
@@ -38,18 +49,19 @@
                                 @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                                 {{$child['volume_realization']}}
                                 @else
-                                <input type="number" class="form-control form-control-sm w-50" name="realizations[{{$child['id']}}][volume_realization]" value="{{$child['volume_realization']}}"> <span> {{$child['unit']}}</span>
+                                <input type="number" class="form-control form-control-sm w-50" name="realizations[{{$child['id']}}][volume_realization]" value="{{$child['volume_realization']}}"> <span> &nbsp; {{$child['unit']}}</span>
                                 <input type="hidden" name="realizations[{{$child['id']}}][draft_cost_id]" value="{{$child['id']}}">
                                 @endif
                             </span>
                         </div>
                         <div class="d-flex flex-column w-50 ms-auto">
                             <span class="fw-bold">Harga Satuan :</span>
-                            <span class="d-flex align-items-baseline">
+                            <span class="d-flex flex-column align-items-baseline">
                                  @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                                     {{viewHelper::currencyFormat($child['unit_cost_realization'])}}
                                 @else
-                                    <span>Rp.</span> <input type="number" class="form-control form-control-sm w-50" name="realizations[{{$child['id']}}][unit_cost_realization]" value="{{$child['unit_cost_realization']}}">
+                                    <input type="number" class="form-control form-control-sm w-50 js-currency-input" name="realizations[{{$child['id']}}][unit_cost_realization]" value="{{$child['unit_cost_realization']}}">
+                                    <small class="text-muted js-currency-preview">{{ !empty($child['unit_cost_realization']) ? viewHelper::currencyFormat($child['unit_cost_realization']) : '-' }}</small>
                                 @endif
                             </span>
                         </div>
@@ -57,19 +69,21 @@
                         </div>
 
                     </div> </td>
-                    <td>{{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
-                    <td>
+                    <td class="align-bottom">
+                        {{$child['total']?viewHelper::currencyFormat($child['total']):''}}</td>
+                    <td class="align-bottom">
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
                             <span class="d-flex text-nowrap">{{ viewHelper::currencyFormat($child['realization']??0) }}</span>
                         @else
-                        <div class="d-flex align-items-baseline">
-                           <span> Rp.</span> <input type="number" name="realizations[{{$child['id']}}][realization]" value="{{$child['realization']}}" class="form-control w-100"
+                        <div class="d-flex flex-column align-items-baseline">
+                           <input type="number" name="realizations[{{$child['id']}}][realization]" value="{{$child['realization']}}" class="form-control w-100 js-currency-input"
                             aria-label="Biaya Realisasi">
+                            <small class="text-muted js-currency-preview">{{ !empty($child['realization']) ? viewHelper::currencyFormat($child['realization']) : '-' }}</small>
                         </div>
 
                         @endif
                     </td>
-                    <td>
+                    <td class="align-bottom">
                         @if(viewHelper::handleFieldDisabled($this->application,false,true) == 'disabled')
 
                             {{-- Untuk menampilkan gambar --}}
@@ -111,7 +125,7 @@
                                             {{-- <button class="btn btn-xs btn-outline-success me-2" type="button" wire:click="openModalPreview({{$child['id']}})">
                                                 <i class="fa-solid fa-eye"></i> {{$file['filename']}}
                                             </button> --}}
-                                            <button class="btn btn-xs btn-outline-danger" type="button" wire:click="deleteFile({{$file['id']}}, {{$child['id']}})">
+                                            <button class="btn btn-xs btn-outline-danger py-2 me-0" type="button" wire:click="deleteFile({{$file['id']}}, {{$child['id']}})">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </div>
@@ -128,6 +142,7 @@
                         @endif
                     </td>
                 </tr>
+                @endif
                 @empty
                 @endforelse
 
@@ -142,3 +157,34 @@
     {{-- <livewire:utils.modal-preview :modalId="'modalPreviewRealization'" :key="'realization-modal'"/> --}}
 
 </div>
+
+@script
+<script>
+    // Preview format rupiah reaktif tanpa wire:model (input pakai name/value HTML biasa).
+    // Event delegation di document agar tetap jalan setelah Livewire me-render ulang DOM.
+    (function () {
+        const formatRupiah = (value) => {
+            const number = parseInt(value, 10);
+            if (isNaN(number) || value === '' || value === null) {
+                return '-';
+            }
+            return 'Rp ' + number.toLocaleString('id-ID');
+        };
+
+        const updatePreview = (input) => {
+            const wrapper = input.closest('.d-flex');
+            if (!wrapper) return;
+            const preview = wrapper.querySelector('.js-currency-preview');
+            if (preview) {
+                preview.textContent = formatRupiah(input.value);
+            }
+        };
+
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('js-currency-input')) {
+                updatePreview(e.target);
+            }
+        });
+    })();
+</script>
+@endscript

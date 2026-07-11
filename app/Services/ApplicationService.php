@@ -229,6 +229,13 @@ class ApplicationService
                 ];
                 $application->applicationFiles()->create($app_file);
             }
+
+            $draftCost = [
+                'code'=> 'MAK',
+                'item'=> '-Nomor MAK diisi Otomatis Saat Pengajuan Disetujui-',
+                'department_id' => $application->department_id,
+            ];
+            $application->draftCostBudgets()->create($draftCost);
             DB::commit();
             return $application;
         } catch (\Throwable $th) {
@@ -920,12 +927,23 @@ class ApplicationService
                     $rundown = ApplicationSchedule::updateOrCreate($value);
                 }
                 foreach ($draft_costs as $key => $value) {
-                    // Lewati baris kosong/setengah-isi: minimal harus ada item & sub_item.
-                    if (empty($value['item']) || empty($value['sub_item'])) {
+                    // Baris MAK (code = "mak") hanya berupa kode anggaran, boleh tanpa
+                    // sub_item/volume/cost_per_unit — tetap disimpan asalkan code = "mak".
+                    $is_mak = strtolower(trim($value['code'] ?? '')) === 'mak';
+
+                    // Baris MAK selalu disimpan. Untuk baris non-MAK, lewati yang
+                    // kosong/setengah-isi: minimal harus ada item & sub_item.
+                    if (!$is_mak && (empty($value['item']) || empty($value['sub_item']))) {
                         continue;
                     }
+                    
                     $value['department_id'] = $app->department_id;
                     $value['application_id'] = $app->id;
+                    if ($is_mak) {
+                        $value['volume'] = 0;
+                        $value['cost_per_unit'] = 0;
+                        $value['total'] = 0;
+                    }
                     $value['volume_realization'] = $value['volume'];
                     $value['unit_cost_realization'] = $value['cost_per_unit'];
                     $draft_cost = ApplicationDraftCostBudget::updateOrCreate($value);
@@ -1010,6 +1028,13 @@ class ApplicationService
             [
             'letter_name'=>'mak',
             'letter_label'=>'MAK',
+            'type_field'=>'text',
+                'is_with_date' => 0,
+                'letter_number'=>null,
+        ],
+            [
+            'letter_name'=>'keterangan_mak_rab',
+            'letter_label'=>'Keterangan MAK di RAB',
             'type_field'=>'text',
                 'is_with_date' => 0,
                 'letter_number'=>null,
@@ -1112,9 +1137,25 @@ class ApplicationService
     public static function updateLetterNumber($letterNumbers,$app,$is_submit=true){
         try {
             DB::beginTransaction();
+            $update_mak_rab = [
+                'item'=>'',
+                'sub_item'=>''
+            ];
             foreach ($letterNumbers as $key => $value) {
                 $field = $app->letterNumbers()->find($value['id'])->update($value);
+                if (($value['letter_name'] ?? '') === 'mak') {
+                    $update_mak_rab['item'] = $value['letter_number'] ?? '';
+                }
+                if (($value['letter_name'] ?? '') === 'keterangan_mak_rab') {
+                    $update_mak_rab['sub_item'] = $value['letter_number'] ?? '';
+                }
             }
+
+            // Update baris MAK di application_draft_cost_budgets (code = mak/MAK/Mak).
+            $app->draftCostBudgets()
+                ->whereRaw('LOWER(TRIM(code)) = ?', ['mak'])
+                ->update($update_mak_rab);
+
             if ($is_submit) {
                 $update_current_seq = $app->currentUserApproval()->first();
                 $update_current_seq->status = 13;

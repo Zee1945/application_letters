@@ -172,36 +172,36 @@
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Kata Pengantar</label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="introduction"></textarea>
                                         </div>
                                         {{-- <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Latar Belakang</label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="background" disabled></textarea>
                                         </div> --}}
                                         <div class="col-12">
                                             <label for="Outcome" class="form-label fw-bold">Materi</label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="Outcome"
                                                 wire:model="speaker_material"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="PurposeAndObjectives" class="form-label fw-bold">Uraian Kegiatan </label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="activity_description" wire:model="activity_description" ></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">
                                                 Kendala</label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="obstacles" wire:model="obstacles"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="UnitOfMeasurement" class="form-label fw-bold">Simpulan</label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="conclusion" wire:model="conclusion"></textarea>
                                         </div>
                                         <div class="col-12">
                                             <label for="ActivityVolume" class="form-label fw-bold">Saran
                                                 </label>
-                                            <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
+                                            <textarea  {!! viewHelper::handleFieldDisabled($this->application, false, true) !!} class="form-control" id="recommendations" wire:model="recommendations"></textarea>
                                         </div>
                                         
                                         <div class="col-12 d-flex justify-content-end">
@@ -209,7 +209,7 @@
                                             @if (viewHelper::actionPermissionButton('submit-report', $this->application))
                                                 <button class="btn btn-primary px-4 border-none bg-warning me-2" wire:click="store(false,'1')"><i class="fa-solid fa-bookmark"></i>Save Draft</button>
                                             @endif
-                                             @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                                             @if (viewHelper::actionPermissionButton('admin-submit-report', $this->application))
                                                                 <button class="btn btn-success text-white px-4 me-2"
                                                                     wire:click="store(false,'1')" wire:loading.attr="disabled"
                                                                     wire:target="store">
@@ -675,7 +675,7 @@
                             </button>
                             @endif
 
-                            @if (viewHelper::actionPermissionButton('admin-submit', $this->application))
+                            @if (viewHelper::actionPermissionButton('admin-submit-report', $this->application))
                                 <button class="btn btn-success px-4 border-none me-2 bg-success" id="saveDraftSupportingFiles" type="button" onclick="window.saveDraft"><i class="fa-solid fa-floppy-disk me-1"></i> Update Data</button>
                             @endif
                         </div>

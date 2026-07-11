@@ -18,6 +18,12 @@ class TableRundown extends Component
 
     public $handleDisable='';
 
+    /**
+     * Pesan error format jam per-baris rundown.
+     * Bentuk: [index => ['start' => '...', 'end' => '...']]
+     */
+    public $timeErrors = [];
+
     public $options = ['opt_moderators' => [], 'opt_speakers' => []];
     public $options_2 = [];
     public $participant_types = [];
@@ -235,6 +241,52 @@ class TableRundown extends Component
         return $data;
     }
 
+    /**
+     * Validasi ketat format jam "H:i" (24 jam, 00:00–23:59).
+     * Menerima kosong (dianggap valid; ditangani oleh guard !empty di tempat lain).
+     */
+    private function isValidTime($value): bool
+    {
+        if (empty($value)) {
+            return true;
+        }
+        try {
+            $parsed = Carbon::createFromFormat('H:i', $value);
+            // createFromFormat bisa "memaafkan" sebagian input; pastikan hasil format ulang sama persis.
+            return $parsed !== false && $parsed->format('H:i') === $value;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Periksa format jam tiap baris rundown, isi $this->timeErrors.
+     * Mengembalikan true bila semua valid.
+     */
+    public function validateTimes(): bool
+    {
+        $this->timeErrors = [];
+        $valid = true;
+
+        foreach ($this->rundown as $index => $row) {
+            $rowErrors = [];
+
+            if (!empty($row['start_date']) && !$this->isValidTime($row['start_date'])) {
+                $rowErrors['start'] = 'Format jam mulai harus JJ:MM (contoh 08:00).';
+            }
+            if (!empty($row['end_date']) && !$this->isValidTime($row['end_date'])) {
+                $rowErrors['end'] = 'Format jam selesai harus JJ:MM (contoh 10:00).';
+            }
+
+            if (!empty($rowErrors)) {
+                $this->timeErrors[$index] = $rowErrors;
+                $valid = false;
+            }
+        }
+
+        return $valid;
+    }
+
     public function normalizeData($rundowns)
     {
         $fulfil_data = array_filter($rundowns,function($item){
@@ -280,6 +332,11 @@ class TableRundown extends Component
 
     }
     public function syncRundown(){
+        // Jangan teruskan data bila ada format jam yang tidak valid,
+        // agar nilai rusak tidak sampai tersimpan ke DB (draft maupun submit).
+        if (!$this->validateTimes()) {
+            return;
+        }
         $normalizeData = $this->normalizeData($this->rundown);
         $this->dispatch('transfer-rundowns',[...$normalizeData]);
     }

@@ -25,8 +25,18 @@
         </thead>
         <tbody>
             @php $all_total = 0; @endphp
-            @forelse ($draft_costs as $index => $row)
+            @forelse ($this->draft_costs as $index => $row)
                 @php $all_total += (float) ($row['total'] ?? 0); @endphp
+                @if ($index === 0 && strtolower($row['code']) === 'mak')
+                       <tr>
+                    <td>{{ $row['code'] ?? '' }}</td>
+                    <td colspan="{{ $this->handleDisable != 'disabled' ? 7 : 6 }}">
+                        {{ ($row['item'] ?? '') . (!empty($row['sub_item']) ? '. ' . $row['sub_item'] : '') }}
+                    </td>
+                    
+                   
+                </tr>
+                @else
                 <tr>
                     <td>
                         <input type="text" class="form-control form-control-sm"
@@ -51,6 +61,8 @@
                     <td>
                         <input type="number" min="0" class="form-control form-control-sm"
                                wire:model.blur="draft_costs.{{ $index }}.cost_per_unit" {!! $this->handleDisable !!}>
+                        <small class="text-muted"> {{ !empty($row['cost_per_unit']) ? viewHelper::currencyFormat($row['cost_per_unit']) : '-' }}</small>
+
                     </td>
                     <td>
                         <span>{{ !empty($row['total']) ? viewHelper::currencyFormat($row['total']) : '-' }}</span>
@@ -63,6 +75,8 @@
                         </td>
                     @endif
                 </tr>
+                @endif
+
             @empty
                 <tr>
                     <td colspan="{{ $this->handleDisable != 'disabled' ? 8 : 7 }}" class="text-center text-muted">

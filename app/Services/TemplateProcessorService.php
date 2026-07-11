@@ -1538,14 +1538,20 @@ foreach ($new_data as $index => $item) {
         $number = 1;
         $total_all = 0;
         foreach ($draft_costs as $index => $row) {
+            // Baris MAK: gabung item.sub_item dengan titik. Selainnya: pakai " - " (stripe).
+            $is_mak = strtolower(trim($row->code ?? '')) === 'mak';
+            $separator = $is_mak ? '. ' : ' - ';
+            $item_val = $row->item . ($row->sub_item ? $separator . $row->sub_item : '');
+
             $rows['data'][] = [
                 'dc_code'      => self::sanitizeForXml($row->code),
-                'dc_item'    => self::sanitizeForXml($row->item),
-                'dc_sub_item'    => self::sanitizeForXml($row->sub_item),
+                'dc_item'    => self::sanitizeForXml($item_val),
+                'dc_sub_item'    => '',
+                // 'dc_sub_item'    => self::sanitizeForXml($row->sub_item),
                 'dc_unit'   => self::sanitizeForXml($row->unit),
-                'dc_cost_per_unit' => self::sanitizeForXml(ViewHelper::currencyFormat($row->cost_per_unit)),
-                'dc_volume'   => self::sanitizeForXml($row->volume),
-                'dc_total'   => self::sanitizeForXml(ViewHelper::currencyFormat($row->total))
+                'dc_cost_per_unit' => self::sanitizeForXml($row->cost_per_unit ? ViewHelper::currencyFormat($row->cost_per_unit) : ''),
+                'dc_volume'   => !$is_mak? self::sanitizeForXml($row->volume) : '',
+                'dc_total'   => self::sanitizeForXml($row->total ? ViewHelper::currencyFormat($row->total) : '')
             ];
             $total_all+=$row->total;
             $number++;
@@ -1558,14 +1564,18 @@ foreach ($new_data as $index => $item) {
         $number = 1;
         $total_all = 0;
         foreach ($draft_costs as $index => $row) {
+            // Baris MAK: gabung item.sub_item dengan titik. Selainnya: pakai " - " (stripe).
+            $is_mak = strtolower(trim($row->code ?? '')) === 'mak';
+            $separator = $is_mak ? '.' : ' - ';
+            $item_val = $row->item . ($row->sub_item ? $separator . $row->sub_item : '');
+
             $rows['data'][] = [
                 'rs_code'      => self::sanitizeForXml($row->code),
-                'rs_item'    => self::sanitizeForXml($row->item),
-                'rs_sub_item'    => self::sanitizeForXml($row->sub_item),
+                'rs_item'    => self::sanitizeForXml($item_val),
                 'rs_unit'   => self::sanitizeForXml($row->unit),
-                'rs_cost_per_unit' => self::sanitizeForXml(ViewHelper::currencyFormat($row->unit_cost_realization)),
+                'rs_cost_per_unit' => self::sanitizeForXml($row->unit_cost_realization ? ViewHelper::currencyFormat($row->unit_cost_realization) : ''),
                 'rs_volume'   => self::sanitizeForXml($row->volume_realization),
-                'rs_total'   => self::sanitizeForXml(ViewHelper::currencyFormat($row->realization))
+                'rs_total'   => self::sanitizeForXml($row->realization ? ViewHelper::currencyFormat($row->realization) : '')
             ];
             $total_all+=$row->realization;
             $number++;

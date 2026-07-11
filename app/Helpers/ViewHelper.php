@@ -184,22 +184,37 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
 
     public static function handleFieldDisabled($application,$is_letter_number =false,$is_report=false) {
         $status =  $application->current_approval_status;
+        $seq_user_approval =  $application->current_seq_user_approval;
         $is_relevan_admin = AuthService::adminHasAccessToApplication($application->department_id);
         if ($is_relevan_admin) return '';
-        if ($status > 5 ) {
-            if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
-                return '';
-            }
-            return 'disabled';
-        }else if($status < 5 && $application->created_by != AuthService::currentAccess()['id']){
-            return 'disabled';
+        $result = 'disabled';
+        switch ($seq_user_approval) {
+            case 1: // pengusul: hanya pembuat pengajuan yang boleh mengedit.
+                if ($application->created_by == AuthService::currentAccess()['id']) {
+                    $result = '';
+                }
+                break;
+            case 5: // pengusul (tahap laporan): pembuat boleh mengedit khusus konteks laporan.
+                if ($application->created_by == AuthService::currentAccess()['id'] && $is_report) {
+                    $result = '';
+                }
+                break;
+            case 4: // kabag: boleh mengedit saat mengisi nomor surat (status 11).
+                if ($status == 11 && AuthService::currentAccess()['role'] == 'kabag' && $is_letter_number) {
+                    $result = '';
+                }
+                break;
+            default:
+                $result = 'disabled';
+                break;
         }
-        return '';
+
+        return $result;
     }
 
     public static function currencyFormat($amount=0  , $type='rupiah')
     {
-        return 'Rp ' . number_format($amount, 0, ',', '.');
+        return 'Rp' . number_format($amount, 0, ',', '.');
     }
     public static function handleConfirmModal($modal_type='')
     {
@@ -257,20 +272,17 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                         }
                 return false;
             case 'approval_process_report':
-             
-
                     if ($app->current_approval_status > 5 && $app->current_approval_status < 11 && $app->currentUserApproval->user_id == AuthService::currentAccess()['id'] && $app->currentUserApproval->trans_type == 2) {
                         return true;
                     }
-
                 return false;
             case 'submit':
-                if ($app->current_approval_status < 6 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
+                if ($app->current_seq_user_approval === 1 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
                     return true;
                 }
                 return false;
             case 'submit-report':
-                if ($app->current_approval_status < 6 && $app->created_by == AuthService::currentAccess()['id']) {
+                if ($app->current_seq_user_approval === 5 && $app->created_by == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;
@@ -287,18 +299,27 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                 }
                 return false;
             case 'admin-submit':
-                if ($admin_has_access && $app->current_approval_status > 11 && $app->current_approval_status < 15) {
+                // if ($admin_has_access && $app->current_approval_status > 11 && $app->current_approval_status < 15) {
+                if ($admin_has_access) {
+                    if (AuthService::currentAccess()['id'] === $app->created_by && $app->current_seq_user_approval === 1) {
+                        return false;
+                    }
                     return true;
                 }
                 return false;
             case 'admin-submit-letter-number':
-                if ($admin_has_access && $app->current_approval_status > 11 && $app->current_approval_status < 15) {
+                // if ($admin_has_access && $app->current_approval_status > 11 && $app->current_approval_status < 15) {
+                if ($admin_has_access) {               
                     return true;
                 }
                 return false;
             case 'admin-submit-report':
-                if ($admin_has_access && $app->current_approval_status > 12 && $app->current_approval_status < 15){
-                    return true;
+                // if ($admin_has_access && $app->current_approval_status > 12 && $app->current_approval_status < 15){
+                //     return true;
+                // }
+                // return false;
+                if ($admin_has_access && AuthService::currentAccess()['id'] === $app->created_by && $app->current_seq_user_approval === 6) {
+                        return true;
                 }
                 return false;
             case 'edit-detail':

@@ -260,75 +260,75 @@
                                                 <div class="col-12">
                                                     <label for="Outcome" class="form-label fw-bold">Hasil
                                                         (Outcome)</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
                                                         wire:model="activity_outcome"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="UnitOfMeasurement" class="form-label fw-bold">Indikator
                                                         kinerja kegiatan</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
                                                         wire:model="performance_indicator"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="Outcome" class="form-label fw-bold">Keluaran
                                                         (Output)</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Outcome"
                                                         wire:model="activity_output"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="UnitOfMeasurement" class="form-label fw-bold">Satuan
                                                         Ukur</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="UnitOfMeasurement"
                                                         wire:model="unit_of_measurment"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="ActivityVolume" class="form-label fw-bold">Volume
                                                         Kegiatan
                                                     </label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="ActivityVolume"
                                                         wire:model="activity_volume"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="GeneralDescription" class="form-label fw-bold">Gambaran
                                                         Umum</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="GeneralDescription"
                                                         wire:model="general_description"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="PurposeAndObjectives" class="form-label fw-bold">Maksud
                                                         dan
                                                         Tujuan</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="PurposeAndObjectives"
                                                         wire:model="objectives"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="Beneficiary" class="form-label fw-bold">Penerima
                                                         Manfaat</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="Beneficiary"
                                                         wire:model="beneficiaries"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="activity_scope" class="form-label fw-bold">Lingkup
                                                         Aktifitas</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_scope"
                                                         wire:model="activity_scope"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="implementation_method" class="form-label fw-bold">
                                                         Metode pelaksanaan</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_method"
                                                         wire:model="implementation_method"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="implementation_stages" class="form-label fw-bold">
                                                         Tahapan pelaksanaan</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="implementation_stages"
                                                         wire:model="implementation_stages"></textarea>
                                                 </div>
                                                 <div class="col-12">
                                                     <label for="activity_location" class="form-label fw-bold"> Lokasi
                                                         Kegiatan</label>
-                                                    <textarea rows="15" {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location"
+                                                    <textarea  {!! viewHelper::handleFieldDisabled($this->application) !!} class="form-control" id="activity_location"
                                                         wire:model="activity_location"></textarea>
                                                 </div>
                                                 <div class="col-12">

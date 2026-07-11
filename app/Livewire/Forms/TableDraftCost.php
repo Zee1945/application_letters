@@ -45,9 +45,15 @@ class TableDraftCost extends Component
         $this->handleDisable = $handleDisable;
 
         // Modelable mengisi $draft_costs dari parent secara otomatis.
-        // Pastikan minimal ada 1 baris kosong jika parent kosong.
-        if (count($this->draft_costs) === 0) {
-            $this->draft_costs = [$this->blankRow];
+        // Jika parent kosong, siapkan 4 baris kosong; baris pertama default code = "mak".
+        if (count($this->draft_costs) < 1) {
+            $firstRow = array_merge($this->blankRow, ['code' => 'MAK']);
+            $this->draft_costs = [
+                $firstRow,
+                $this->blankRow,
+                $this->blankRow,
+                $this->blankRow,
+            ];
         }
     }
 
@@ -90,7 +96,6 @@ class TableDraftCost extends Component
     {
         // $key contoh: "0.volume" atau "2.cost_per_unit"
         [$index, $field] = array_pad(explode('.', $key), 2, null);
-
         if (in_array($field, ['volume', 'cost_per_unit'])) {
             $volume = (float) ($this->draft_costs[$index]['volume'] ?? 0);
             $cost   = (float) ($this->draft_costs[$index]['cost_per_unit'] ?? 0);

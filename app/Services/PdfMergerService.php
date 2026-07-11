@@ -18,6 +18,7 @@ class PdfMergerService
      */
     private ?string $gsBinary = null;
     private bool $gsChecked = false;
+    private int $app_id = 0;
 
     /**
      * Entry point: merge semua lampiran ke dalam LPJ utama.
@@ -26,6 +27,7 @@ class PdfMergerService
     public function mergeLpjWithAttachments(Application $application): string
     {
         $report = $application->report;
+        $this->app_id = $application->id;
 
         $report->update(['merge_status' => 'processing']);
 
@@ -74,6 +76,8 @@ class PdfMergerService
                 'merged_at'      => now(),
                 'merge_error'    => null,
             ]);
+
+            
 
 
             return $outputPath;
@@ -521,6 +525,28 @@ class PdfMergerService
                 @unlink($path);
             }
         }
+        $this->cleanupTempFolder();
+    }
+
+    /**
+     * Hapus folder temp/pdf-merge/{app_id} beserta seluruh isinya.
+     * Dipanggil di finally agar folder tidak menumpuk (merge sukses maupun gagal).
+     */
+    private function cleanupTempFolder(): void
+    {
+        $dir = Storage::disk('local')->path('temp/pdf-merge/'.$this->app_id);
+
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        // Hapus semua isi folder lebih dulu, lalu foldernya.
+        foreach (glob($dir . DIRECTORY_SEPARATOR . '*') ?: [] as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+        @rmdir($dir);
     }
 
     /**
@@ -529,8 +555,7 @@ class PdfMergerService
      */
     private function tempPath(string $filename): string
     {
-        $dir = Storage::disk('local')->path('temp/pdf-merge');
-
+        $dir = Storage::disk('local')->path('temp/pdf-merge/'.$this->app_id.'/');
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
