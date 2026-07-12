@@ -235,10 +235,15 @@ class PdfMergerService
     private function buildDataPersonalSection(Application $application, array &$tempFiles): array
     {
         $participants = $application->participants()
-            ->whereNotNull('cv_file_id')
-            ->orWhereNotNull('idcard_file_id')
-            ->orWhereNotNull('npwp_file_id')
-            // ->orWhereNotNull('material_file_id')
+            ->where(function ($q) {
+                // Bungkus dalam grup agar OR tidak "memutus" constraint application_id
+                // dari relasi participants() — kalau tidak, peserta application lain
+                // yang punya idcard/npwp ikut terambil & bocor ke LPJ ini.
+                $q->whereNotNull('cv_file_id')
+                  ->orWhereNotNull('idcard_file_id')
+                  ->orWhereNotNull('npwp_file_id');
+                // ->orWhereNotNull('material_file_id')
+            })
             ->with(['cvFile', 'idcardFile', 'npwpFile'])
             // ->with(['cvFile', 'idcardFile', 'npwpFile','materialFile'])
             ->get();
