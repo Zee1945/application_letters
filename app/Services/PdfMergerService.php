@@ -492,6 +492,11 @@ class PdfMergerService
     {
         $fpdi = new Fpdi();
 
+        // Ukuran kertas acuan = halaman pertama LPJ (section pertama). Semua halaman
+        // lampiran diseragamkan ke ukuran ini; konten di-scale-to-fit (rasio terjaga,
+        // ditaruh di tengah) sehingga halaman landscape pun muat tanpa terpotong.
+        $targetSize = null;
+
         foreach ($pdfPaths as $pdfPath) {
             if (!file_exists($pdfPath)) {
                 Log::warning("File tidak ditemukan saat merge: {$pdfPath}, skip.");
@@ -508,9 +513,28 @@ class PdfMergerService
                 $pageCount = $fpdi->setSourceFile($pdfPath);
                 for ($i = 1; $i <= $pageCount; $i++) {
                     $tpl  = $fpdi->importPage($i);
-                    $size = $fpdi->getTemplateSize($tpl);
-                    $fpdi->AddPage($size['width'] > $size['height'] ? 'L' : 'P', [$size['width'], $size['height']]);
-                    $fpdi->useTemplate($tpl);
+                    $size = $fpdi->getTemplateSize($tpl); // ['width','height','orientation']
+
+                    // Ambil ukuran acuan dari halaman pertama yang berhasil diimpor (LPJ).
+                    if ($targetSize === null) {
+                        $targetSize = ['width' => $size['width'], 'height' => $size['height']];
+                    }
+
+                    $targetW = $targetSize['width'];
+                    $targetH = $targetSize['height'];
+
+                    $orientation = $targetW > $targetH ? 'L' : 'P';
+                    $fpdi->AddPage($orientation, [$targetW, $targetH]);
+
+                    // Scale-to-fit: perkecil konten agar muat penuh dalam kertas acuan,
+                    // pertahankan rasio, lalu tempatkan di tengah (letterbox).
+                    $scale = min($targetW / $size['width'], $targetH / $size['height']);
+                    $drawW = $size['width'] * $scale;
+                    $drawH = $size['height'] * $scale;
+                    $offsetX = ($targetW - $drawW) / 2;
+                    $offsetY = ($targetH - $drawH) / 2;
+
+                    $fpdi->useTemplate($tpl, $offsetX, $offsetY, $drawW, $drawH);
                 }
             } catch (\Throwable $e) {
                 Log::warning("Gagal import PDF {$pdfPath}: " . $e->getMessage() . ", skip halaman ini.");
