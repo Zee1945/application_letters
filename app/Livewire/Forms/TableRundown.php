@@ -212,8 +212,6 @@ class TableRundown extends Component
             }
 
             if (!empty($row['moderator_text'])) {
-                Log::info($row);
-                Log::info($this->participant_types);
                 $row['moderator_text'] = explode(';', $row['moderator_text']);
                 $matched_mod = array_filter($this->participant_types, function($pt){
                             return $pt['slug'] === 'moderator';

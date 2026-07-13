@@ -154,9 +154,7 @@ class TableSpeakerInformations extends Component
         // Pastikan kolom ada dalam array
         if (array_key_exists($column, $this->rows[$index])) {
             // Set nilai kolom menjadi null
-            $this->rows[$index][$column] = null;
-            
-            Log::info("Nilai kolom '{$column}' pada index {$index} berhasil dihapus");
+            $this->rows[$index][$column] = null;            
         } else {
             Log::warning("Kolom '{$column}' tidak ditemukan pada index {$index}");
         }

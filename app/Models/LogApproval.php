@@ -44,8 +44,6 @@ class LogApproval extends Model
         $role = Role::find($role_id);
         $app = Application::find($app_id);
         $user = User::rolePosition($role->name,$app->department_id)->first();
-        // Log::info('pas user => ',$user->toArray());
-        // dd($user);
         return $query->where('user_id',$user->id)->where('application_id',$app_id)->where('trans_type',$trans_type)->where('department_id',$this->getIdDepartment($app->department,$role->name));
     }
 

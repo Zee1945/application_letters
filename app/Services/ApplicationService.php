@@ -1407,7 +1407,6 @@ public static function getListReport($search = '', $status_approval = '', $depar
                                         $participant->$column = null;
                                         $participant->save();
 
-                                        Log::info("Kolom {$column} berhasil diupdate menjadi null untuk participant ID {$participant->id}");
                                         break; // Keluar dari loop setelah menemukan kolom yang sesuai
                                     }
                                 }
@@ -1425,7 +1424,7 @@ public static function getListReport($search = '', $status_approval = '', $depar
                 $path = $file->path;
                 if ($file->delete()) {
                     Storage::disk('minio')->delete($path);
-                    Log::info("File berhasil dihapus dari database dan MinIO.", ['file_path' => $file->path]);
+                    Log::info("File berhasil dihapus dari database dan di storage.", ['file_path' => $file->path]);
                 } else {
                     Log::warning("File gagal dihapus dari database.", ['file_id' => $file->id]);
                 }
