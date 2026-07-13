@@ -700,8 +700,18 @@ case 'surat_permohonan_moderator':
         if (!empty($get_recipient->name) && !empty($get_recipient->institution)) {
             $field = $participant_type_name == 'Narasumber' ? 'speaker_text' : ($participant_type_name == 'Moderator' ? 'moderator_text' : null);
             if ($field) {
-                $search = $get_recipient->name . '-' . $get_recipient->institution;
-                $get_session_schedule = $application->schedules()->where($field, 'LIKE', "%$search%")->get();
+                $search_q1 = $get_recipient->name . '-' . $get_recipient->institution;
+                $search_q2 = $get_recipient->name . '###' . ($get_recipient->institution ?? 'null').'###'.$get_recipient->participant_type_id;
+                // Bungkus OR dalam grup agar constraint application_id (dari relasi
+                // schedules()) tetap berlaku ke kedua cabang — kalau tidak, jadwal
+                // application lain yang officer_text-nya cocok ikut terambil.
+                $get_session_schedule = $application->schedules()
+                    ->where(function ($q) use ($field, $search_q1, $search_q2) {
+                        $q->where($field, 'LIKE', "%$search_q1%")
+                          ->orWhere('officer_text', 'LIKE', "%$search_q2%");
+                    })
+                    ->get();
+                
             }
         }
 
