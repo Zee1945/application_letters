@@ -877,11 +877,13 @@ case 'surat_permohonan_moderator':
         // tables
 
 $mapped_data = array_map(function($item) use($participant_type){
-    $new_name = self::sanitizeForXml($item[$participant_type.'_no'].'. '.$item[$participant_type.'_name']);
-    $item[$participant_type.'_name'] = $new_name;
-    $item['nip'] = self::sanitizeForXml('   NIP. '.$item[$participant_type.'_nip']);
-    $item['rank'] = self::sanitizeForXml($item[$participant_type.'_rank']);
-    $item['functional_position'] = self::sanitizeForXml($item[$participant_type.'_functional_position']);
+    // JANGAN sanitize ulang: _name sudah di-sanitizeForXml di generateTableParticipant.
+    // Sanitize ganda menyebabkan double-encoding (mis. " -> &quot; -> &amp;quot;),
+    // sehingga entitas HTML muncul sebagai teks literal di dokumen.
+    $item[$participant_type.'_name'] = $item[$participant_type.'_no'].'. '.$item[$participant_type.'_name'];
+    $item['nip'] = '   NIP. '.$item[$participant_type.'_nip'];
+    $item['rank'] = $item[$participant_type.'_rank'];
+    $item['functional_position'] = $item[$participant_type.'_functional_position'];
     $item['space'] = '.';
     unset($item[$participant_type.'_no']);
     unset($item[$participant_type.'_institution']);
