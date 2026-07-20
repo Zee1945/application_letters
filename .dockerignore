@@ -1,13 +1,28 @@
-# Ignore sistem file dan log
+# Sistem & IDE
 .DS_Store
 Thumbs.db
-
-# Ignore folder git
-.git
-
-# Ignore node_modules
-node_modules
-
-# Ignore log dan file IDE
-*.log
 .vscode/
+.idea/
+
+# Git
+.git
+.gitignore
+
+# Dependencies (di-install ulang saat build)
+node_modules
+vendor
+
+# Aset Vite di-build ulang di stage `assets` Dockerfile — jangan pakai versi host.
+public/build
+public/hot
+
+# Env host (JANGAN ikut ke image; container pakai .env.docker via env_file).
+# .env.docker sengaja TIDAK di-ignore.
+.env
+.env.backup
+backup_env.txt
+
+# Log & cache
+*.log
+storage/logs/*
+bootstrap/cache/*.php

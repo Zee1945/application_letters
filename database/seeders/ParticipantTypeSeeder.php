@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ParticipantType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ParticipantTypeSeeder extends Seeder
 {
@@ -21,9 +22,12 @@ class ParticipantTypeSeeder extends Seeder
             'Anggota',
         ];
         foreach ($activeParticipantTypes as $type) {
-            if (!ParticipantType::where('name', $type)->exists()) {
-                ParticipantType::create(['name' => $type]);
-            }
+            // updateOrCreate: idempoten sekaligus mengisi slug pada data lama
+            // yang mungkin dibuat sebelum kolom slug ada.
+            ParticipantType::updateOrCreate(
+                ['name' => $type],
+                ['slug' => Str::slug($type)]
+            );
         }
     }
 }

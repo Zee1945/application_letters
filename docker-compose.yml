@@ -1,22 +1,28 @@
-version: "3.9"
-
 services:
-  # PHP-FPM + Laravel
+  # PHP-FPM + Laravel (php-fpm, queue worker, scheduler via supervisor)
   app:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: laravel_app
-    expose: 
-      - 9000
+    restart: unless-stopped
+    expose:
+      - "9000"
+    env_file:
+      - .env.docker
     volumes:
-      - .:/var/www/html
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
+      # Production-like: source ikut di image (tidak di-mount).
+      # Hanya storage & log yang persist agar file upload/log tidak hilang saat rebuild.
+      - app_storage:/var/www/html/storage
+      # Bagikan public/ ke nginx (diisi dari image app saat start).
+      - app_public:/var/www/html/public
     depends_on:
-      - db
-      - minio
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      onlyoffice:
+        condition: service_started
     networks:
       - laravel
 
@@ -24,12 +30,13 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx_server
+    restart: unless-stopped
     ports:
-      - "80:80"
-      # - "9003:9003"
+      - "8000:80"
     volumes:
-      - .:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # public/ diperlukan nginx untuk serve aset statis & index.php.
+      - app_public:/var/www/html/public:ro
     depends_on:
       - app
     networks:
@@ -39,16 +46,21 @@ services:
   db:
     image: mysql:8.0
     container_name: mysql_db
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: application_letters
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root123
       MYSQL_USER: sirapel
       MYSQL_PASSWORD: sirapel123
     volumes:
       - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - laravel
 
@@ -56,10 +68,12 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    restart: always
+    restart: unless-stopped
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root123
+      # Naikkan batas upload SQL (default phpMyAdmin ~2M). Untuk import file besar.
+      UPLOAD_LIMIT: 80M
     ports:
       - "8080:80"
     depends_on:
@@ -71,13 +85,11 @@ services:
   minio:
     image: minio/minio
     container_name: minio
+    restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_DEFAULT_BUCKETS: applicationletters
-      MINIO_DEFAULT_REGION: us-east-1
-      MINIO_USE_PATH_STYLE_ENDPOINT: true
     ports:
       - "9003:9000"
       - "9004:9001"
@@ -86,23 +98,48 @@ services:
     networks:
       - laravel
 
-  # OnlyOffice
+  # Membuat bucket default di MinIO sekali jalan.
+  minio-createbucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin) do echo 'menunggu minio...' && sleep 2; done;
+      /usr/bin/mc mb --ignore-existing local/applicationletters;
+      /usr/bin/mc anonymous set download local/applicationletters;
+      exit 0;
+      "
+    networks:
+      - laravel
+
+  # OnlyOffice Document Server
   onlyoffice:
     image: onlyoffice/documentserver
     container_name: onlyoffice
+    restart: unless-stopped
     environment:
       JWT_ENABLED: "false"
-    restart: always
+      # Izinkan OnlyOffice mengunduh dokumen dari IP privat (MinIO ada di network
+      # Docker internal, mis. 172.18.x). Entrypoint OnlyOffice menyuntik
+      # allowPrivateIPAddress=true ke local.json secara in-place (tanpa menimpa
+      # konfig internal). Tanpa ini, converter menolak dengan error -4.
+      ALLOW_PRIVATE_IP_ADDRESS: "true"
+      ALLOW_META_IP_ADDRESS: "true"
     ports:
       - "8010:80"
-    networks:
-      - laravel
     volumes:
       - ./docker/onlyoffice/fonts:/usr/share/fonts/truetype/custom
+      - onlyoffice_data:/var/www/onlyoffice/Data
+    networks:
+      - laravel
 
 volumes:
   db_data:
   minio_data:
+  onlyoffice_data:
+  app_storage:
+  app_public:
 
 networks:
   laravel:
