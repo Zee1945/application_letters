@@ -7,7 +7,7 @@
     <div class="wrapper">
         <!--sidebar wrapper -->
         @include('layouts.navbar')
-        <div class="sidebar-wrapper" data-simplebar="true" style="background-color: rgb(175, 238, 235)">
+        <div class="sidebar-wrapper" data-simplebar="true">
             @include('layouts.sidebar')
         </div>
         <!--end sidebar wrapper -->

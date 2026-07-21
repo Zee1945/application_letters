@@ -29,7 +29,7 @@
                 <a href="/" wire:navigate class="d-flex justify-content-center align-items-center mb-2">
                     <x-application-logo :width="60"/>
                 </a>
-                <h2 class="logo-text fw-bold text-primary mb-1" style="letter-spacing: 2px;">SIRAPEL <span class="text-danger">[TESTING]</span></h2>
+                <h2 class="logo-text fw-bold text-primary mb-1" style="letter-spacing: 2px;">SIRAPEL</h2>
                 <span class="text-center text-secondary mb-0" style="font-size: 0.8rem;">
                     <h4 class="text-dark pb-0 mb-0">Selamat Datang!</h4>
                     <span class="text-grey pt-0 mt-0">Silakan login untuk mengakses layanan pengajuan surat dan pelaporan Anda.</span>

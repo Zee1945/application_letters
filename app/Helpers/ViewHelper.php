@@ -323,7 +323,7 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                 }
                 return false;
             case 'edit-detail':
-                if ($admin_has_access && $app->current_approval_status > 11 && $app->current_approval_status < 15){
+                if ($admin_has_access){
                     return true;
                 }
                 $kabag_user_id_kabag = User::rolePosition('kabag',$app->department_id)->first()->id;

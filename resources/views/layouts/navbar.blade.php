@@ -4,7 +4,6 @@
                         <nav class="navbar navbar-expand gap-2 align-items-center">
                             <div class="mobile-toggle-menu d-flex"><i class='bx bx-menu'></i>
                             </div>
-                                <h5 class="text-danger text-center">[TESTING]</h5>
 
 
 
