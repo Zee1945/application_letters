@@ -362,7 +362,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
@@ -481,7 +481,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
@@ -599,7 +599,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         // tables
             $templateProcessor->cloneRowAndSetValues($participant_type.'_name', $table_participants);
@@ -744,7 +744,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
@@ -870,7 +870,7 @@ case 'surat_permohonan_moderator':
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
@@ -987,7 +987,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
@@ -1104,7 +1104,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('activity_lenght_hours', self::sanitizeForXml(self::getRundownTimeRanges($application->schedules)));
 
@@ -1217,7 +1217,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signer_name_without_degree', self::sanitizeForXml(strtoupper($getSigner->user->name_without_degree)));
         $templateProcessor->setValue('signer_position_uppercase', self::sanitizeForXml(strtoupper($metadata_signer['Jabatan'])));
         $templateProcessor->setValue('signer_name_uppercase', self::sanitizeForXml(strtoupper($metadata_signer['Nama'])));
@@ -1378,7 +1378,7 @@ foreach ($new_data as $index => $item) {
         $templateProcessor->setValue('signed_location', self::sanitizeForXml($metadata_signer['Lokasi']));
         $templateProcessor->setValue('signed_date', self::sanitizeForXml($metadata_signer['Tgl_cetak']));
         $templateProcessor->setValue('signer_position', self::sanitizeForXml($metadata_signer['Jabatan']));
-        $templateProcessor->setValue('signer_name', self::sanitizeForXml($metadata_signer['Nama']));
+        $templateProcessor->setValue('signer_name', $metadata_signer['Nama']);
         $templateProcessor->setValue('signed_status', self::sanitizeForXml($metadata_signer['status_surat']));
         $templateProcessor->setValue('total_all', self::sanitizeForXml($get_draft_cost['total_all']));
         $templateProcessor->setValue('rs_total_all', self::sanitizeForXml($get_realization['rs_total_all']));
