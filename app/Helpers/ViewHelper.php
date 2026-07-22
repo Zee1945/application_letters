@@ -318,7 +318,8 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                 //     return true;
                 // }
                 // return false;
-                if ($admin_has_access && AuthService::currentAccess()['id'] === $app->created_by && $app->current_seq_user_approval === 6) {
+                // if ($admin_has_access && AuthService::currentAccess()['id'] === $app->created_by && $app->current_seq_user_approval === 6) {
+                if ($admin_has_access) {
                         return true;
                 }
                 return false;
