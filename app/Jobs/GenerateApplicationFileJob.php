@@ -16,6 +16,7 @@ class GenerateApplicationFileJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
+    public $timeout = 300; 
 
      protected $application;
     public function __construct($application)
