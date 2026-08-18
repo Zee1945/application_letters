@@ -277,7 +277,7 @@ public static function humanReadableDate($date_time, $is_with_day = true, $is_sh
                     }
                 return false;
             case 'submit':
-                if ($app->current_seq_user_approval === 1 && $app->created_by == AuthService::currentAccess()['id'] && $quota_remaining > 0) {
+                if ($app->current_seq_user_approval === 1 && $app->created_by == AuthService::currentAccess()['id']) {
                     return true;
                 }
                 return false;
